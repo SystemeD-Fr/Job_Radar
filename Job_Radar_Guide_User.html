@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Radar — Guide Utilisateur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080E1B;--surface:#0F1929;--card:#172033;--card2:#1C2840;--border:#243050;--cyan:#22D3EE;--cyan-s:rgba(34,211,238,.1);--green:#34D399;--green-s:rgba(52,211,153,.1);--amber:#FCD34D;--amber-s:rgba(252,211,77,.1);--red:#F87171;--red-s:rgba(248,113,113,.1);--purple:#A78BFA;--purple-s:rgba(167,139,250,.1);--text:#F1F5F9;--dim:#64748B;--dim2:#94A3B8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:15px;}
+.topnav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,14,27,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:0;}
+.nav-brand{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;color:var(--cyan);margin-right:28px;white-space:nowrap;}
+.stepsnav{display:flex;align-items:center;gap:0;}
+.sni{display:flex;align-items:center;gap:7px;color:var(--dim);font-size:0.8rem;font-weight:500;text-decoration:none;padding:7px 11px;border-radius:6px;transition:.15s;white-space:nowrap;}
+.sni:hover{color:var(--text);background:var(--card);}
+.sni.active{color:var(--cyan);}
+.sni-num{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;flex-shrink:0;}
+.sep{color:var(--border);padding:0 3px;font-size:1.1rem;}
+.page{max-width:840px;margin:0 auto;padding:76px 28px 80px;}
+.hero{padding:44px 0 52px;text-align:center;}
+.eyebrow{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.eyebrow::before,.eyebrow::after{content:'';flex:1;max-width:60px;height:1px;background:var(--border);}
+.hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:2.9rem;font-weight:800;line-height:1.1;margin-bottom:18px;}
+.hero h1 span{color:var(--cyan);}
+.hero-lead{color:var(--dim2);font-size:1.02rem;max-width:560px;margin:0 auto 28px;}
+.flow{display:flex;align-items:center;justify-content:center;gap:0;margin:36px 0;}
+.fstep{text-align:center;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:12px;flex:1;max-width:190px;}
+.fstep-icon{font-size:1.8rem;margin-bottom:8px;}
+.fstep-num{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--cyan);color:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:0.75rem;line-height:24px;margin-bottom:8px;}
+.fstep-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.88rem;}
+.fstep-sub{font-size:0.76rem;color:var(--dim);margin-top:3px;}
+.farrow{color:var(--border);font-size:1.4rem;padding:0 6px;flex-shrink:0;}
+.ph{display:flex;align-items:center;gap:14px;margin:56px 0 28px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.pb{width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+.pb-c{background:var(--cyan-s);border:1px solid rgba(34,211,238,.2);}
+.pb-p{background:var(--purple-s);border:1px solid rgba(167,139,250,.2);}
+.pb-g{background:var(--green-s);border:1px solid rgba(52,211,153,.2);}
+.pb-a{background:var(--amber-s);border:1px solid rgba(252,211,77,.2);}
+.plabel{font-size:0.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:2px;}
+.ptitle{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;}
+.psub{font-family:'Plus Jakarta Sans',sans-serif;font-size:.98rem;font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:8px;}
+.psub::after{content:'';flex:1;height:1px;background:var(--border);max-width:180px;}
+p{color:#94A3B8;margin-bottom:14px;}
+strong{color:var(--text);}
+.anchor{display:block;position:relative;top:-80px;visibility:hidden;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin:10px 0;}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+.card h4{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+.card p{font-size:.86rem;margin:0;}
+.tip{border-radius:10px;padding:13px 17px;margin:16px 0;border-left:3px solid;font-size:.875rem;}
+.tc{background:var(--cyan-s);border-color:var(--cyan);}
+.tg{background:var(--green-s);border-color:var(--green);}
+.ta{background:var(--amber-s);border-color:var(--amber);}
+.tr{background:var(--red-s);border-color:var(--red);}
+.tp{background:var(--purple-s);border-color:var(--purple);}
+.tl{font-weight:700;margin-bottom:4px;font-size:.84rem;}
+.tc .tl{color:var(--cyan);}
+.tg .tl{color:var(--green);}
+.ta .tl{color:var(--amber);}
+.tr .tl{color:var(--red);}
+.tp .tl{color:var(--purple);}
+.sr{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin:14px 0;}
+.sri{flex:1;padding:14px;text-align:center;}
+.srg{background:var(--green-s);border-right:1px solid var(--border);}
+.sra{background:var(--amber-s);border-right:1px solid var(--border);}
+.srr{background:var(--red-s);}
+.srn{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.05rem;}
+.srg .srn{color:var(--green);}
+.sra .srn{color:var(--amber);}
+.srr .srn{color:var(--red);}
+.srl{font-size:.77rem;color:var(--dim2);margin-top:3px;}
+.srac{font-size:.74rem;font-weight:600;margin-top:5px;}
+.srg .srac{color:var(--green);}
+.sra .srac{color:var(--amber);}
+.srr .srac{color:var(--red);}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+.cgood{background:var(--green-s);border:1px solid rgba(52,211,153,.2);border-radius:10px;padding:14px;}
+.cbad{background:var(--red-s);border:1px solid rgba(248,113,113,.2);border-radius:10px;padding:14px;}
+.clabel{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.cgood .clabel{color:var(--green);}
+.cbad .clabel{color:var(--red);}
+.ccontent{font-size:.84rem;color:var(--dim2);line-height:1.7;}
+.ccontent strong{color:var(--text);}
+.cvb{background:var(--card);border:1px solid var(--border);border-radius:12px;margin:18px 0;overflow:hidden;}
+.cvbh{display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid var(--border);background:var(--card2);}
+.cvbt{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--amber);font-weight:500;background:rgba(252,211,77,.08);border:1px solid rgba(252,211,77,.2);padding:3px 9px;border-radius:6px;}
+.cvbt.cr{color:var(--red);background:var(--red-s);border-color:rgba(248,113,113,.2);}
+.cvbb2{margin-left:auto;font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:10px;}
+.bi{background:rgba(34,211,238,.1);color:var(--cyan);border:1px solid rgba(34,211,238,.2);}
+.bc{background:var(--red-s);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+.cvbd{padding:16px 18px;}
+.cvbdesc{font-size:.88rem;color:var(--dim2);margin-bottom:12px;}
+.cvbex{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:13px 15px;font-size:.82rem;color:var(--dim2);line-height:1.85;white-space:pre-wrap;}
+.cvbex strong{color:#7DD3FC;}
+.cvbex em{color:var(--green);font-style:normal;}
+.em{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);margin:22px 0;font-family:'Segoe UI',Arial,sans-serif;}
+.emh{background:#1e3a8a;color:white;text-align:center;padding:18px;font-size:1.05rem;font-weight:bold;}
+.ems{font-size:.78rem;color:rgba(255,255,255,.7);margin-top:3px;}
+.emb{background:#f4f6f9;padding:18px;}
+.emst{font-size:1.05rem;font-weight:bold;color:#1f2937;border-bottom:2px solid;padding-bottom:7px;margin:18px 0 12px;}
+.emstg{border-color:#10b981;color:#065f46;}
+.emsta{border-color:#f59e0b;color:#92400e;}
+.emc{background:white;border-radius:8px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.06);overflow:hidden;}
+.emct{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 14px 9px;border-bottom:1px solid #e5e7eb;border-left:5px solid #10b981;}
+.emct.a{border-left-color:#f59e0b;}
+.emcti{font-weight:bold;color:#1f2937;font-size:.92rem;}
+.emcid{font-family:monospace;font-size:.66rem;color:#94a3b8;margin-top:2px;background:#f8fafc;padding:2px 5px;border-radius:3px;border:1px solid #e2e8f0;}
+.emsc{background:#10b981;color:white;border-radius:14px;padding:4px 11px;font-weight:bold;font-size:.82rem;white-space:nowrap;}
+.emsc.a{background:#f59e0b;}
+.emm{padding:7px 14px;display:flex;flex-wrap:wrap;gap:10px;font-size:.76rem;color:#6b7280;}
+.ema{padding:9px 14px;background:#f9fafb;font-size:.76rem;color:#4b5563;border-top:1px solid #f3f4f6;line-height:1.6;}
+.eal{display:flex;gap:5px;margin-bottom:2px;}
+.ean{color:#94a3b8;min-width:18px;font-size:.73rem;}
+.eak{font-weight:600;color:#374151;min-width:95px;font-size:.73rem;}
+.eav{color:#4b5563;font-size:.73rem;}
+.emlink{display:inline-block;background:#1e3a8a;color:white;padding:5px 11px;border-radius:4px;font-size:.73rem;font-weight:600;margin:7px 14px 11px;}
+.plist{display:flex;flex-direction:column;gap:9px;margin:14px 0;}
+.pi{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+.pinum{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:.77rem;color:white;margin-top:1px;}
+.pib h4{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.88rem;margin-bottom:2px;}
+.pib p{font-size:.82rem;color:var(--dim2);margin:0;}
+.og{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+.oc{border-radius:10px;padding:14px;border:1px solid;}
+.of{background:var(--amber-s);border-color:rgba(252,211,77,.2);}
+.om{background:var(--purple-s);border-color:rgba(167,139,250,.2);}
+.ot{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.88rem;margin-bottom:8px;}
+.of .ot{color:var(--amber);}
+.om .ot{color:var(--purple);}
+.ol{list-style:none;}
+.ol li{font-size:.82rem;color:var(--dim2);padding:3px 0 3px 13px;position:relative;}
+.ol li::before{content:'→';position:absolute;left:0;font-weight:700;}
+.of .ol li::before{color:var(--amber);}
+.om .ol li::before{color:var(--purple);}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.875rem;}
+th{background:var(--card2);text-align:left;padding:9px 13px;border-bottom:1px solid var(--border);font-family:'Plus Jakarta Sans',sans-serif;font-size:.73rem;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);}
+td{padding:9px 13px;border-bottom:1px solid rgba(36,48,80,.5);color:#94A3B8;vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+.lm{background:#1B1F2E;border:1px solid #2E3352;border-radius:10px;overflow:hidden;margin:18px 0;}
+.lmb{background:#242840;padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #2E3352;}
+.lmbd{width:10px;height:10px;border-radius:50%;}
+.lmbt{color:#E8ECF4;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;}
+.lmbody{padding:14px;}
+.lmr{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:7px;margin-bottom:5px;background:#1E2238;border:1px solid #2E3352;}
+.lmck{width:15px;height:15px;border-radius:4px;border:2px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.58rem;}
+.lmck.on{border-color:#4F8EF7;background:#4F8EF7;color:white;}
+.lmck.off{border-color:#565F89;}
+.lmn{color:#E8ECF4;font-family:'Inter',sans-serif;font-size:.83rem;flex:1;}
+.lmba{display:flex;gap:5px;}
+.lmbg{font-size:.68rem;color:#2ECC71;}
+.lmra{display:flex;gap:8px;}
+.lmrb{font-size:.72rem;padding:2px 9px;border-radius:9px;border:1px solid #2E3352;color:#7A8099;}
+.lmrb.sel{background:rgba(79,142,247,.15);border-color:rgba(79,142,247,.4);color:#4F8EF7;}
+.lmbtn{margin-top:12px;background:#4F8EF7;color:white;border:none;padding:7px 18px;border-radius:6px;font-family:'Inter',sans-serif;font-size:.83rem;font-weight:600;width:100%;}
+hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
+@media(max-width:700px){.cg,.compare,.og{grid-template-columns:1fr;}.hero h1{font-size:2.1rem;}.flow{flex-direction:column;gap:10px;}.farrow{transform:rotate(90deg);}.sep,.sni span:not(.sni-num){display:none;}.sr{flex-direction:column;}}
+
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="nav-brand">🎯 Job Radar</div>
+  <div class="stepsnav">
+    <a href="#config" class="sni"><span class="sni-num">1</span><span>Recherche</span></a>
+    <span class="sep">›</span>
+    <a href="#cv" class="sni"><span class="sni-num">2</span><span>Mon CV IA</span></a>
+    <span class="sep">›</span>
+    <a href="#lancer" class="sni"><span class="sni-num">3</span><span>Lancer</span></a>
+    <span class="sep">›</span>
+    <a href="#rapport" class="sni"><span class="sni-num">4</span><span>Mon rapport</span></a>
+    <span class="sep">›</span>
+    <a href="#optimiser" class="sni"><span class="sni-num">5</span><span>Optimiser</span></a>
+  </div>
+</nav>
+
+<div class="page">
+
+<section class="hero">
+  <div class="eyebrow">Guide utilisateur</div>
+  <h1>Votre <span>veille d'emploi</span><br>pilotée par l'IA</h1>
+  <p class="hero-lead">Chaque matin, Job Radar parcourt des centaines d'offres, les compare à votre profil, et vous envoie uniquement celles qui méritent votre attention — avec une analyse complète pour chacune.</p>
+  <div class="flow">
+    <div class="fstep"><div class="fstep-icon">⚙️</div><div class="fstep-num">1</div><div class="fstep-title">Configurer</div><div class="fstep-sub">Vos critères &amp; CV IA</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="fstep-icon">🚀</div><div class="fstep-num">2</div><div class="fstep-title">Lancer</div><div class="fstep-sub">En deux clics</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="fstep-icon">📨</div><div class="fstep-num">3</div><div class="fstep-title">Recevoir</div><div class="fstep-sub">Votre rapport email</div></div>
+  </div>
+  <div class="tip tc">
+    <div class="tl">🕐 Combien de temps ?</div>
+    La configuration initiale prend <strong>30 à 45 minutes</strong>, dont la majorité pour rédiger votre profil CV pour l'IA. C'est l'effort unique. Ensuite, chaque veille prend 2 clics.
+  </div>
+</section>
+
+<a class="anchor" id="config"></a>
+<div class="ph">
+  <div class="pb pb-c">⚙️</div>
+  <div>
+    <div class="plabel">Étape 1 — Config_Radar.py · Onglet Config</div>
+    <div class="ptitle">Configurer votre recherche</div>
+  </div>
+</div>
+
+<p>Ouvrez <strong>Config_Radar.py</strong> et allez dans l'onglet <strong>⚙️ Config Radar</strong>. Sélectionnez votre profil dans le menu déroulant en haut, ou créez-en un avec <strong>➕ Nouveau profil</strong>.</p>
+
+<div class="psub">Score minimum</div>
+<p>C'est le seuil de pertinence. L'IA note chaque offre sur 100. En-dessous de ce seuil, l'offre apparaît dans votre rapport dans la section orange "faible score" — elle n'est pas perdue, juste classée différemment.</p>
+
+<div class="sr">
+  <div class="sri srg"><div class="srn">Score Min → 100</div><div class="srl">Score élevé</div><div class="srac">✅ Postulez en priorité</div></div>
+  <div class="sri srr"><div class="srn">&lt; score_min</div><div class="srl">Score faible</div><div class="srac">📋 Peu pertinent</div></div>
+</div>
+
+<div class="tip ta"><div class="tl">💡 Quelle valeur choisir ?</div>Débutez avec <strong>65</strong> pour un large filet. Montez à <strong>75</strong> si vous recevez trop d'offres peu pertinentes. En dessous de 55, vous recevrez des offres très éloignées de votre profil. Vous retrouverez dans le rapport toutes les offres, quelques soit leur score. </div>
+
+<div class="psub">Email destinataire</div>
+<p>L'adresse à laquelle vous souhaitez recevoir votre rapport. Vérifiez qu'elle est correcte — c'est la seule façon de recevoir vos résultats par email.</p>
+
+<div class="psub">Départements</div>
+<p>Cochez les départements dans lesquels vous cherchez. L'interface affiche en temps réel les codes pour France Travail et les noms pour Adzuna.</p>
+<div class="tip tc"><div class="tl">🗺️ Île-de-France complète</div>Cochez : <strong>75</strong> Paris · <strong>92</strong> Hauts-de-Seine · <strong>93</strong> Seine-Saint-Denis · <strong>94</strong> Val-de-Marne · <strong>91</strong> Essonne · <strong>78</strong> Yvelines · <strong>95</strong> Val-d'Oise · <strong>77</strong> Seine-et-Marne.</div>
+
+<div class="psub">Mots-clés de recherche</div>
+<p>Un mot-clé par ligne. Chaque ligne est une recherche indépendante sur les deux plateformes. Le script cherche les offres dont le <strong>titre contient tous vos mots</strong>.</p>
+
+<div class="compare">
+  <div class="cgood">
+    <div class="clabel">✅ Exemples efficaces</div>
+    <div class="ccontent"><strong>Data Analyst</strong><br><strong>Business Analyst</strong><br><strong>Chef de projet data</strong><br><strong>Chargé études marketing</strong><br><strong>Consultant BI</strong></div>
+  </div>
+  <div class="cbad">
+    <div class="clabel">❌ Exemples à éviter</div>
+    <div class="ccontent"><strong>Analyst</strong> — trop vague, des centaines de résultats hors sujet<br><br><strong>Data Analyst Senior très expérimenté Paris</strong> — trop restrictif, peu d'offres auront ces mots exacts dans le titre</div>
+  </div>
+</div>
+
+<div class="tip tp"><div class="tl">🧠 Stratégie mots-clés</div>Visez des intitulés de 2 à 3 mots, fidèles aux titres de postes que vous voyez dans vos recherches manuelles sur LinkedIn ou Indeed. Reproduisez les termes réels utilisés par les recruteurs.</div>
+
+<div class="psub">Blacklist — mots interdits</div>
+<p>Un terme par ligne, en majuscules. Toute offre dont le titre contient un de ces termes est exclue <strong>avant</strong> l'analyse IA. Elle reste visible dans la section rouge de votre rapport.</p>
+
+<div class="cg">
+  <div class="card"><h4>🚫 Contrats non souhaités</h4><p>STAGE · ALTERNANCE · APPRENTI · CDD · FREELANCE · INTERIM</p></div>
+  <div class="card"><h4>🚫 Niveaux non adaptés</h4><p>JUNIOR · DEBUTANT · BAC+2 · ENTRY LEVEL · STAGIAIRE</p></div>
+  <div class="card"><h4>🚫 Secteurs à exclure</h4><p>GRANDE DISTRIBUTION · FAST FOOD · RESTAURATION</p></div>
+  <div class="card"><h4>🚫 Autres exemples</h4><p>FORMATEUR · ENSEIGNANT · PROFESSEUR · VACATAIRE</p></div>
+</div>
+
+<div class="tip tg"><div class="tl">✅ Pensez à sauvegarder</div>Cliquez sur <strong>💾 SAUVEGARDER LE FICHIER SÉLECTIONNÉ</strong> après chaque modification. La configuration est stockée dans iCloud et synchronisée automatiquement.</div>
+
+<a class="anchor" id="cv"></a>
+<hr>
+<div class="ph">
+  <div class="pb pb-p">👤</div>
+  <div>
+    <div class="plabel">Étape 2 — Config_Radar.py · Onglet CV pour IA</div>
+    <div class="ptitle">Rédiger votre profil CV pour l'IA</div>
+  </div>
+</div>
+
+<div class="tip ta"><div class="tl">⚠️ Ce n'est pas votre CV classique</div>Ce profil n'est pas votre CV Word. C'est un <strong>brief structuré</strong> que vous rédigez une fois pour que l'IA comprenne précisément qui vous êtes, ce que vous savez faire et ce que vous refusez. La qualité de ce profil détermine directement la qualité des scores que vous recevez.</div>
+
+<p>Votre profil se compose de <strong>10 sections</strong>. Remplissez chacune dans l'onglet <strong>👤 CV pour IA</strong>, puis cliquez sur <strong>💾 SAUVEGARDER LE CV POUR IA</strong>.</p>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">SECTEURS RECHERCHÉS</div><span class="cvbb2 bi">Impact moyen</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Listez les secteurs d'activité dans lesquels vous souhaitez travailler. L'IA commente l'adéquation entre l'entreprise qui recrute et vos préférences.</div>
+    <div class="cvbex">Finance, Banque, Assurance, Retail, E-commerce, Conseil, Industrie pharmaceutique</div>
+    <div class="tip tc" style="margin-top:11px;margin-bottom:0;"><div class="tl">💡 Soyez inclusif</div>Les secteurs à <em>prohiber</em> vont dans CONSIGNE DE FILTRAGE CRITIQUE. Ici, listez uniquement vos préférences positives.</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">PROFIL</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Votre positionnement en quelques lignes : votre métier, votre niveau d'expérience, et votre valeur ajoutée principale. L'IA lit cette section pour calibrer ses attentes.</div>
+    <div class="cvbex">Data Analyst avec 6 ans d'expérience dans les secteurs Finance et Retail.
+Spécialisé en reporting opérationnel, construction de dashboards et automatisation d'analyses.
+Expérience en encadrement de 2 analystes juniors.
+Capacité à travailler en autonomie et en interface avec les équipes métiers.</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt cr">CONTRAINTE</div><span class="cvbb2 bc">🔴 Section critique</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Vos contraintes <strong>personnelles non-négociables</strong>. Si une offre viole une contrainte listée ici, l'IA <strong>force automatiquement le score en dessous de 45/100</strong>, quelle que soit l'adéquation technique.</div>
+    <div class="cvbex">- <strong>Localisation :</strong> Poste basé en Île-de-France uniquement (pas de full-remote hors IDF)
+- <strong>Salaire :</strong> Package minimum de 55 000 € brut annuel
+- <strong>Contrat :</strong> CDI uniquement — pas de CDD, freelance ou alternance
+- <strong>Déplacements :</strong> Moins de 20% du temps en déplacement</div>
+    <div class="tip tr" style="margin-top:11px;margin-bottom:0;"><div class="tl">🔴 Soyez précis, pas exhaustif</div>Ne listez que vos vrais critères éliminatoires. Trop de contraintes feront systématiquement chuter les scores et vous ferez manquer de bonnes opportunités.</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt cr">CONSIGNE DE FILTRAGE CRITIQUE</div><span class="cvbb2 bc">🔴 Section critique</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Des règles d'exclusion absolue que l'IA lit <strong>en tout premier</strong>, avant toute évaluation. Formulez-les comme des instructions directes.</div>
+    <div class="cvbex">Attribuer un score inférieur à 45 pour toute offre correspondant à ces critères :
+- Poste situé en dehors de l'Île-de-France
+- Contrat de type stage, alternance, apprentissage ou CDD inférieur à 12 mois
+- Entreprise dont le secteur est la grande distribution alimentaire ou la restauration rapide
+- Poste exigeant plus de 8 ans d'expérience en management d'équipe</div>
+    <div class="tip ta" style="margin-top:11px;margin-bottom:0;"><div class="tl">🧠 CONTRAINTE vs FILTRAGE CRITIQUE</div><strong>CONTRAINTE</strong> décrit vos limites personnelles. <strong>CONSIGNE DE FILTRAGE CRITIQUE</strong> donne des ordres directs à l'IA. Les deux sont lues ensemble et se renforcent mutuellement.</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">COMPÉTENCES CLÉS</div><span class="cvbb2 bi">Impact très fort</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Vos savoir-faire techniques. C'est ici que l'IA cherche les correspondances avec les exigences de chaque offre. Soyez précis et exhaustif.</div>
+    <div class="cvbex">Analyse de données, Reporting, Visualisation de données, Modélisation,
+SQL (requêtes complexes, optimisation), Python (pandas, numpy, matplotlib),
+Power BI (création de rapports, DAX), Excel avancé (VBA, tableaux croisés dynamiques),
+Analyse statistique, Conception d'indicateurs KPI, Automatisation de processus,
+Gestion de projets data, Data storytelling</div>
+    <div class="tip tg" style="margin-top:11px;margin-bottom:0;"><div class="tl">✅ Règle d'or</div>Utilisez les termes exacts que les recruteurs emploient dans les offres. Si les annonces parlent de "Business Intelligence" et non de "BI", écrivez "Business Intelligence". L'IA fait des correspondances textuelles.</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">EXPÉRIENCES MAJEURES</div><span class="cvbb2 bi">Impact très fort</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Vos postes significatifs avec les responsabilités que vous y avez tenues. L'IA s'en sert pour évaluer l'adéquation avec les missions de l'offre et pour estimer votre séniorité.</div>
+    <div class="cvbex"><strong>2021 – 2025 : Data Analyst Senior — Société Générale, Paris</strong>
+Analyse des performances commerciales de 3 business units
+Conception et maintenance de 15 tableaux de bord Power BI pour les comités de direction
+Automatisation des reportings mensuels via Python et SQL (gain : 3 jours/mois)
+Encadrement fonctionnel de 2 analystes juniors
+Interface quotidienne avec les équipes Finance, Marketing et Risques
+
+<strong>2019 – 2021 : Data Analyst — LVMH, Paris</strong>
+Suivi des KPI e-commerce pour 4 marques du groupe
+Construction des modèles de prévision des ventes (Python, Excel)</div>
+    <div class="tip tc" style="margin-top:11px;margin-bottom:0;"><div class="tl">💡 Ce qui compte pour l'IA</div>Concentrez-vous sur les <strong>verbes d'action</strong> et les <strong>livrables concrets</strong>. "Analyser", "concevoir", "automatiser", "piloter", "construire" sont les mots que l'IA reconnaît dans les offres et compare à votre CV.</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">MISSIONS &amp; RÉALISATIONS PHARES</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Vos 5 à 8 réalisations les plus marquantes, de préférence quantifiées. Cette section complète les expériences avec des preuves concrètes de votre impact.</div>
+    <div class="cvbex">• <em>Automatisation du reporting mensuel</em> : réduction de 3 jours à 2 heures de traitement
+• <em>Modèle prédictif de churn client</em> : précision de 78%, déployé pour 500K clients
+• <em>Refonte du datamart commercial</em> : amélioration des temps de requête de 40%
+• <em>Formation de 2 analystes juniors</em> sur SQL et Power BI (montée en compétence en 3 mois)
+• <em>Tableau de bord exécutif</em> : adopté par 12 directeurs pour le pilotage mensuel</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">FORMATION ET CERTIFICATIONS</div><span class="cvbb2 bi">Impact moyen</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Vos diplômes, formations et certifications. Utile pour les offres qui exigent un niveau de diplôme ou une certification spécifique.</div>
+    <div class="cvbex">Diplôme d'ingénieur — École Centrale de Lille (2019) — Spécialisation Statistiques
+Certification Google Data Analytics (2022)
+Certification Microsoft Power BI Data Analyst Associate (2023)</div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">LANGUES</div><span class="cvbb2 bi">Impact variable</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Indiquez vos langues avec votre niveau réel. L'IA vérifie l'adéquation avec le niveau exigé dans l'offre.</div>
+    <div class="compare" style="margin-bottom:0;">
+      <div class="cgood">
+        <div class="clabel">✅ Bonne formulation</div>
+        <div class="ccontent">Français : Langue maternelle<br>Anglais : Niveau B2 professionnel (réunions, rédaction de rapports)<br>Espagnol : Notions (A2)</div>
+      </div>
+      <div class="cbad">
+        <div class="clabel">❌ Formulation vague</div>
+        <div class="ccontent">Anglais : courant<br><br><em>Sans précision, l'IA ne peut pas évaluer correctement.</em></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cvb">
+  <div class="cvbh"><div class="cvbt">OUTILS &amp; COMPÉTENCES DIGITALES</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbd">
+    <div class="cvbdesc">Vos logiciels, plateformes et outils métier. Listez tout ce que vous maîtrisez : CRM, ERP, outils cloud, plateformes analytiques.</div>
+    <div class="cvbex">Outils BI : Power BI, Tableau, Looker
+Bases de données : SQL Server, PostgreSQL, BigQuery
+Cloud &amp; Data : Azure Data Factory, AWS S3, Databricks (notions)
+Gestion de projet : Jira, Confluence, Notion
+CRM/ERP : Salesforce (utilisateur), SAP BW
+Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
+    <div class="tip tc" style="margin-top:11px;margin-bottom:0;"><div class="tl">💡 N'oubliez pas les outils "basiques"</div>Incluez Excel avancé, PowerPoint, Google Sheets — beaucoup d'offres les mentionnent explicitement et l'IA les comptabilise dans le score compétences.</div>
+  </div>
+</div>
+
+<div class="tip tg"><div class="tl">✅ Sauvegardez votre profil</div>Une fois toutes les sections remplies, cliquez sur <strong>💾 SAUVEGARDER LE CV POUR IA</strong> en bas de l'onglet. Votre profil sera utilisé pour tous les lancements suivants.</div>
+
+<a class="anchor" id="lancer"></a>
+<hr>
+<div class="ph">
+  <div class="pb pb-g">🚀</div>
+  <div>
+    <div class="plabel">Étape 3 — job_radar_launcher.py</div>
+    <div class="ptitle">Lancer votre veille</div>
+  </div>
+</div>
+
+<p>Ouvrez <strong>job_radar_launcher.py</strong>. L'interface détecte automatiquement tous vos profils configurés.</p>
+
+<div class="lm">
+  <div class="lmb">
+    <div class="lmbd" style="background:#ff5f57"></div>
+    <div class="lmbd" style="background:#febc2e"></div>
+    <div class="lmbd" style="background:#28c840"></div>
+    <div class="lmbt" style="margin-left:8px;">Job Radar — Launcher</div>
+  </div>
+  <div class="lmbody">
+    <div style="font-family:'Inter',sans-serif;font-size:.73rem;color:#7A8099;text-transform:uppercase;letter-spacing:.07em;margin-bottom:9px;display:grid;grid-template-columns:28px 1fr 120px 210px;gap:7px;padding:0 11px;">
+      <span></span><span>Profil</span><span>Fichiers</span><span>Période de publication</span>
+    </div>
+    <div class="lmr">
+      <div class="lmck on">✓</div>
+      <div class="lmn">Alice</div>
+      <div class="lmba"><span class="lmbg">✓ CV    ✓ Config</span></div>
+      <div class="lmra">
+        <div class="lmrb sel">1 jour</div>
+        <div class="lmrb">3 jours</div>
+        <div class="lmrb">7 jours</div>
+        <div class="lmrb">14 jours</div>
+        <div class="lmrb">31 jours</div>
+      </div>
+    </div>
+    <div class="lmr">
+      <div class="lmck off"></div>
+      <div class="lmn">Marc</div>
+      <div class="lmba"><span class="lmbg">✓ CV    ✓ Config</span></div>
+      <div class="lmra">
+        <div class="lmrb">1 jour</div>
+        <div class="lmrb sel">3 jours</div>
+        <div class="lmrb">7 jours</div>
+        <div class="lmrb">14 jours</div>
+        <div class="lmrb">31 jours</div>
+      </div>
+    </div>
+    <button class="lmbtn">▶  Lancer l'analyse</button>
+  </div>
+</div>
+
+<div class="cg">
+  <div class="card"><h4>☑️ Sélectionner le profil</h4><p>Cochez votre nom (ou cliquez dessus). Les badges verts ✓ CV et ✓ Config confirment que tout est en ordre.</p></div>
+  <div class="card"><h4>📅 Choisir la période</h4><p><strong>1 jour</strong> pour une veille quotidienne. <strong>7 jours</strong> pour un premier lancement ou après une absence. Les offres déjà analysées ne reviennent jamais en double.</p></div>
+</div>
+
+<p>Cliquez sur <strong>▶ Lancer l'analyse</strong>. La console affiche en temps réel les offres trouvées et leurs scores. L'analyse prend 2 à 10 minutes selon le volume d'offres. En fin d'analyse, une boîte de dialogue vous propose d'envoyer le rapport par email.</p>
+
+<div class="tip ta"><div class="tl">⏰ Conseil : veille quotidienne</div>Lancez le radar chaque matin avec "<strong>1 jour</strong>". Peu d'offres nouvelles chaque jour, analyse rapide, et vous ne ratez rien. Le système mémorise les offres déjà vues et ne les représente jamais.</div>
+
+<a class="anchor" id="rapport"></a>
+<hr>
+<div class="ph">
+  <div class="pb pb-a">📨</div>
+  <div>
+    <div class="plabel">Étape 4 — Votre rapport email</div>
+    <div class="ptitle">Lire et interpréter votre rapport</div>
+  </div>
+</div>
+
+<p>Votre rapport arrive par email au format HTML, lisible directement dans votre messagerie. Il se structure en 4 sections.</p>
+
+<div class="cg">
+  <div class="card" style="border-left:3px solid #10b981;"><h4 style="color:#34D399;">🟢 Offres recommandées</h4><p>Score ≥ votre score minimum. Ce sont les offres que l'IA juge les plus pertinentes. <strong>Commencez toujours par ici.</strong></p></div>
+  <div class="card" style="border-left:3px solid #f59e0b;"><h4 style="color:#FCD34D;">🟡 Faible score</h4><p>Analysées mais sous le seuil. Utile en début de recherche ou pour élargir votre filet manuellement.</p></div>
+  <div class="card" style="border-left:3px solid #7c3aed;"><h4 style="color:#A78BFA;">🔎 À analyser manuellement</h4><p>Description non récupérée automatiquement. Consultez-les directement via le lien fourni.</p></div>
+  <div class="card" style="border-left:3px solid #ef4444;"><h4 style="color:#F87171;">🔴 Exclues par blacklist</h4><p>Filtrées par vos mots interdits. Vérifiez de temps en temps qu'aucune bonne offre n'est bloquée par erreur.</p></div>
+</div>
+
+<div class="psub">À quoi ressemble une fiche d'offre ?</div>
+
+<div class="em">
+  <div class="emh">🎯 Job Radar pour Alice — Rapport de Veille du 27/06/2026<div class="ems">Généré le 27/06/2026 à 08h14</div></div>
+  <div class="emb">
+    <div class="emst emstg">🟢 Offres recommandées par l'IA (2)</div>
+    <div class="emc">
+      <div class="emct">
+        <div><div class="emcti">Data Analyst Senior — Pilotage de la Performance</div><div class="emcid">ID : 195XKPT</div></div>
+        <div class="emsc">Score : 82/100</div>
+      </div>
+      <div class="emm">
+        <span>🏢 <strong>AXA France</strong></span>
+        <span>📍 Nanterre (92)</span>
+        <span>📅 Publié le : 26/06/2026</span>
+        <span>📄 CDI</span>
+        <span>🌐 France Travail</span>
+      </div>
+      <div class="ema">
+        <div style="font-weight:bold;color:#374151;margin-bottom:7px;font-size:.77rem;">🔢 Détail du score : Missions 34/40 · Compétences 36/40 · Séniorité 12/20</div>
+        <div class="eal"><span class="ean">1.</span><span class="eak">Offre :</span><span class="eav">Poste d'analyste senior chez AXA France chargé du pilotage des indicateurs de performance opérationnelle. CDI basé à Nanterre.</span></div>
+        <div class="eal"><span class="ean">2.</span><span class="eak">Entreprise :</span><span class="eav">AXA France, leader de l'assurance en France. Contexte de transformation digitale du pôle Finance.</span></div>
+        <div class="eal"><span class="ean">3.</span><span class="eak">Secteur :</span><span class="eav">Assurance / Finance — secteur figurant dans vos souhaits. Bonne adéquation.</span></div>
+        <div class="eal"><span class="ean">4.</span><span class="eak">Missions :</span><span class="eav">Forte correspondance. Dashboards Power BI, automatisation des reportings, suivi KPI — directement alignés avec vos réalisations chez Société Générale.</span></div>
+        <div class="eal"><span class="ean">5.</span><span class="eak">Compétences :</span><span class="eav">Excellent. SQL, Python, Power BI et Excel tous maîtrisés. Seul écart : Snowflake mentionné dans l'offre, non listé dans votre profil.</span></div>
+        <div class="eal"><span class="ean">6.</span><span class="eak">Séniorité :</span><span class="eav">L'offre requiert 5 ans d'expérience. Vous en justifiez 6. Légère insuffisance sur le management (2 ans requis vs 1 an dans votre profil).</span></div>
+        <div class="eal"><span class="ean">7.</span><span class="eak">Vigilance :</span><span class="eav">L'offre mentionne "déplacements ponctuels Europe" sans précision de fréquence. Poste nouvellement créé.</span></div>
+        <div class="eal"><span class="ean">8.</span><span class="eak">Conseil :</span><span class="eav">Offre à postuler. Très bonne adéquation fonctionnelle. Préparez un exemple sur votre capacité à apprendre rapidement de nouveaux outils (Snowflake).</span></div>
+      </div>
+      <a class="emlink">🔗 Voir l'offre</a>
+    </div>
+    <div class="emst emsta">🟡 Offres analysées — notation faible &lt; 65 (1)</div>
+    <div class="emc">
+      <div class="emct a">
+        <div><div class="emcti">Business Intelligence Manager</div><div class="emcid">ID : adz-987654</div></div>
+        <div class="emsc a">Score : 51/100</div>
+      </div>
+      <div class="emm"><span>🏢 <strong>Groupe Elior</strong></span><span>📍 Paris (75)</span><span>📄 CDI</span><span>🌐 Adzuna</span></div>
+      <div class="ema"><div class="eal"><span class="ean">8.</span><span class="eak">Conseil :</span><span class="eav">Score faible dû à l'exigence de 10 ans d'expérience et de gestion d'une équipe de 8 personnes. Sur le plan technique, la correspondance est bonne — à envisager si vous souhaitez postuler en "projet".</span></div></div>
+      <a class="emlink" style="background:#f59e0b;">🔗 Voir l'offre</a>
+    </div>
+  </div>
+</div>
+
+<div class="psub">Les 8 points d'analyse — comment les utiliser</div>
+
+<div class="plist">
+  <div class="pi"><div class="pinum" style="background:#22D3EE;">1</div><div class="pib"><h4>Offre</h4><p>Résumé neutre en 2 phrases. Vérifiez que l'IA a bien compris l'annonce avant de lire le reste.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#64748B;">2</div><div class="pib"><h4>Entreprise</h4><p>Contexte de l'employeur : taille, secteur, situation (transformation, création de poste, restructuration…). Utile pour préparer votre candidature.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#7C3AED;">3</div><div class="pib"><h4>Secteur</h4><p>Adéquation entre le secteur de l'entreprise et vos secteurs recherchés déclarés dans votre profil.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#0891B2;">4</div><div class="pib"><h4>Missions <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Score)</span></h4><p>L'IA liste les tâches de l'offre et indique lesquelles vous avez déjà accomplies. Le score est basé sur les actions fonctionnelles uniquement, pas sur votre niveau hiérarchique.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#7C3AED;">5</div><div class="pib"><h4>Compétences <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Score)</span></h4><p>Comparaison entre les outils/méthodes exigés et ceux listés dans votre profil. Les écarts identifiés sont ce que vous devrez mentionner dans votre lettre ou que vous pourrez apprendre rapidement.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#B45309;">6</div><div class="pib"><h4>Séniorité <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Score)</span></h4><p>Comparaison entre les années d'expérience requises et votre profil. Un écart ici <strong>ne pénalise que cette section</strong> — il ne plombe pas vos scores missions et compétences.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#DC2626;">7</div><div class="pib"><h4>Points de vigilance</h4><p>Signaux d'alerte : formulations vagues, exigences contradictoires, poste nouvellement créé, niveau de langue élevé, contexte de crise. <strong>Lisez toujours ce point avant de postuler.</strong></p></div></div>
+  <div class="pi"><div class="pinum" style="background:#047857;">8</div><div class="pib"><h4>Conseil recruteur</h4><p>La recommandation finale : faut-il postuler ? Et si oui, comment valoriser votre candidature ? Ce point synthétise toute l'analyse en une action concrète.</p></div></div>
+</div>
+
+<div class="psub">Comprendre le score sur 100</div>
+<div class="card" style="margin:14px 0;">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:center;margin-bottom:18px;">
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--cyan);">40 pts</div>
+      <div style="font-weight:600;margin-bottom:4px;">Missions</div>
+      <div style="font-size:.77rem;color:var(--dim);">Savez-vous faire ce que l'offre demande ?</div>
+    </div>
+    <div style="border-left:1px solid var(--border);border-right:1px solid var(--border);">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--purple);">40 pts</div>
+      <div style="font-weight:600;margin-bottom:4px;">Compétences</div>
+      <div style="font-size:.77rem;color:var(--dim);">Avez-vous les outils et méthodes requis ?</div>
+    </div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--amber);">20 pts</div>
+      <div style="font-weight:600;margin-bottom:4px;">Séniorité</div>
+      <div style="font-size:.77rem;color:var(--dim);">Votre niveau d'expérience correspond-il ?</div>
+    </div>
+  </div>
+  <div class="tip tc" style="margin:0;"><div class="tl">🧠 Pourquoi ce découpage ?</div>Un candidat très compétent techniquement ne doit pas être pénalisé sur ses missions simplement parce qu'il a 4 ans d'expérience plutôt que 5. Le manque de séniorité est <strong>isolé dans sa propre section</strong> et ne "contamine" pas l'évaluation de vos compétences réelles.</div>
+</div>
+
+<a class="anchor" id="optimiser"></a>
+<hr>
+<div class="ph">
+  <div class="pb pb-a">🔧</div>
+  <div>
+    <div class="plabel">Étape 5 — Améliorer vos résultats</div>
+    <div class="ptitle">Affiner votre radar</div>
+  </div>
+</div>
+
+<p>Les premiers résultats servent de calibration. Après 2 ou 3 veilles, ajustez votre profil en fonction de ce que vous observez.</p>
+
+<div class="og">
+  <div class="oc of">
+    <div class="ot">📭 Trop peu d'offres recommandées</div>
+    <ul class="ol">
+      <li>Baissez le score minimum (ex: 75 → 65)</li>
+      <li>Ajoutez des mots-clés synonymes</li>
+      <li>Élargissez la zone géographique</li>
+      <li>Augmentez la période (1 jour → 7 jours)</li>
+      <li>Allégez vos contraintes d'exclusion</li>
+    </ul>
+  </div>
+  <div class="oc om">
+    <div class="ot">📬 Trop d'offres non pertinentes</div>
+    <ul class="ol">
+      <li>Montez le score minimum (ex: 65 → 75)</li>
+      <li>Ajoutez des termes à la blacklist</li>
+      <li>Affinez vos mots-clés (plus précis)</li>
+      <li>Enrichissez votre profil CV IA</li>
+      <li>Précisez vos contraintes d'exclusion</li>
+    </ul>
+  </div>
+</div>
+
+<div class="psub">Questions à se poser sur les scores</div>
+<table>
+  <thead><tr><th>Ce que vous observez</th><th>Cause probable</th><th>Action recommandée</th></tr></thead>
+  <tbody>
+    <tr><td>Missions toujours basses (ex: 15/40)</td><td>Sections EXPÉRIENCES ou MISSIONS trop vagues</td><td>Ajoutez des verbes d'action précis et des livrables concrets</td></tr>
+    <tr><td>Compétences basses malgré de bons outils</td><td>Vos termes ne correspondent pas à ceux des offres</td><td>Ajoutez des synonymes dans COMPÉTENCES CLÉS et OUTILS</td></tr>
+    <tr><td>Score toujours &lt;45 sur toutes les offres</td><td>FILTRAGE CRITIQUE trop strict</td><td>Relisez et assouplissez vos règles d'exclusion</td></tr>
+    <tr><td>Séniorité systématiquement 0-2/20</td><td>Vous ciblez des postes au-dessus de votre niveau</td><td>Normal — valorisez votre potentiel dans la section PROFIL</td></tr>
+    <tr><td>Bonnes offres bloquées en blacklist</td><td>Un terme de la blacklist est trop générique</td><td>Retirez ou précisez le terme concerné</td></tr>
+  </tbody>
+</table>
+
+<div class="psub">Les 5 erreurs les plus fréquentes</div>
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:8px;">
+  <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
+    <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
+    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Laisser CONTRAINTE et FILTRAGE CRITIQUE vides</div><div style="font-size:.84rem;color:var(--dim2);">Sans elles, l'IA n'a aucune règle d'exclusion automatique et peut recommander des offres hors de votre zone ou sous votre salaire minimum.</div></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
+    <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
+    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Copier-coller son CV Word dans les sections</div><div style="font-size:.84rem;color:var(--dim2);">Le CV Word est optimisé pour un humain, pas pour une IA. Reformulez avec des verbes d'action, des listes claires et les termes exacts des offres cibles.</div></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
+    <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
+    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Utiliser des mots-clés de recherche trop vagues</div><div style="font-size:.84rem;color:var(--dim2);">"Analyst" seul ramène des centaines de résultats hors sujet. Préférez "Data Analyst", "Chef de projet SI", "Responsable reporting finance".</div></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
+    <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
+    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Ne jamais regarder la section "Faible score"</div><div style="font-size:.84rem;color:var(--dim2);">Parfois une bonne opportunité a un score de 62 parce que l'offre est mal rédigée. Le conseil du recruteur (point 8) vous le dira. Jetez-y un œil régulièrement.</div></div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
+    <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
+    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Ignorer les "Points de vigilance" avant de postuler</div><div style="font-size:.84rem;color:var(--dim2);">Ce point contient des alertes précieuses : poste nouvellement créé, restructuration en cours, niveau de langue supérieur à votre niveau déclaré. Lisez-le avant chaque candidature.</div></div>
+  </div>
+</div>
+
+<hr style="margin-top:48px;">
+<div style="text-align:center;padding:22px 0;color:var(--dim);font-size:.84rem;">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:var(--cyan);margin-bottom:7px;">Job Radar — Guide Utilisateur</div>
+  <p style="margin:0;">Pour toute question sur l'installation, les clés API ou la configuration technique, référez-vous à la <strong>documentation technique</strong>.</p>
+</div>
+
+</div>
+
+<script>
+const ids=['config','cv','lancer','rapport','optimiser'];
+const links=document.querySelectorAll('.sni');
+const obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.sni[href="#${en.target.id}"]`);if(a)a.classList.add('active');}});},{rootMargin:'-10% 0px -80% 0px'});
+ids.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el);});
+</script>
+</body>
+</html>
