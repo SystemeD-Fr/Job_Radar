@@ -458,24 +458,19 @@ async function selectFolder() {
 //  SCAN DES PROFILS EXISTANTS
 // ════════════════════════════════════════════════════════
 async function scanProfiles() {
-  const list  = document.getElementById('profile-list');
-  const lbl   = document.getElementById('step2-lbl');
+  const list = document.getElementById('profile-list');
+  const lbl  = document.getElementById('step2-lbl');
   lbl.style.display  = 'block';
   list.style.display = 'block';
   list.innerHTML     = '<div class="profile-scanning">🔍 Recherche des profils en cours…</div>';
 
-  const found = [];
+  // 1. Repérer tous les fichiers Config_Radar_*.json à la racine
+  const found = new Set();
   try {
     for await (const [name, handle] of rootDir.entries()) {
-      if (handle.kind !== 'directory') continue;
-      // Vérifier que les deux fichiers requis sont présents dans ce sous-dossier
-      let valid = false;
-      try {
-        await handle.getFileHandle(`Config_Radar_${name}.json`);
-        await handle.getFileHandle(`cv_profile_${name}.txt`);
-        valid = true;
-      } catch { /* sous-dossier sans fichiers valides — ignoré */ }
-      if (valid) found.push(name);
+      if (handle.kind !== 'file') continue;
+      const m = name.match(/^Config_Radar_(.+)\.json$/);
+      if (m) found.add(m[1]);
     }
   } catch(e) {
     list.innerHTML = '<div class="profile-empty">❌ Impossible de lire le dossier partagé.</div>';
@@ -483,15 +478,33 @@ async function scanProfiles() {
     return;
   }
 
-  found.sort((a, b) => a.localeCompare(b, 'fr'));
+  // 2. Ne garder que les profils qui ont AUSSI leur cv_profile_*.txt
+  const valid = [];
+  for (const name of found) {
+    try {
+      await rootDir.getFileHandle(`cv_profile_${name}.txt`);
+      valid.push(name);
+    } catch { /* pas de CV correspondant — ignoré */ }
+  }
+  valid.sort((a, b) => a.localeCompare(b, 'fr'));
 
-  if (found.length === 0) {
+  // 3. Aucun profil trouvé
+  if (valid.length === 0) {
     list.innerHTML = '<div class="profile-empty">⚠️ Aucun profil configuré trouvé dans ce dossier.<br>Vérifiez que vous avez sélectionné le bon répertoire.</div>';
     return;
   }
 
+  // 4. Un seul profil → on saute l'étape de sélection
+  if (valid.length === 1) {
+    lbl.style.display  = 'none';
+    list.style.display = 'none';
+    await selectProfile(valid[0]);
+    return;
+  }
+
+  // 5. Plusieurs profils → on affiche la liste comme avant
   list.innerHTML = '';
-  found.forEach(name => {
+  valid.forEach(name => {
     const btn = document.createElement('button');
     btn.className = 'profile-btn';
     btn.innerHTML = `<span class="pico">👤</span><span class="pname">${name}</span><span class="parrow">→</span>`;
@@ -507,7 +520,7 @@ async function selectProfile(name) {
   profName = name;
 
   document.getElementById('hdr-profile').textContent = profName;
-  document.getElementById('hdr-folder').textContent  = '📁 …/' + rootDir.name + '/' + profName + '/';
+  document.getElementById('hdr-folder').textContent  = '📁 …/' + rootDir.name + '/';
 
   document.getElementById('screen-setup').style.display = 'none';
   document.getElementById('screen-app').style.display   = 'flex';
@@ -533,20 +546,13 @@ function backToSetup() {
 // ════════════════════════════════════════════════════════
 //  FILE HELPERS
 // ════════════════════════════════════════════════════════
-// ne crée JAMAIS de dossier
-async function getProfDir() {
-  return rootDir.getDirectoryHandle(profName, { create: false });
-}
-
 async function readText(fname) {
-  const d  = await getProfDir(false);
-  const fh = await d.getFileHandle(fname);
+  const fh = await rootDir.getFileHandle(fname);
   return (await fh.getFile()).text();
 }
 
 async function writeText(fname, content) {
-  const d  = await getProfDir();              // ← plus d'argument
-  const fh = await d.getFileHandle(fname, { create: true });
+  const fh = await rootDir.getFileHandle(fname, { create: true });
   const w  = await fh.createWritable();
   await w.write(content);
   await w.close();
