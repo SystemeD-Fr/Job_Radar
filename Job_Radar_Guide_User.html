@@ -157,21 +157,47 @@ tr:last-child td{border-bottom:none;}
 hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 @media(max-width:700px){.cg,.compare,.og{grid-template-columns:1fr;}.hero h1{font-size:2.1rem;}.flow{flex-direction:column;gap:10px;}.farrow{transform:rotate(90deg);}.sep,.sni span:not(.sni-num){display:none;}.sr{flex-direction:column;}}
 
+/* ── WEB APP MOCKUP ── */
+.wam{background:#fff;border:1px solid #cbd5e1;border-radius:10px;overflow:hidden;
+  margin:20px 0;box-shadow:0 6px 24px rgba(0,0,0,.18);}
+.wam-hdr{background:#1e3a8a;padding:9px 14px;display:flex;align-items:center;gap:7px;}
+.wam-dot{width:9px;height:9px;border-radius:50%;}
+.wam-title{color:#fff;font-size:.78rem;font-weight:700;margin-left:5px;}
+.wam-body{padding:16px 18px;background:#fff;}
+.wam-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
+  color:#475569;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.wam-lbl .wn{width:16px;height:16px;border-radius:50%;background:#1e3a8a;
+  color:#fff;font-size:.58rem;display:inline-flex;align-items:center;justify-content:center;font-weight:800;}
+.wam-folder-ok{background:#d1fae5;border:1px solid #10b981;color:#065f46;
+  padding:8px 13px;border-radius:6px;font-size:.8rem;font-weight:600;
+  display:flex;align-items:center;gap:7px;font-family:'Inter',sans-serif;margin-bottom:4px;}
+.wam-fp{font-size:.7rem;color:#10b981;font-family:monospace;margin-bottom:14px;padding-left:2px;}
+.wam-sep{height:1px;background:#f1f5f9;margin:12px 0;}
+.wam-pb{width:100%;background:#f0f4f8;border:1px solid #cbd5e1;color:#1e3a8a;
+  padding:9px 13px;border-radius:7px;font-size:.83rem;font-weight:600;
+  display:flex;align-items:center;gap:8px;margin-bottom:6px;font-family:'Inter',sans-serif;}
+.wam-pb.hl{background:#dbeafe;border-color:#1e3a8a;}
+.wam-pb:last-child{margin-bottom:0;}
+.wam-pb .wpa{margin-left:auto;color:#cbd5e1;font-size:.8rem;}
+.wam-pb.hl .wpa{color:#1e3a8a;}
+
 </style>
 </head>
 <body>
 <nav class="topnav">
   <div class="nav-brand">🎯 Job Radar</div>
   <div class="stepsnav">
-    <a href="#config" class="sni"><span class="sni-num">1</span><span>Recherche</span></a>
+    <a href="#config" class="sni"><span class="sni-num">1</span><span>Mon profil</span></a>
     <span class="sep">›</span>
-    <a href="#cv" class="sni"><span class="sni-num">2</span><span>Mon CV IA</span></a>
+    <a href="#cv" class="sni"><span class="sni-num">2</span><span>Mon Radar</span></a>
     <span class="sep">›</span>
-    <a href="#lancer" class="sni"><span class="sni-num">3</span><span>Lancer</span></a>
+    <a href="#cv" class="sni"><span class="sni-num">3</span><span>Mon CV IA</span></a>
     <span class="sep">›</span>
-    <a href="#rapport" class="sni"><span class="sni-num">4</span><span>Mon rapport</span></a>
+    <a href="#lancer" class="sni"><span class="sni-num">4</span><span>Programmer</span></a>
     <span class="sep">›</span>
-    <a href="#optimiser" class="sni"><span class="sni-num">5</span><span>Optimiser</span></a>
+    <a href="#rapport" class="sni"><span class="sni-num">5</span><span>Mon rapport</span></a>
+    <span class="sep">›</span>
+    <a href="#optimiser" class="sni"><span class="sni-num">6</span><span>Optimiser</span></a>
   </div>
 </nav>
 
@@ -184,7 +210,7 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
   <div class="flow">
     <div class="fstep"><div class="fstep-icon">⚙️</div><div class="fstep-num">1</div><div class="fstep-title">Configurer</div><div class="fstep-sub">Vos critères &amp; CV IA</div></div>
     <div class="farrow">→</div>
-    <div class="fstep"><div class="fstep-icon">🚀</div><div class="fstep-num">2</div><div class="fstep-title">Lancer</div><div class="fstep-sub">En deux clics</div></div>
+    <div class="fstep"><div class="fstep-icon">🚀</div><div class="fstep-num">2</div><div class="fstep-title">Programmer</div><div class="fstep-sub">Alerte envoyée à l'admin</div></div>
     <div class="farrow">→</div>
     <div class="fstep"><div class="fstep-icon">📨</div><div class="fstep-num">3</div><div class="fstep-title">Recevoir</div><div class="fstep-sub">Votre rapport email</div></div>
   </div>
@@ -198,12 +224,57 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 <div class="ph">
   <div class="pb pb-c">⚙️</div>
   <div>
-    <div class="plabel">Étape 1 — Config_Radar.py · Onglet Config</div>
-    <div class="ptitle">Configurer votre recherche</div>
+    <div class="plabel">Étape 1 — Config_Radar.html · Onglets ⚙️ Config &amp; 👤 CV</div>
+    <div class="ptitle">Ouvrir l'outil et sélectionner votre profil</div>
   </div>
 </div>
 
-<p>Ouvrez <strong>Config_Radar.py</strong> et allez dans l'onglet <strong>⚙️ Config Radar</strong>. Sélectionnez votre profil dans le menu déroulant en haut, ou créez-en un avec <strong>➕ Nouveau profil</strong>.</p>
+<p>Ouvrez le fichier <strong>Config_Radar.html</strong> dans <strong>Google Chrome</strong> ou <strong>Microsoft Edge</strong>. L'accès aux fichiers partagés n'est pas disponible sur d'autres navigateurs.</p>
+
+<p>L'outil démarre sur un écran en deux étapes : vous choisissez d'abord le dossier partagé, puis vous sélectionnez votre profil dans la liste qui s'affiche automatiquement.</p>
+
+<!-- Mockup de l'écran de démarrage -->
+<div class="wam">
+  <div class="wam-hdr">
+    <div class="wam-dot" style="background:#ff5f57"></div>
+    <div class="wam-dot" style="background:#febc2e"></div>
+    <div class="wam-dot" style="background:#28c840"></div>
+    <div class="wam-title" style="margin-left:8px;">Config_Radar.html — Google Chrome</div>
+  </div>
+  <div class="wam-body">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:1.6rem;margin-bottom:6px;">🎯</div>
+      <div style="font-weight:800;color:#1e3a8a;font-size:1rem;font-family:'Inter',sans-serif;">Job Radar</div>
+      <div style="font-size:.75rem;color:#475569;font-family:'Inter',sans-serif;">Configuration du profil de recherche</div>
+    </div>
+    <div class="wam-lbl"><span class="wn">1</span>Sélectionner le dossier partagé</div>
+    <div class="wam-folder-ok">✅ &nbsp;Configurations</div>
+    <div class="wam-fp">📁 Configurations</div>
+    <div class="wam-lbl"><span class="wn">2</span>Sélectionner votre profil</div>
+    <div class="wam-pb"><span>👤</span><span>Alice Dir. Comm.</span><span class="wpa">→</span></div>
+    <div class="wam-pb hl"><span>👤</span><span style="color:#1e3a8a;">Alice Freelance</span><span class="wpa">→</span></div>
+    <div class="wam-pb"><span>👤</span><span>Alice Format.</span><span class="wpa">→</span></div>
+  </div>
+</div>
+
+<div class="cg" style="margin-top:14px;">
+  <div class="card"><h4>📁 Étape 1 — Choisir le dossier</h4><p>Cliquez sur <strong>Choisir le dossier partagé…</strong>. Une fenêtre système s'ouvre. Naviguez jusqu'au dossier <code style="font-size:.78rem;background:var(--card2);padding:1px 5px;border-radius:3px;">Configurations</code> partagé par l'administrateur et cliquez sur <strong>Ouvrir</strong>.</p></div>
+  <div class="card"><h4>👤 Étape 2 — Choisir votre profil</h4><p>L'outil détecte automatiquement tous les profils présents et les affiche sous forme de boutons. <strong>Cliquez sur le profil à paramétrer</strong>. Vos données de configuration du radar et votre CV se chargent immédiatement dans les deux onglets.</p></div>
+</div>
+
+<div class="tip tr"><div class="tl">⚠️ Si votre profil n'apparaît pas dans la liste</div>Votre sous-dossier ne contient pas les deux fichiers requis (<code style="font-size:.8rem">Config_Radar_Prenom.json</code> et <code style="font-size:.8rem">cv_profile_Prenom.txt</code>). Contactez l'administrateur pour qu'il initialise votre profil.</div>
+
+<div class="tip tc"><div class="tl">🔄 Changer de profil en cours de session</div>Cliquez sur <strong>↩ Changer de profil</strong> dans la barre d'en-tête bleue pour revenir à la liste des profils, sans avoir à rechoisir le dossier partagé.</div>
+
+<a class="anchor" id="cv"></a>
+<hr>
+<div class="ph">
+  <div class="pb pb-p">👤</div>
+  <div>
+    <div class="plabel">Étape 2 — Config_Radar.py · Onglet Config Radar</div>
+    <div class="ptitle">Configurer vos critères de recherche pour le radar</div>
+  </div>
+</div>
 
 <div class="psub">Score minimum</div>
 <p>C'est le seuil de pertinence. L'IA note chaque offre sur 100. En-dessous de ce seuil, l'offre apparaît dans votre rapport dans la section orange "faible score" — elle n'est pas perdue, juste classée différemment.</p>
@@ -255,7 +326,7 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 <div class="ph">
   <div class="pb pb-p">👤</div>
   <div>
-    <div class="plabel">Étape 2 — Config_Radar.py · Onglet CV pour IA</div>
+    <div class="plabel">Étape 3 — Config_Radar.py · Onglet CV pour IA</div>
     <div class="ptitle">Rédiger votre profil CV pour l'IA</div>
   </div>
 </div>
@@ -400,12 +471,12 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 <div class="ph">
   <div class="pb pb-g">🚀</div>
   <div>
-    <div class="plabel">Étape 3 — job_radar_launcher.py</div>
-    <div class="ptitle">Lancer votre veille</div>
+    <div class="plabel">Étape 4 </div>
+    <div class="ptitle">Programmer le radar</div>
   </div>
 </div>
 
-<p>Ouvrez <strong>job_radar_launcher.py</strong>. L'interface détecte automatiquement tous vos profils configurés.</p>
+<p>L'administrateur lancera la recherche pour tous les profils configurés.</p>
 
 <div class="lm">
   <div class="lmb">
@@ -447,11 +518,11 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 </div>
 
 <div class="cg">
-  <div class="card"><h4>☑️ Sélectionner le profil</h4><p>Cochez votre nom (ou cliquez dessus). Les badges verts ✓ CV et ✓ Config confirment que tout est en ordre.</p></div>
-  <div class="card"><h4>📅 Choisir la période</h4><p><strong>1 jour</strong> pour une veille quotidienne. <strong>7 jours</strong> pour un premier lancement ou après une absence. Les offres déjà analysées ne reviennent jamais en double.</p></div>
+  <div class="card"><h4>☑️ Vérification des ✓ CV et ✓ Config.</p></div>
+  <div class="card"><h4>📅 Choix de la période</h4><p><strong>1 jour</strong> pour une veille quotidienne. <strong>7 jours</strong> pour un premier lancement ou après une absence. Les offres déjà analysées ne reviennent jamais en double.</p></div>
 </div>
 
-<p>Cliquez sur <strong>▶ Lancer l'analyse</strong>. La console affiche en temps réel les offres trouvées et leurs scores. L'analyse prend 2 à 10 minutes selon le volume d'offres. En fin d'analyse, une boîte de dialogue vous propose d'envoyer le rapport par email.</p>
+<p>Cliquez sur <strong>▶ Lancement de l'analyse</strong>. La console de l'administrateur affiche en temps réel les offres trouvées et leurs scores. L'analyse prend 2 à 10 minutes selon le volume d'offres. En fin d'analyse, le rapport sera envoyé par email.</p>
 
 <div class="tip ta"><div class="tl">⏰ Conseil : veille quotidienne</div>Lancez le radar chaque matin avec "<strong>1 jour</strong>". Peu d'offres nouvelles chaque jour, analyse rapide, et vous ne ratez rien. Le système mémorise les offres déjà vues et ne les représente jamais.</div>
 
@@ -460,7 +531,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 <div class="ph">
   <div class="pb pb-a">📨</div>
   <div>
-    <div class="plabel">Étape 4 — Votre rapport email</div>
+    <div class="plabel">Étape 5 — Votre rapport email</div>
     <div class="ptitle">Lire et interpréter votre rapport</div>
   </div>
 </div>
@@ -524,9 +595,9 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   <div class="pi"><div class="pinum" style="background:#22D3EE;">1</div><div class="pib"><h4>Offre</h4><p>Résumé neutre en 2 phrases. Vérifiez que l'IA a bien compris l'annonce avant de lire le reste.</p></div></div>
   <div class="pi"><div class="pinum" style="background:#64748B;">2</div><div class="pib"><h4>Entreprise</h4><p>Contexte de l'employeur : taille, secteur, situation (transformation, création de poste, restructuration…). Utile pour préparer votre candidature.</p></div></div>
   <div class="pi"><div class="pinum" style="background:#7C3AED;">3</div><div class="pib"><h4>Secteur</h4><p>Adéquation entre le secteur de l'entreprise et vos secteurs recherchés déclarés dans votre profil.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#0891B2;">4</div><div class="pib"><h4>Missions <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Score)</span></h4><p>L'IA liste les tâches de l'offre et indique lesquelles vous avez déjà accomplies. Le score est basé sur les actions fonctionnelles uniquement, pas sur votre niveau hiérarchique.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#7C3AED;">5</div><div class="pib"><h4>Compétences <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Score)</span></h4><p>Comparaison entre les outils/méthodes exigés et ceux listés dans votre profil. Les écarts identifiés sont ce que vous devrez mentionner dans votre lettre ou que vous pourrez apprendre rapidement.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#B45309;">6</div><div class="pib"><h4>Séniorité <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Score)</span></h4><p>Comparaison entre les années d'expérience requises et votre profil. Un écart ici <strong>ne pénalise que cette section</strong> — il ne plombe pas vos scores missions et compétences.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#0891B2;">4</div><div class="pib"><h4>Missions <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 40)</span></h4><p>L'IA liste les tâches de l'offre et indique lesquelles vous avez déjà accomplies. Le score est basé sur les actions fonctionnelles uniquement, pas sur votre niveau hiérarchique.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#7C3AED;">5</div><div class="pib"><h4>Compétences <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 40)</span></h4><p>Comparaison entre les outils/méthodes exigés et ceux listés dans votre profil. Les écarts identifiés sont ce que vous devrez mentionner dans votre lettre ou que vous pourrez apprendre rapidement.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#B45309;">6</div><div class="pib"><h4>Séniorité <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 20)</span></h4><p>Comparaison entre les années d'expérience requises et votre profil. Un écart ici <strong>ne pénalise que cette section</strong> — il ne plombe pas vos scores missions et compétences.</p></div></div>
   <div class="pi"><div class="pinum" style="background:#DC2626;">7</div><div class="pib"><h4>Points de vigilance</h4><p>Signaux d'alerte : formulations vagues, exigences contradictoires, poste nouvellement créé, niveau de langue élevé, contexte de crise. <strong>Lisez toujours ce point avant de postuler.</strong></p></div></div>
   <div class="pi"><div class="pinum" style="background:#047857;">8</div><div class="pib"><h4>Conseil recruteur</h4><p>La recommandation finale : faut-il postuler ? Et si oui, comment valoriser votre candidature ? Ce point synthétise toute l'analyse en une action concrète.</p></div></div>
 </div>
@@ -558,7 +629,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 <div class="ph">
   <div class="pb pb-a">🔧</div>
   <div>
-    <div class="plabel">Étape 5 — Améliorer vos résultats</div>
+    <div class="plabel">Étape 6 — Améliorer vos résultats</div>
     <div class="ptitle">Affiner votre radar</div>
   </div>
 </div>
