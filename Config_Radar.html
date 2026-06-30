@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Radar — Configuration Partagée</title>
+<style>
+:root {
+    --primary: #1e3a8a;         /* 🔵 Bleu foncé pour les titres et entêtes */
+    --primary-hover: #1d4ed8;
+    --success: #10b981;
+    --success-hover: #059669;
+    --bg: #ffffff;              /* ⚪ MODIFIÉ : Arrière-plan global de la page en blanc */
+    --card: #ffffff;            /* Fond du bloc central en blanc */
+    --border: #cbd5e1;          /* Bordures légèrement plus visibles sur fond blanc */
+    --text: #333333;            /* 🔘 MODIFIÉ : Couleur du texte principal en gris foncé */
+    --text-muted: #475569;      /* Texte secondaire en gris intermédiaire */
+    --input-bg: #f0f4f8;        /* ✨ AJOUTÉ : Couleur bleu-gris pour le fond des saisies */
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* ── SETUP SCREEN ── */
+.setup-screen{background:#ffffff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;}
+.setup-card{background:#ffffff;border:1px solid #cbd5e1;border-radius:16px;
+  padding:40px 36px;max-width:460px;width:100%;box-shadow:0 12px 32px rgba(30,41,59,.05);}
+.setup-logo{text-align:center;margin-bottom:28px;}
+.setup-logo-icon{font-size:2.8rem;display:block;margin-bottom:10px;}
+.setup-logo h1{font-size:1.5rem;font-weight:800;color:#1e3a8a;letter-spacing:-.02em;} /* 🔵 Entête en Bleu foncé */
+.setup-logo p{color:#475569;font-size:.88rem;margin-top:4px;} /* 🔘 Texte en Gris foncé */
+.step-block{margin-bottom:18px;}
+.step-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:#475569;margin-bottom:7px;display:flex;align-items:center;gap:6px;} /* 🔘 Libellé en Gris foncé */
+.step-lbl .n{width:18px;height:18px;border-radius:50%;background:#1e3a8a;
+  color:white;font-size:.65rem;display:inline-flex;align-items:center;justify-content:center;font-weight:800;}
+.btn-pick{width:100%;background:#f0f4f8;border:1.5px dashed #cbd5e1;color:#475569; /* ✨ Pavé de sélection en Bleu-gris */
+  padding:13px 18px;border-radius:var(--rad);font-size:.9rem;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;font-weight:500;}
+.btn-pick:hover{border-color:#1e3a8a;color:#1e3a8a;background:rgba(30,58,138,.04);}
+.btn-pick.ok{border-color:var(--green);border-style:solid;color:var(--green);background:rgba(46,204,113,.06);}
+.folder-path{font-size:.75rem;color:var(--green);margin-top:5px;font-family:monospace;
+  word-break:break-all;padding-left:2px;}
+  
+input[type=text]{width:100%;background:#f0f4f8;border:1px solid #cbd5e1;border-radius:var(--rad); /* ✨ Saisie en Bleu-gris */
+  color:#333333;font-family:inherit;font-size:.92rem;padding:10px 14px;transition:.15s;} /* 🔘 Texte de saisie en Gris foncé */
+input[type=text]:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58,138,.12);}
+.btn-main{width:100%;background:#1e3a8a;color:white;border:none;padding:13px 20px; /* 🔵 Bouton principal assorti en bleu foncé */
+  border-radius:var(--rad);font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-main:hover{background:#1d4ed8;}
+.btn-main:disabled{opacity:.35;cursor:not-allowed;}
+.compat-warn{background:rgba(243,156,18,.08);border:1px solid rgba(243,156,18,.3);border-radius:var(--rad);
+  padding:10px 14px;font-size:.82rem;color:var(--amber);margin-bottom:16px;line-height:1.5;}
+.setup-note{text-align:center;font-size:.76rem;color:#475569;margin-top:12px;line-height:1.6;} /* 🔘 Note de bas en Gris foncé */
+
+/* ── APP SCREEN ── */
+#screen-app{background:#ffffff;display:none;min-height:100vh;flex-direction:column;} /* ⚪ Fond global en blanc */
+.app-header{background:#1e3a8a;border-bottom:1px solid #cbd5e1; /* 🔵 Entête de la page en bleu foncé */
+  padding:0 24px;height:52px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:200;}
+.app-brand{font-weight:800;font-size:1rem;color:#ffffff;display:flex;align-items:center;gap:7px;} /* ⚪ Texte blanc pour le contraste */
+.hbadge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:5px; /* ✨ Badges ajustés pour fond sombre */
+  padding:3px 10px;font-size:.78rem;color:#e2e8f0;}
+.hbadge b{color:#ffffff;}
+.btn-change{margin-left:auto;background:none;border:1px solid rgba(255,255,255,0.3);color:#e2e8f0; /* ✨ Bouton de changement épuré */
+  padding:5px 12px;border-radius:5px;cursor:pointer;font-size:.78rem;font-family:inherit;transition:.15s;}
+.btn-change:hover{border-color:#ffffff;color:#ffffff;background:rgba(255,255,255,0.1);}
+
+/* ── TABS ── */
+.tabbar{background:#ffffff;border-bottom:1px solid #cbd5e1; /* ⚪ Fond de la barre en blanc pur */
+  display:flex;padding:0 24px;position:sticky;top:52px;z-index:100;}
+.tab-btn{padding:14px 22px;border:none;background:none;color:#475569;cursor:pointer; /* 🔘 Onglets inactifs en gris foncé */
+  font-size:.88rem;font-weight:600;border-bottom:2px solid transparent;transition:.15s;font-family:inherit;}
+.tab-btn.on{color:#1e3a8a;border-bottom-color:#1e3a8a;} /* 🔵 Onglet actif souligné en bleu foncé */
+.tab-btn:hover:not(.on){color:#333333;} /* 🔘 Survol de l'onglet en gris foncé intense */
+.tab-pane{display:none;padding:28px 28px 60px;max-width:1040px;margin:0 auto;}
+.tab-pane.on{display:block;}
+
+/* ── FORM ELEMENTS ── */
+label.flabel{display:block;font-size:.72rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:#475569;margin-bottom:6px;} /* 🔘 Libellé des champs en gris foncé */
+input[type=number],input[type=email]{background:#f0f4f8;border:1px solid #cbd5e1; /* ✨ Pavés de saisie en bleu-gris */
+  border-radius:var(--rad);color:#333333;font-family:inherit;font-size:.9rem; /* 🔘 Texte saisi en gris foncé */
+  padding:9px 13px;transition:.15s;width:100%;}
+input[type=number]:focus,input[type=email]:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58,138,.12);} /* 🔵 Focus en bleu foncé */
+.fg{margin-bottom:20px;}
+.row2{display:grid;grid-template-columns:180px 1fr;gap:16px;}
+
+textarea{width:100%;background:#f0f4f8;border:1px solid #cbd5e1;border-radius:var(--rad); /* ✨ Zone du CV en bleu-gris */
+  color:#333333;font-family:'JetBrains Mono','Courier New',monospace;font-size:.82rem; /* 🔘 Texte du CV en gris foncé */
+  padding:10px 14px;resize:vertical;transition:.15s;line-height:1.65;}
+textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58,138,.12);} /* 🔵 Focus en bleu foncé */
+
+/* ── SECTION HEADERS ── */
+.sh{display:flex;align-items:center;gap:10px;margin:28px 0 14px;
+  padding-bottom:12px;border-bottom:1px solid #cbd5e1;} /* ⚪ Ligne de séparation gris clair net */
+.sh-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;flex-shrink:0;}
+.sh-title{font-size:.98rem;font-weight:700;color:#1e3a8a;} /* 🔵 Titres de sous-sections en bleu foncé */
+.sh-hint{font-size:.75rem;color:#475569;margin-left:4px;} /* 🔘 Texte indicatif discret en gris foncé */
+
+/* ── DEPARTMENTS ── */
+.dep-wrap{background:#f0f4f8;border:1px solid #cbd5e1;border-radius:var(--rad); /* ✨ Cadre de la grille en bleu-gris */
+  padding:10px 8px;max-height:220px;overflow-y:auto;margin-bottom:8px;
+  scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent;}
+.dep-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;}
+.dep-cb{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#475569; /* 🔘 Texte des départements en gris foncé */
+  cursor:pointer;padding:3px 5px;border-radius:4px;transition:.1s;white-space:nowrap;overflow:hidden;}
+.dep-cb:hover{background:#e2e8f0;color:#333333;} /* 🔘 Survol de case en gris-bleu clair et texte foncé */
+.dep-cb input[type=checkbox]{accent-color:#1e3a8a;cursor:pointer;flex-shrink:0;width:12px;height:12px;} /* 🔵 Case cochée en bleu foncé */
+.dep-sum-row{display:flex;align-items:flex-start;gap:8px;font-size:.78rem;
+  padding:6px 10px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;margin-top:4px;} /* ✨ Pavés de résumé en bleu-gris clair */
+.dep-sum-row+.dep-sum-row{margin-top:4px;}
+.dep-sum-lbl{font-weight:700;white-space:nowrap;flex-shrink:0;}
+.dep-sum-val{color:#475569;word-break:break-all;flex:1;} /* 🔘 Texte des valeurs en gris foncé */
+.dep-sum-ft .dep-sum-lbl{color:#1e3a8a;} /* 🔵 Libellé France Travail en bleu foncé */
+.dep-sum-adz .dep-sum-lbl{color:#7c3aed;} /* 🟪 Libellé Adzuna en violet foncé haute visibilité */
+
+/* ── SAVE BUTTON ── */
+.btn-save{background:#1e3a8a;color:white;border:none;padding:11px 22px; /* 🔵 Bouton calqué sur le bleu foncé du titre */
+  border-radius:var(--rad);font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:.15s;display:inline-flex;align-items:center;gap:7px;margin-top:20px;}
+.btn-save:hover{background:#1d4ed8;transform:translateY(-1px);} /* 🔵 Survol plus lumineux assorti */
+.btn-save:active{transform:scale(.98);}
+
+/* ── CV SECTIONS ── */
+.cv-sec{background:#ffffff;border:1px solid #cbd5e1;border-radius:10px; /* ⚪ Fond de bloc en blanc et bordure gris clair */
+  margin-bottom:12px;overflow:hidden;}
+.cv-sec-hdr{display:flex;align-items:center;gap:8px;padding:9px 16px;
+  border-bottom:1px solid #cbd5e1;}
+.cv-sec-tag{font-family:'JetBrains Mono','Courier New',monospace;font-size:.74rem;
+  font-weight:600;padding:2px 9px;border-radius:5px;background:#f0f4f8;color:#475569;} /* ✨ Tag en fond bleu-gris et texte gris foncé */
+.cv-sec-crit{margin-left:auto;font-size:.7rem;font-weight:700;
+  background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5; /* 🔴 Alerte critique optimisée pour fond blanc (rouge sur rose très clair) */
+  padding:2px 8px;border-radius:10px;}
+.cv-sec textarea{border:none;border-radius:0;background:#f0f4f8;min-height:80px;padding:12px 16px; /* ✨ Zone de saisie en bleu-gris */
+  color:#333333;font-size:.83rem;} /* 🔘 Texte du CV en gris foncé */
+.cv-sec textarea:focus{border:none;outline:none;box-shadow:inset 0 0 0 2px rgba(30,58,138,0.12);background:#f0f4f8;} /* 🔵 Focus discret en bleu foncé */
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:8px;
+  font-size:.87rem;font-weight:600;opacity:0;transform:translateY(8px);
+  transition:all .25s;z-index:9999;pointer-events:none;max-width:300px;
+  box-shadow: 0 10px 25px rgba(30, 41, 59, 0.15);} /* ✨ Ajout d'une ombre portée pour ressortir sur le fond blanc */
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.ok{background:#d1fae5;color:#065f46;border:1px solid #10b981;} /* 🟢 Succès : Texte vert foncé sur fond vert pastel très clair */
+#toast.err{background:#fee2e2;color:#991b1b;border:1px solid #f87171;} /* 🔴 Erreur : Texte rouge foncé sur fond rose pastel très clair */
+#toast.inf{background:#f0f4f8;color:#1e3a8a;border:1px solid #cbd5e1;} /* 🔵 Info : Texte bleu foncé sur fond bleu-gris */
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;} /* ✨ Curseur passé en gris-bleu clair discret */
+
+/* ── RESPONSIVE ── */
+@media(max-width:720px){
+  .dep-grid{grid-template-columns:repeat(3,1fr);}
+  .row2{grid-template-columns:1fr;}
+  .app-header{padding:0 14px;}
+  .tab-pane{padding:16px 14px 60px;}
+  .tabbar{padding:0 10px;}
+  .tab-btn{padding:13px 14px;font-size:.82rem;}
+  .hbadge.path{display:none;}
+}
+
+/* ── PROFILE LIST ── */
+#profile-list { margin-top: 6px; }
+.profile-scanning { color: #475569; font-size: .85rem; padding: 14px;
+  text-align: center; font-style: italic; }
+.profile-empty { color: #b91c1c; font-size: .85rem; padding: 12px 14px;
+  background: #fee2e2; border: 1px solid #fca5a5;
+  border-radius: 8px; text-align: center; line-height: 1.5; }
+.profile-btn { width: 100%; background: #f0f4f8; border: 1px solid #cbd5e1;
+  color: #1e3a8a; padding: 11px 16px; border-radius: 8px; font-size: .92rem;
+  font-weight: 600; cursor: pointer; font-family: inherit; transition: .15s;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 7px; text-align: left; }
+.profile-btn:hover { background: #dbeafe; border-color: #1e3a8a;
+  transform: translateX(3px); }
+.profile-btn:last-child { margin-bottom: 0; }
+.profile-btn .pico { font-size: 1.1rem; }
+.profile-btn .pname { flex: 1; }
+.profile-btn .parrow { color: #cbd5e1; font-size: .9rem; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SETUP SCREEN
+══════════════════════════════════════════ -->
+<div id="screen-setup" class="setup-screen">
+  <div class="setup-card">
+    <div class="setup-logo">
+      <span class="setup-logo-icon">🎯</span>
+      <h1>Job Radar</h1>
+      <p>Configuration du profil de recherche</p>
+    </div>
+
+    <div id="compat-warn" class="compat-warn" style="display:none">
+      ⚠️ <strong>Navigateur non compatible.</strong><br>
+      Cette application nécessite <strong>Google Chrome</strong> ou <strong>Microsoft Edge</strong> (version 86+) pour accéder aux fichiers partagés.
+    </div>
+
+    <!-- STEP 1 : Dossier -->
+    <div class="step-block">
+      <div class="step-lbl"><span class="n">1</span>Sélectionner le dossier partagé</div>
+      <button class="btn-pick" id="btn-pick" onclick="selectFolder()">
+        📁 Choisir le dossier partagé…
+      </button>
+      <div class="folder-path" id="folder-path" style="display:none"></div>
+    </div>
+
+    <!-- STEP 2 : Sélection du profil -->
+    <div class="step-block">
+      <div class="step-lbl" id="step2-lbl" style="display:none">
+        <span class="n">2</span> Sélectionner votre profil
+      </div>
+      <div id="profile-list" style="display:none"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP SCREEN
+══════════════════════════════════════════ -->
+<div id="screen-app">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="app-brand">🎯 Job Radar Config</div>
+    <div class="hbadge">Profil : <b id="hdr-profile"></b></div>
+    <div class="hbadge path" id="hdr-folder" style="font-family:monospace;font-size:.73rem;"></div>
+    <button class="btn-change" onclick="backToSetup()">↩ Changer de profil</button>
+  </header>
+
+  <!-- Tab bar -->
+  <div class="tabbar">
+    <button class="tab-btn on" id="tbtn-config" onclick="showTab('config')">⚙️  Config Radar</button>
+    <button class="tab-btn"    id="tbtn-cv"     onclick="showTab('cv')">👤  CV pour IA</button>
+  </div>
+
+  <!-- ═══════ CONFIG TAB ═══════ -->
+  <div class="tab-pane on" id="tab-config">
+
+    <!-- Score + Email -->
+    <div class="row2">
+      <div class="fg">
+        <label class="flabel" for="inp-score">Score minimum (0–100)</label>
+        <input type="number" id="inp-score" min="0" max="100" value="70">
+      </div>
+      <div class="fg">
+        <label class="flabel" for="inp-email">Email destinataire du rapport</label>
+        <input type="email" id="inp-email" placeholder="votre@email.com">
+      </div>
+    </div>
+
+    <!-- Departments -->
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(46,204,113,.1)">🗺️</div>
+      <div class="sh-title">Départements</div>
+      <div class="sh-hint">Cochez les zones de recherche</div>
+      <button onclick="toggleAll(true)" style="margin-left:auto;background:none;border:1px solid var(--brd);color:var(--dim);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.75rem;font-family:inherit;">Tout</button>
+      <button onclick="toggleAll(false)" style="background:none;border:1px solid var(--brd);color:var(--dim);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.75rem;font-family:inherit;">Aucun</button>
+    </div>
+
+    <div class="dep-wrap">
+      <div class="dep-grid" id="dep-grid"></div>
+    </div>
+
+    <div class="dep-sum-row dep-sum-ft">
+      <span class="dep-sum-lbl">🔵 </span>
+      <span class="dep-sum-val" id="sum-ft">–</span>
+    </div>
+    <div class="dep-sum-row dep-sum-adz">
+      <span class="dep-sum-lbl">🟣 </span>
+      <span class="dep-sum-val" id="sum-adz">–</span>
+    </div>
+
+    <!-- Keywords -->
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(79,142,247,.1)">🔍</div>
+      <div class="sh-title">Mots-clés de recherche</div>
+      <div class="sh-hint">— Un mot-clé par ligne</div>
+    </div>
+    <textarea id="inp-keywords" rows="10" placeholder="Data Analyst&#10;Business Analyst&#10;Chef de projet data&#10;Consultant BI"></textarea>
+
+    <!-- Blacklist -->
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(231,76,60,.1)">🚫</div>
+      <div class="sh-title">Blacklist</div>
+      <div class="sh-hint">— Un terme par ligne, en MAJUSCULES</div>
+    </div>
+    <textarea id="inp-blacklist" rows="8" placeholder="STAGE&#10;ALTERNANCE&#10;JUNIOR&#10;APPRENTI"></textarea>
+
+    <div>
+      <button class="btn-save" onclick="saveConfig()">💾  Sauvegarder la configuration</button>
+    </div>
+  </div>
+
+  <!-- ═══════ CV TAB ═══════ -->
+  <div class="tab-pane" id="tab-cv">
+    <div id="cv-container"></div>
+    <button class="btn-save" onclick="saveCV()">💾  Sauvegarder le CV pour IA</button>
+  </div>
+
+</div><!-- /#screen-app -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════════════
+const DEPS = [
+  ["01","Ain"],["02","Aisne"],["03","Allier"],["04","Alpes de Haute Provence"],
+  ["05","Hautes Alpes"],["06","Alpes Maritimes"],["07","Ardeche"],["08","Ardennes"],
+  ["09","Ariege"],["10","Aube"],["11","Aude"],["12","Aveyron"],
+  ["13","Bouches du Rhone"],["14","Calvados"],["15","Cantal"],["16","Charente"],
+  ["17","Charente Maritime"],["18","Cher"],["19","Correze"],["21","Cote d Or"],
+  ["22","Cotes d Armor"],["23","Creuse"],["24","Dordogne"],["25","Doubs"],
+  ["26","Drome"],["27","Eure"],["28","Eure et Loir"],["29","Finistere"],
+  ["2A","Corse du Sud"],["2B","Haute Corse"],["30","Gard"],["31","Haute Garonne"],
+  ["32","Gers"],["33","Gironde"],["34","Herault"],["35","Ille et Vilaine"],
+  ["36","Indre"],["37","Indre et Loire"],["38","Isere"],["39","Jura (Bourgogne Franche Comte)"],
+  ["40","Landes"],["41","Loir et Cher"],["42","Loire (Auvergne Rhone Alpes)"],["43","Haute Loire"],
+  ["44","Loire Atlantique"],["45","Loiret"],["46","Lot"],["47","Lot et Garonne"],
+  ["48","Lozere"],["49","Maine et Loire"],["50","Manche"],["51","Marne"],
+  ["52","Haute Marne"],["53","Mayenne"],["54","Meurthe et Moselle"],["55","Meuse"],
+  ["56","Morbihan"],["57","Moselle"],["58","Nievre"],["59","Nord (Hauts de France)"],
+  ["60","Oise"],["61","Orne"],["62","Pas de Calais"],["63","Puy de Dome"],
+  ["64","Pyrenees Atlantiques"],["65","Hautes Pyrenees"],["66","Pyrenees Orientales"],["67","Bas Rhin"],
+  ["68","Haut Rhin"],["69","Rhone (Auvergne Rhone Alpes)"],["70","Haute Saone"],["71","Saone et Loire"],
+  ["72","Sarthe"],["73","Savoie"],["74","Haute Savoie"],["75","Paris"],
+  ["76","Seine Maritime"],["77","Seine et Marne"],["78","Yvelines"],["79","Deux Sevres"],
+  ["80","Somme"],["81","Tarn"],["82","Tarn et Garonne"],["83","Var"],
+  ["84","Vaucluse"],["85","Vendee"],["86","Vienne (Nouvelle Aquitaine)"],["87","Haute Vienne"],
+  ["88","Vosges"],["89","Yonne"],["90","Territoire de Belfort"],["91","Essonne"],
+  ["92","Hauts de Seine"],["93","Seine Saint Denis"],["94","Val de Marne"],["95","Val d Oise"],
+  ["971","Guadeloupe"],["972","Martinique"],["973","Guyane"],["974","La Reunion"],["976","Mayotte"]
+];
+
+const CV_SECS = [
+  {k:"SECTEURS RECHERCHÉS",          rows:3,  color:"#1e8449",bg:"rgba(39,174,96,.08)",   crit:false},
+  {k:"PROFIL",                        rows:5,  color:"#1a5276",bg:"rgba(52,152,219,.08)",  crit:false},
+  {k:"CONTRAINTE",                    rows:5,  color:"#922b21",bg:"rgba(231,76,60,.08)",   crit:true},
+  {k:"CONSIGNE DE FILTRAGE CRITIQUE", rows:6,  color:"#922b21",bg:"rgba(231,76,60,.08)",   crit:true},
+  {k:"COMPÉTENCES CLÉS",              rows:5,  color:"#6c3483",bg:"rgba(155,89,182,.08)",  crit:false},
+  {k:"EXPÉRIENCES MAJEURES",          rows:9,  color:"#1a5276",bg:"rgba(52,152,219,.08)",  crit:false},
+  {k:"MISSIONS & RÉALISATIONS PHARES",rows:7,  color:"#1e6823",bg:"rgba(39,174,96,.08)",   crit:false},
+  {k:"FORMATION ET CERTIFICATIONS",   rows:4,  color:"#935116",bg:"rgba(230,126,34,.08)",  crit:false},
+  {k:"LANGUES",                       rows:3,  color:"#7d6608",bg:"rgba(241,196,15,.08)",  crit:false},
+  {k:"OUTILS & COMPÉTENCES DIGITALES",rows:5,  color:"#6c3483",bg:"rgba(155,89,182,.08)",  crit:false},
+];
+
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+let rootDir  = null;   // FileSystemDirectoryHandle
+let profName = '';
+const depCbs = {};     // code -> <input type=checkbox>
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Browser check
+  if (!window.showDirectoryPicker) {
+    document.getElementById('compat-warn').style.display = 'block';
+    document.getElementById('btn-pick').disabled = true;
+  }
+  buildDepGrid();
+  buildCVSections();
+});
+
+// ════════════════════════════════════════════════════════
+//  BUILD UI
+// ════════════════════════════════════════════════════════
+function buildDepGrid() {
+  const grid = document.getElementById('dep-grid');
+  DEPS.forEach(([code, name]) => {
+    const lbl = document.createElement('label');
+    lbl.className = 'dep-cb';
+    lbl.title = `${code} — ${name}`;
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.dataset.code = code;
+    cb.dataset.adz  = name;
+    cb.addEventListener('change', updateDepSummary);
+    depCbs[code] = cb;
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode(` ${code}`));
+    grid.appendChild(lbl);
+  });
+}
+
+function buildCVSections() {
+  const c = document.getElementById('cv-container');
+  CV_SECS.forEach(({k, rows, color, bg, crit}) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'cv-sec';
+    wrap.style.borderLeft = `3px solid ${color}`;
+
+    const hdr = document.createElement('div');
+    hdr.className = 'cv-sec-hdr';
+    hdr.style.background = bg;
+
+    const tag = document.createElement('div');
+    tag.className = 'cv-sec-tag';
+    tag.textContent = `### ${k} ###`;
+    tag.style.cssText = `background:${bg};color:${color};border:1px solid ${color}40;`;
+    hdr.appendChild(tag);
+
+    if (crit) {
+      const badge = document.createElement('div');
+      badge.className = 'cv-sec-crit';
+      badge.textContent = '🔴 CRITIQUE — impact direct sur le score';
+      hdr.appendChild(badge);
+    }
+
+    const ta = document.createElement('textarea');
+    ta.id   = `cv__${k}`;
+    ta.rows = rows;
+    ta.addEventListener('input', autoResize);
+
+    wrap.appendChild(hdr);
+    wrap.appendChild(ta);
+    c.appendChild(wrap);
+  });
+}
+
+function autoResize() {
+  this.style.height = 'auto';
+  this.style.height = this.scrollHeight + 'px';
+}
+
+// ════════════════════════════════════════════════════════
+//  SETUP FLOW
+// ════════════════════════════════════════════════════════
+async function selectFolder() {
+  try {
+    rootDir = await window.showDirectoryPicker({ mode: 'readwrite', startIn: 'desktop' });
+    const btn = document.getElementById('btn-pick');
+    btn.classList.add('ok');
+    btn.innerHTML = `✅ &nbsp;${rootDir.name}`;
+    const fp = document.getElementById('folder-path');
+    fp.style.display = 'block';
+    fp.textContent   = '📁 ' + rootDir.name;
+    await scanProfiles();            // ← nouvelle ligne (noter le await, la fonction est async)
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('Erreur lors de la sélection du dossier.','err');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  SCAN DES PROFILS EXISTANTS
+// ════════════════════════════════════════════════════════
+async function scanProfiles() {
+  const list  = document.getElementById('profile-list');
+  const lbl   = document.getElementById('step2-lbl');
+  lbl.style.display  = 'block';
+  list.style.display = 'block';
+  list.innerHTML     = '<div class="profile-scanning">🔍 Recherche des profils en cours…</div>';
+
+  const found = [];
+  try {
+    for await (const [name, handle] of rootDir.entries()) {
+      if (handle.kind !== 'directory') continue;
+      // Vérifier que les deux fichiers requis sont présents dans ce sous-dossier
+      let valid = false;
+      try {
+        await handle.getFileHandle(`Config_Radar_${name}.json`);
+        await handle.getFileHandle(`cv_profile_${name}.txt`);
+        valid = true;
+      } catch { /* sous-dossier sans fichiers valides — ignoré */ }
+      if (valid) found.push(name);
+    }
+  } catch(e) {
+    list.innerHTML = '<div class="profile-empty">❌ Impossible de lire le dossier partagé.</div>';
+    toast('Erreur lors du scan du dossier : ' + e.message, 'err');
+    return;
+  }
+
+  found.sort((a, b) => a.localeCompare(b, 'fr'));
+
+  if (found.length === 0) {
+    list.innerHTML = '<div class="profile-empty">⚠️ Aucun profil configuré trouvé dans ce dossier.<br>Vérifiez que vous avez sélectionné le bon répertoire.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  found.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'profile-btn';
+    btn.innerHTML = `<span class="pico">👤</span><span class="pname">${name}</span><span class="parrow">→</span>`;
+    btn.onclick = () => selectProfile(name);
+    list.appendChild(btn);
+  });
+}
+
+// ════════════════════════════════════════════════════════
+//  SÉLECTION D'UN PROFIL EXISTANT
+// ════════════════════════════════════════════════════════
+async function selectProfile(name) {
+  profName = name;
+
+  document.getElementById('hdr-profile').textContent = profName;
+  document.getElementById('hdr-folder').textContent  = '📁 …/' + rootDir.name + '/' + profName + '/';
+
+  document.getElementById('screen-setup').style.display = 'none';
+  document.getElementById('screen-app').style.display   = 'flex';
+  document.getElementById('screen-app').style.flexDirection = 'column';
+
+  toast('Chargement du profil ' + profName + '…', 'inf');
+  await Promise.all([ loadConfig(), loadCV() ]);
+}
+
+function backToSetup() {
+  profName = '';
+  document.getElementById('screen-app').style.display   = 'none';
+  document.getElementById('screen-setup').style.display = 'flex';
+
+  // Réinitialiser les formulaires
+  Object.values(depCbs).forEach(cb => cb.checked = false);
+  updateDepSummary();
+
+  // Effacer et reconstruire la liste des profils (le dossier est déjà ouvert)
+  if (rootDir) scanProfiles();
+}
+
+// ════════════════════════════════════════════════════════
+//  FILE HELPERS
+// ════════════════════════════════════════════════════════
+// ne crée JAMAIS de dossier
+async function getProfDir() {
+  return rootDir.getDirectoryHandle(profName, { create: false });
+}
+
+async function readText(fname) {
+  const d  = await getProfDir(false);
+  const fh = await d.getFileHandle(fname);
+  return (await fh.getFile()).text();
+}
+
+async function writeText(fname, content) {
+  const d  = await getProfDir();              // ← plus d'argument
+  const fh = await d.getFileHandle(fname, { create: true });
+  const w  = await fh.createWritable();
+  await w.write(content);
+  await w.close();
+}
+
+// ════════════════════════════════════════════════════════
+//  CONFIG — LOAD
+// ════════════════════════════════════════════════════════
+async function loadConfig() {
+  try {
+    const raw  = await readText(`Config_Radar_${profName}.json`);
+    const data = JSON.parse(raw);
+    fillConfigForm(data);
+//    toast(`✅ Config chargée (${profName})`, 'ok');
+  } catch(e) {
+    if (e.name === 'NotFoundError') {
+      fillConfigForm(null);
+      toast(`ℹ️ Nouveau profil — config vierge`, 'inf');
+    } else {
+      toast(`⚠️ Erreur lecture config : ${e.message}`, 'err');
+    }
+  }
+}
+
+function fillConfigForm(data) {
+  const sp = data?.search_params || {};
+  setVal('inp-score', sp.score_minimum ?? 70);
+  setVal('inp-email', sp.email ?? '');
+
+  // Departments
+  Object.values(depCbs).forEach(cb => cb.checked = false);
+  const codes = (sp.departement || '').split(',').map(s => s.trim()).filter(Boolean);
+  codes.forEach(c => { if (depCbs[c]) depCbs[c].checked = true; });
+  updateDepSummary();
+
+  setVal('inp-keywords',  (data?.keywords  || []).join('\n'));
+  setVal('inp-blacklist', (data?.blacklist || []).join('\n'));
+}
+
+// ════════════════════════════════════════════════════════
+//  CONFIG — SAVE
+// ════════════════════════════════════════════════════════
+async function saveConfig() {
+  // ── 1. VÉRIFICATION DU SCORE ──
+  const scoreRaw = parseInt(getVal('inp-score'));
+  if (isNaN(scoreRaw) || scoreRaw < 0 || scoreRaw > 100) {
+    toast('❌ Le score doit être compris entre 0 et 100.', 'err'); return;
+  }
+
+  // ── 2. VÉRIFICATION DES MOTS-CLÉS ──
+  const motsCles = getVal('inp-keywords').trim(); // 🔄 Corrigé avec getVal
+  if (!motsCles) {
+    toast("❌ Erreur : Vous devez renseigner au moins un mot-clé de recherche.", 'err'); return;
+  }
+
+  // ── 3. VÉRIFICATION DE L'EMAIL ──
+  const email = getVal('inp-email').trim(); // 🔄 Nettoyé (plus de double déclaration 'const')
+  if (!email) {
+    toast("❌ Erreur : L'adresse e-mail de réception est obligatoire.", 'err'); return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    toast("❌ L'adresse email semble invalide.", 'err'); return;
+  }
+
+  // ── 4. VÉRIFICATION DES DÉPARTEMENTS ──
+  // On vérifie si au moins UNE case de l'objet depCbs est cochée
+  const aDesDepts = Object.values(depCbs).some(cb => cb.checked);
+  if (!aDesDepts) {
+    toast("❌ Erreur : Vous devez sélectionner au moins un département.", 'err'); return;
+  }
+
+  // ── 5. VÉRIFICATION DE LA BLACKLIST ──
+  const blacklist = getVal('inp-blacklist').trim(); // 🔄 Corrigé avec getVal
+  if (!blacklist) {
+    const confirmation = confirm("⚠️ Attention : Votre Blacklist est vide.\n\nVoulez-vous quand même enregistrer sans exclusions ?");
+    if (!confirmation) return; // Arrête tout si l'utilisateur clique sur Annuler
+  }
+
+  const selCodes = DEPS.map(([c]) => c).filter(c => depCbs[c]?.checked);
+
+  const cfg = {
+    search_params: {
+      search_mode_ft:      "and",
+      search_mode_adzuna:  "and",
+      departement:         selCodes.join(','),
+      zones_adzuna:        selCodes.map(c => { const d=DEPS.find(([k])=>k===c); return d?d[1]:c; }),
+      publieeDepuis:       "7",
+      range:               "0-99",
+      score_minimum:       scoreRaw,
+      email:               email
+    },
+    keywords:  lines('inp-keywords'),
+    blacklist: lines('inp-blacklist')
+  };
+
+  try {
+    await writeText(`Config_Radar_${profName}.json`, JSON.stringify(cfg, null, 4));
+    toast('✅ Configuration sauvegardée !', 'ok');
+  } catch(e) {
+    toast('❌ Erreur lors de la sauvegarde : ' + e.message, 'err');
+    console.error(e);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  CV — LOAD
+// ════════════════════════════════════════════════════════
+async function loadCV() {
+  try {
+    const raw  = await readText(`cv_profile_${profName}.txt`);
+    const data = parseCV(raw);
+    CV_SECS.forEach(({k}) => {
+      const el = document.getElementById(`cv__${k}`);
+      if (el) { el.value = data[k] || ''; el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+    });
+//    toast(`✅ CV chargé (${profName})`, 'ok');
+  } catch(e) {
+    if (e.name !== 'NotFoundError') {
+      toast(`⚠️ Erreur lecture CV : ${e.message}`, 'err');
+    }
+  }
+}
+
+function parseCV(text) {
+  const data = {};
+  CV_SECS.forEach(({k}) => data[k] = '');
+  let cur = null, buf = [];
+  for (const line of text.split('\n')) {
+    const t = line.trim();
+    let matched = null;
+    for (const {k} of CV_SECS) { if (t === `### ${k} ###`) { matched = k; break; } }
+    if (matched !== null) {
+      if (cur !== null) data[cur] = buf.join('\n').trim();
+      cur = matched; buf = [];
+    } else if (cur !== null) {
+      buf.push(line);
+    }
+  }
+  if (cur !== null) data[cur] = buf.join('\n').trim();
+  return data;
+}
+
+// ════════════════════════════════════════════════════════
+//  CV — SAVE
+// ════════════════════════════════════════════════════════
+async function saveCV() {
+  const parts = [`# Profil CV \u2013 ${profName}`, ''];
+  CV_SECS.forEach(({k}) => {
+    parts.push(`### ${k} ###`);
+    const el = document.getElementById(`cv__${k}`);
+    parts.push(el ? el.value.trim() : '');
+    parts.push('');
+  });
+  try {
+    await writeText(`cv_profile_${profName}.txt`, parts.join('\n'));
+    toast('✅ CV pour IA sauvegardé !', 'ok');
+  } catch(e) {
+    toast('❌ Erreur lors de la sauvegarde : ' + e.message, 'err');
+    console.error(e);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════════════════════════
+function showTab(name) {
+  ['config','cv'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('on', t === name);
+    document.getElementById(`tbtn-${t}`).classList.toggle('on', t === name);
+  });
+}
+
+function updateDepSummary() {
+  const sel = DEPS.filter(([c]) => depCbs[c]?.checked);
+  document.getElementById('sum-ft').textContent  = sel.map(([c])=>c).join(', ') || '–';
+  document.getElementById('sum-adz').textContent = sel.map(([,n])=>n).join(', ') || '–';
+}
+
+function toggleAll(state) {
+  Object.values(depCbs).forEach(cb => cb.checked = state);
+  updateDepSummary();
+}
+
+let _tid = null;
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `show ${type}`;
+  // ── ✨ FORCE LE GROS TEXTE ET LE CENTRAGE AU MILIEU ──
+  el.style.top = '50%';
+  el.style.left = '50%';
+  el.style.transform = 'translate(-50%, -50%)'; // Centrage parfait
+  el.style.fontSize = '22px';                   // Texte plus gros (au lieu de 0.87rem)
+  el.style.padding = '10px 10px';               // Boîte plus généreuse
+  el.style.maxWidth = '450px';                  // Plus large pour les longs messages
+  el.style.textAlign = 'center';                // Texte bien centré
+  if (_tid) clearTimeout(_tid);
+  _tid = setTimeout(() => { el.className = ''; }, 3500);
+}
+
+const getVal = id => document.getElementById(id).value;
+const setVal = (id, v) => { document.getElementById(id).value = v; };
+const lines  = id => getVal(id).split('\n').map(s=>s.trim()).filter(Boolean);
+</script>
+</body>
+</html>
