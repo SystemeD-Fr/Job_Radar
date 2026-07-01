@@ -294,6 +294,35 @@ textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58
     </div>
     <textarea id="inp-blacklist" rows="8" placeholder="STAGE&#10;ALTERNANCE&#10;JUNIOR&#10;APPRENTI"></textarea>
 
+    <!-- Exclusion Stage/Alternance/VIE -->
+    <div class="sh" style="margin-top:24px;">
+      <div class="sh-icon" style="background:rgba(231,76,60,.1)">🚫</div>
+      <div class="sh-title">Exclusions contractuelles</div>
+      <div class="sh-hint">— Filtrage par type de contrat</div>
+    </div>
+    <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:13px 16px;
+      background:#f0f4f8;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:8px;">
+      <input type="checkbox" id="chk-excl-stage" checked
+        style="width:16px;height:16px;accent-color:#922b21;cursor:pointer;flex-shrink:0;">
+      <span style="font-size:.88rem;color:#333333;line-height:1.5;">
+        Exclure les offres de <strong>Stage, VIE et Alternance</strong>
+        <span style="display:block;font-size:.78rem;color:#475569;">
+          Injecte automatiquement une consigne de filtrage critique dans le CV pour IA
+        </span>
+      </span>
+    </label>
+    <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:13px 16px;
+      background:#f0f4f8;border:1px solid #cbd5e1;border-radius:8px;">
+      <input type="checkbox" id="chk-excl-debutant" checked
+        style="width:16px;height:16px;accent-color:#922b21;cursor:pointer;flex-shrink:0;">
+      <span style="font-size:.88rem;color:#333333;line-height:1.5;">
+        Exclure les offres destinées aux <strong>débutants</strong>
+        <span style="display:block;font-size:.78rem;color:#475569;">
+          Plafonne le score à 70 si le poste est trop junior pour ce profil
+        </span>
+      </span>
+    </label>
+
     <div>
       <button class="btn-save" onclick="saveConfig()">💾  Sauvegarder la configuration</button>
     </div>
@@ -356,6 +385,12 @@ const CV_SECS = [
 ];
 
 // ════════════════════════════════════════════════════════
+//  CONSTANTE — TEXTE D'EXCLUSION STAGE/ALTERNANCE
+// ════════════════════════════════════════════════════════
+const EXCL_STAGE_TEXT    = "Si tu détectes que cette offre est une offre de STAGE, de VIE ou d'ALTERNANCE (apprentissage/professionnalisation), attribue impérativement un SCORE de 0 et indique 'TYPE_CONTRAT_EXCLU' dans l'analyse en précisant pourquoi, même si les compétences correspondent parfaitement au CV.";
+const EXCL_DEBUTANT_TEXT = "Si l'offre mentionne 'Débutant accepté' ou une expérience requise inférieure à 10 ans, le score ne doit pas dépasser 70 car le poste est trop junior pour ce profil de Directrice. Indique si les missions et compétences sont compatibles avec le CV, même si le poste est junior ou débutant.";
+
+// ════════════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════════════
 let rootDir  = null;   // FileSystemDirectoryHandle
@@ -399,6 +434,16 @@ function buildDepGrid() {
 function buildCVSections() {
   const c = document.getElementById('cv-container');
   CV_SECS.forEach(({k, rows, color, bg, crit}) => {
+
+    // Section gérée automatiquement par les cases à cocher → textarea caché, pas d'interface visible
+    if (k === 'CONSIGNE DE FILTRAGE CRITIQUE') {
+      const ta = document.createElement('textarea');
+      ta.id = `cv__${k}`;
+      ta.style.display = 'none';
+      c.appendChild(ta);
+      return;
+    }
+
     const wrap = document.createElement('div');
     wrap.className = 'cv-sec';
     wrap.style.borderLeft = `3px solid ${color}`;
@@ -590,6 +635,11 @@ function fillConfigForm(data) {
 
   setVal('inp-keywords',  (data?.keywords  || []).join('\n'));
   setVal('inp-blacklist', (data?.blacklist || []).join('\n'));
+
+  const chkStage    = document.getElementById('chk-excl-stage');
+  const chkDebutant = document.getElementById('chk-excl-debutant');
+  if (chkStage)    chkStage.checked    = data?.exclude_stage_alternance    ?? true;
+  if (chkDebutant) chkDebutant.checked = data?.exclude_debutant            ?? true;
 }
 
 // ════════════════════════════════════════════════════════
@@ -645,11 +695,44 @@ async function saveConfig() {
       email:               email
     },
     keywords:  lines('inp-keywords'),
-    blacklist: lines('inp-blacklist')
+    blacklist: lines('inp-blacklist'),
+    exclude_stage_alternance: document.getElementById('chk-excl-stage')?.checked    ?? true,
+    exclude_debutant:         document.getElementById('chk-excl-debutant')?.checked ?? true
   };
 
   try {
     await writeText(`Config_Radar_${profName}.json`, JSON.stringify(cfg, null, 4));
+
+    // ── 6. MISE À JOUR DE LA CONSIGNE D'EXCLUSION DANS LE CV ──
+    const exclStage    = document.getElementById('chk-excl-stage')?.checked    ?? true;
+    const exclDebutant = document.getElementById('chk-excl-debutant')?.checked ?? true;
+    const consigneEl   = document.getElementById('cv__CONSIGNE DE FILTRAGE CRITIQUE');
+    if (consigneEl) {
+      // — Gestion texte Stage/Alternance —
+      const hasStage = consigneEl.value.includes('TYPE_CONTRAT_EXCLU');
+      if (exclStage && !hasStage) {
+        consigneEl.value = (consigneEl.value.trim() ? consigneEl.value.trim() + '\n\n' : '') + EXCL_STAGE_TEXT;
+      } else if (!exclStage && hasStage) {
+        consigneEl.value = consigneEl.value.replace(EXCL_STAGE_TEXT, '').trim();
+      }
+      // — Gestion texte Débutant —
+      const hasDebutant = consigneEl.value.includes('Débutant accepté');
+      if (exclDebutant && !hasDebutant) {
+        consigneEl.value = (consigneEl.value.trim() ? consigneEl.value.trim() + '\n\n' : '') + EXCL_DEBUTANT_TEXT;
+      } else if (!exclDebutant && hasDebutant) {
+        consigneEl.value = consigneEl.value.replace(EXCL_DEBUTANT_TEXT, '').trim();
+      }
+      // — Sauvegarde silencieuse du CV (sans toast séparé) —
+      const parts = [`# Profil CV \u2013 ${profName}`, ''];
+      CV_SECS.forEach(({k}) => {
+        parts.push(`### ${k} ###`);
+        const el = document.getElementById(`cv__${k}`);
+        parts.push(el ? el.value.trim() : '');
+        parts.push('');
+      });
+      await writeText(`cv_profile_${profName}.txt`, parts.join('\n'));
+    }
+
     toast('✅ Configuration sauvegardée !', 'ok');
   } catch(e) {
     toast('❌ Erreur lors de la sauvegarde : ' + e.message, 'err');
