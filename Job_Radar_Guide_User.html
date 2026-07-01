@@ -224,14 +224,14 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 <div class="ph">
   <div class="pb pb-c">⚙️</div>
   <div>
-    <div class="plabel">Étape 1 — Config_Radar.html · Onglets ⚙️ Config &amp; 👤 CV</div>
-    <div class="ptitle">Ouvrir l'outil et sélectionner votre profil</div>
+    <div class="plabel">Étape 1 — Config_Radar.html </div>
+    <div class="ptitle">Sélectionner votre dossier partagé</div>
   </div>
 </div>
 
 <p>Ouvrez le fichier <strong>Config_Radar.html</strong> dans <strong>Google Chrome</strong> ou <strong>Microsoft Edge</strong>. L'accès aux fichiers partagés n'est pas disponible sur d'autres navigateurs.</p>
 
-<p>L'outil démarre sur un écran en deux étapes : vous choisissez d'abord le dossier partagé, puis vous sélectionnez votre profil dans la liste qui s'affiche automatiquement.</p>
+<p>L'outil démarre sur un écran qu ivous demande de choisir le dossier partagé, et vous êtes ensuite redirigé automatiquement vers la page de configuration.</p>
 
 <!-- Mockup de l'écran de démarrage -->
 <div class="wam">
@@ -248,23 +248,14 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
       <div style="font-size:.75rem;color:#475569;font-family:'Inter',sans-serif;">Configuration du profil de recherche</div>
     </div>
     <div class="wam-lbl"><span class="wn">1</span>Sélectionner le dossier partagé</div>
-    <div class="wam-folder-ok">✅ &nbsp;Configurations</div>
-    <div class="wam-fp">📁 Configurations</div>
-    <div class="wam-lbl"><span class="wn">2</span>Sélectionner votre profil</div>
-    <div class="wam-pb"><span>👤</span><span>Alice Dir. Comm.</span><span class="wpa">→</span></div>
-    <div class="wam-pb hl"><span>👤</span><span style="color:#1e3a8a;">Alice Freelance</span><span class="wpa">→</span></div>
-    <div class="wam-pb"><span>👤</span><span>Alice Format.</span><span class="wpa">→</span></div>
+    <div class="wam-folder-ok">✅ &nbsp;Fab</div>
+    <div class="wam-fp">📁 Fab</div>
   </div>
 </div>
 
 <div class="cg" style="margin-top:14px;">
-  <div class="card"><h4>📁 Étape 1 — Choisir le dossier</h4><p>Cliquez sur <strong>Choisir le dossier partagé…</strong>. Une fenêtre système s'ouvre. Naviguez jusqu'au dossier <code style="font-size:.78rem;background:var(--card2);padding:1px 5px;border-radius:3px;">Configurations</code> partagé par l'administrateur et cliquez sur <strong>Ouvrir</strong>.</p></div>
-  <div class="card"><h4>👤 Étape 2 — Choisir votre profil</h4><p>L'outil détecte automatiquement tous les profils présents et les affiche sous forme de boutons. <strong>Cliquez sur le profil à paramétrer</strong>. Vos données de configuration du radar et votre CV se chargent immédiatement dans les deux onglets.</p></div>
+  <div class="card"><h4>📁 Choisir le dossier</h4><p>Cliquez sur <strong>Choisir le dossier partagé…</strong>. Une fenêtre système s'ouvre. Naviguez jusqu'au dossier <code style="font-size:.78rem;background:var(--card2);padding:1px 5px;border-radius:3px;">de votre profil</code> partagé par l'administrateur et cliquez sur <strong>Ouvrir</strong>.</p></div>
 </div>
-
-<div class="tip tr"><div class="tl">⚠️ Si votre profil n'apparaît pas dans la liste</div>Votre sous-dossier ne contient pas les deux fichiers requis (<code style="font-size:.8rem">Config_Radar_Prenom.json</code> et <code style="font-size:.8rem">cv_profile_Prenom.txt</code>). Contactez l'administrateur pour qu'il initialise votre profil.</div>
-
-<div class="tip tc"><div class="tl">🔄 Changer de profil en cours de session</div>Cliquez sur <strong>↩ Changer de profil</strong> dans la barre d'en-tête bleue pour revenir à la liste des profils, sans avoir à rechoisir le dossier partagé.</div>
 
 <a class="anchor" id="cv"></a>
 <hr>
@@ -290,7 +281,7 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 <p>L'adresse à laquelle vous souhaitez recevoir votre rapport. Vérifiez qu'elle est correcte — c'est la seule façon de recevoir vos résultats par email.</p>
 
 <div class="psub">Départements</div>
-<p>Cochez les départements dans lesquels vous cherchez. L'interface affiche en temps réel les codes pour France Travail et les noms pour Adzuna.</p>
+<p>Cochez les départements dans lesquels vous cherchez. L'interface affiche en temps réel les codes en chiffres et en lettres.</p>
 <div class="tip tc"><div class="tl">🗺️ Île-de-France complète</div>Cochez : <strong>75</strong> Paris · <strong>92</strong> Hauts-de-Seine · <strong>93</strong> Seine-Saint-Denis · <strong>94</strong> Val-de-Marne · <strong>91</strong> Essonne · <strong>78</strong> Yvelines · <strong>95</strong> Val-d'Oise · <strong>77</strong> Seine-et-Marne.</div>
 
 <div class="psub">Mots-clés de recherche</div>
@@ -310,14 +301,37 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 <div class="tip tp"><div class="tl">🧠 Stratégie mots-clés</div>Visez des intitulés de 2 à 3 mots, fidèles aux titres de postes que vous voyez dans vos recherches manuelles sur LinkedIn ou Indeed. Reproduisez les termes réels utilisés par les recruteurs.</div>
 
 <div class="psub">Blacklist — mots interdits</div>
-<p>Un terme par ligne, en majuscules. Toute offre dont le titre contient un de ces termes est exclue <strong>avant</strong> l'analyse IA. Elle reste visible dans la section rouge de votre rapport.</p>
+<p>Un terme par ligne, en majuscules. Toute offre dont le titre contient un de ces termes est exclue <strong>avant</strong> l'analyse IA. Elle reste visible dans la section rouge de votre rapport. Pensez à mettre les mots à exclure <strong>avec et sans accents, en FR et EN</strong> </p>
 
 <div class="cg">
-  <div class="card"><h4>🚫 Contrats non souhaités</h4><p>STAGE · ALTERNANCE · APPRENTI · CDD · FREELANCE · INTERIM</p></div>
+  <div class="card"><h4>🚫 Contrats non souhaités</h4><p>STAGE · ALTERNANCE · APPRENTI · FREELANCE · INTERIM</p></div>
   <div class="card"><h4>🚫 Niveaux non adaptés</h4><p>JUNIOR · DEBUTANT · BAC+2 · ENTRY LEVEL · STAGIAIRE</p></div>
-  <div class="card"><h4>🚫 Secteurs à exclure</h4><p>GRANDE DISTRIBUTION · FAST FOOD · RESTAURATION</p></div>
+  <div class="card"><h4>🚫 Postes à exclure</h4><p>DEVELOPPEMENT COMMERCIAL · DÉVELOPPEMENT COMMERCIAL · BUSINESS DEVELOPER</p></div>
   <div class="card"><h4>🚫 Autres exemples</h4><p>FORMATEUR · ENSEIGNANT · PROFESSEUR · VACATAIRE</p></div>
 </div>
+
+
+<div class="psub">Exclusions contractuelles</div>
+<p>Deux filtres intelligents, cochés par défaut, qui injectent automatiquement des consignes dans votre profil CV pour l'IA au moment de la sauvegarde. Contrairement à la blacklist qui agit sur le titre de l'offre, ces filtres agissent sur le <strong>contenu complet</strong> de l'offre, analysé par l'IA.</p>
+
+<div style="display:flex;flex-direction:column;gap:8px;margin:14px 0;">
+  <div style="display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;border-left:3px solid var(--red);">
+    <div style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">☑️</div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:4px;">Exclure les offres de Stage, VIE et Alternance</div>
+      <div style="font-size:.84rem;color:var(--dim2);">Si l'IA détecte qu'une offre est un stage, un VIE ou une alternance, elle attribue automatiquement un <strong>score de 0</strong> et indique <code style="font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--surface);padding:1px 5px;border-radius:4px;color:var(--red);">TYPE_CONTRAT_EXCLU</code> dans l'analyse, même si les compétences correspondent parfaitement.</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;border-left:3px solid var(--red);">
+    <div style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">☑️</div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:4px;">Exclure les offres destinées aux débutants</div>
+      <div style="font-size:.84rem;color:var(--dim2);">Si l'offre mentionne "Débutant accepté" ou exige moins de 10 ans d'expérience, le score est <strong>plafonné à 70</strong>. L'IA indique tout de même si les missions et compétences sont compatibles avec votre profil.</div>
+    </div>
+  </div>
+</div>
+
+<div class="tip ta"><div class="tl">💡 Blacklist vs Exclusions contractuelles</div><strong>Blacklist</strong> : filtre par mot-clé dans le <em>titre</em> avant toute analyse — rapide mais binaire (une bonne offre titrée "Stage Data Analyst" serait bloquée). <strong>Exclusions contractuelles</strong> : l'IA lit le contenu complet et comprend le contexte — plus précis, moins de faux positifs.</div>
 
 <div class="tip tg"><div class="tl">✅ Pensez à sauvegarder</div>Cliquez sur <strong>💾 SAUVEGARDER LE FICHIER SÉLECTIONNÉ</strong> après chaque modification. La configuration est stockée dans iCloud et synchronisée automatiquement.</div>
 
@@ -340,7 +354,7 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
   <div class="cvbd">
     <div class="cvbdesc">Listez les secteurs d'activité dans lesquels vous souhaitez travailler. L'IA commente l'adéquation entre l'entreprise qui recrute et vos préférences.</div>
     <div class="cvbex">Finance, Banque, Assurance, Retail, E-commerce, Conseil, Industrie pharmaceutique</div>
-    <div class="tip tc" style="margin-top:11px;margin-bottom:0;"><div class="tl">💡 Soyez inclusif</div>Les secteurs à <em>prohiber</em> vont dans CONSIGNE DE FILTRAGE CRITIQUE. Ici, listez uniquement vos préférences positives.</div>
+    <div class="tip tc" style="margin-top:11px;margin-bottom:0;"><div class="tl">💡 Soyez inclusif</div>Les secteurs à <em>prohiber</em> vont dans la section CONTRAINTES. Ici, listez uniquement vos préférences positives.</div>
   </div>
 </div>
 
@@ -362,21 +376,9 @@ Capacité à travailler en autonomie et en interface avec les équipes métiers.
     <div class="cvbex">- <strong>Localisation :</strong> Poste basé en Île-de-France uniquement (pas de full-remote hors IDF)
 - <strong>Salaire :</strong> Package minimum de 55 000 € brut annuel
 - <strong>Contrat :</strong> CDI uniquement — pas de CDD, freelance ou alternance
-- <strong>Déplacements :</strong> Moins de 20% du temps en déplacement</div>
+- <strong>Déplacements :</strong> Moins de 20% du temps en déplacement et pas de déplacement à l'international
+- <strong>Secteurs exclus :</strong> Défense, Juridique, Santé</div>
     <div class="tip tr" style="margin-top:11px;margin-bottom:0;"><div class="tl">🔴 Soyez précis, pas exhaustif</div>Ne listez que vos vrais critères éliminatoires. Trop de contraintes feront systématiquement chuter les scores et vous ferez manquer de bonnes opportunités.</div>
-  </div>
-</div>
-
-<div class="cvb">
-  <div class="cvbh"><div class="cvbt cr">CONSIGNE DE FILTRAGE CRITIQUE</div><span class="cvbb2 bc">🔴 Section critique</span></div>
-  <div class="cvbd">
-    <div class="cvbdesc">Des règles d'exclusion absolue que l'IA lit <strong>en tout premier</strong>, avant toute évaluation. Formulez-les comme des instructions directes.</div>
-    <div class="cvbex">Attribuer un score inférieur à 45 pour toute offre correspondant à ces critères :
-- Poste situé en dehors de l'Île-de-France
-- Contrat de type stage, alternance, apprentissage ou CDD inférieur à 12 mois
-- Entreprise dont le secteur est la grande distribution alimentaire ou la restauration rapide
-- Poste exigeant plus de 8 ans d'expérience en management d'équipe</div>
-    <div class="tip ta" style="margin-top:11px;margin-bottom:0;"><div class="tl">🧠 CONTRAINTE vs FILTRAGE CRITIQUE</div><strong>CONTRAINTE</strong> décrit vos limites personnelles. <strong>CONSIGNE DE FILTRAGE CRITIQUE</strong> donne des ordres directs à l'IA. Les deux sont lues ensemble et se renforcent mutuellement.</div>
   </div>
 </div>
 
@@ -522,9 +524,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   <div class="card"><h4>📅 Choix de la période</h4><p><strong>1 jour</strong> pour une veille quotidienne. <strong>7 jours</strong> pour un premier lancement ou après une absence. Les offres déjà analysées ne reviennent jamais en double.</p></div>
 </div>
 
-<p>Cliquez sur <strong>▶ Lancement de l'analyse</strong>. La console de l'administrateur affiche en temps réel les offres trouvées et leurs scores. L'analyse prend 2 à 10 minutes selon le volume d'offres. En fin d'analyse, le rapport sera envoyé par email.</p>
-
-<div class="tip ta"><div class="tl">⏰ Conseil : veille quotidienne</div>Lancez le radar chaque matin avec "<strong>1 jour</strong>". Peu d'offres nouvelles chaque jour, analyse rapide, et vous ne ratez rien. Le système mémorise les offres déjà vues et ne les représente jamais.</div>
+<p>La console de l'administrateur affiche en temps réel les offres trouvées et leurs scores. L'analyse prend 2 à 10 minutes selon le volume d'offres. En fin d'analyse, le rapport vous sera envoyé par email.</p>
 
 <a class="anchor" id="rapport"></a>
 <hr>
@@ -675,7 +675,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 <div style="display:flex;flex-direction:column;gap:9px;margin-top:8px;">
   <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
     <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
-    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Laisser CONTRAINTE et FILTRAGE CRITIQUE vides</div><div style="font-size:.84rem;color:var(--dim2);">Sans elles, l'IA n'a aucune règle d'exclusion automatique et peut recommander des offres hors de votre zone ou sous votre salaire minimum.</div></div>
+    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Laisser CONTRAINTE vide</div><div style="font-size:.84rem;color:var(--dim2);">Sans elles, l'IA n'a aucune règle d'exclusion automatique et peut recommander des offres hors de votre zone ou sous votre salaire minimum.</div></div>
   </div>
   <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
     <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
@@ -695,10 +695,22 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   </div>
 </div>
 
+
+<div style="text-align: center; margin: 50px 0 30px 0; padding-top: 30px; border-top: 1px solid #313659;">
+    <a href="https://systemed-fr.github.io/Job_Radar/Config_Radar.html" target="_blank" style="display: inline-block; background-color: #4F8EF7; color: #FFFFFF; text-decoration: none; padding: 14px 28px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        ⚙️ CONFIGURER VOTRE PROFIL DE RECHERCHE
+    </a>
+</div>
+
 <hr style="margin-top:48px;">
 <div style="text-align:center;padding:22px 0;color:var(--dim);font-size:.84rem;">
   <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:var(--cyan);margin-bottom:7px;">Job Radar — Guide Utilisateur</div>
-  <p style="margin:0;">Pour toute question sur l'installation, les clés API ou la configuration technique, référez-vous à la <strong>documentation technique</strong>.</p>
+<p style="text-align: center; color: #7A8099; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; margin-top: 25px; margin-bottom: 25px;">
+    Pour toute question sur Job Radar, contacter le support 
+    <a href="mailto:contact.systemed@mailo.com" style="color: #4F8EF7; text-decoration: none; font-weight: bold;">
+        contact.systemed@mailo.com
+    </a>
+</p>
 </div>
 
 </div>
@@ -709,5 +721,6 @@ const links=document.querySelectorAll('.sni');
 const obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.sni[href="#${en.target.id}"]`);if(a)a.classList.add('active');}});},{rootMargin:'-10% 0px -80% 0px'});
 ids.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el);});
 </script>
+
 </body>
 </html>
