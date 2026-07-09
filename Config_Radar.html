@@ -81,10 +81,10 @@ input[type=text]:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rg
 /* ── FORM ELEMENTS ── */
 label.flabel{display:block;font-size:.72rem;font-weight:700;letter-spacing:.08em;
   text-transform:uppercase;color:#475569;margin-bottom:6px;} /* 🔘 Libellé des champs en gris foncé */
-input[type=number],input[type=email]{background:#f0f4f8;border:1px solid #cbd5e1; /* ✨ Pavés de saisie en bleu-gris */
+input[type=number]{background:#f0f4f8;border:1px solid #cbd5e1; /* ✨ Pavés de saisie en bleu-gris */
   border-radius:var(--rad);color:#333333;font-family:inherit;font-size:.9rem; /* 🔘 Texte saisi en gris foncé */
   padding:9px 13px;transition:.15s;width:100%;}
-input[type=number]:focus,input[type=email]:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58,138,.12);} /* 🔵 Focus en bleu foncé */
+input[type=number]:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58,138,.12);} /* 🔵 Focus en bleu foncé */
 .fg{margin-bottom:20px;}
 .row2{display:grid;grid-template-columns:180px 1fr;gap:16px;}
 
@@ -140,11 +140,11 @@ textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58
 .cv-sec textarea:focus{border:none;outline:none;box-shadow:inset 0 0 0 2px rgba(30,58,138,0.12);background:#f0f4f8;} /* 🔵 Focus discret en bleu foncé */
 
 /* ── TOAST ── */
-#toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:8px;
-  font-size:.87rem;font-weight:600;opacity:0;transform:translateY(8px);
-  transition:all .25s;z-index:9999;pointer-events:none;max-width:300px;
-  box-shadow: 0 10px 25px rgba(30, 41, 59, 0.15);} /* ✨ Ajout d'une ombre portée pour ressortir sur le fond blanc */
-#toast.show{opacity:1;transform:translateY(0);}
+#toast{position:fixed;top:50%;left:50%;padding:14px 22px;border-radius:8px;
+  font-size:.95rem;font-weight:600;opacity:0;transform:translate(-50%,-50%) scale(.95);
+  transition:all .25s;z-index:9999;pointer-events:none;max-width:360px;text-align:center;
+  box-shadow: 0 10px 25px rgba(30, 41, 59, 0.15);}
+#toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
 #toast.ok{background:#d1fae5;color:#065f46;border:1px solid #10b981;} /* 🟢 Succès : Texte vert foncé sur fond vert pastel très clair */
 #toast.err{background:#fee2e2;color:#991b1b;border:1px solid #f87171;} /* 🔴 Erreur : Texte rouge foncé sur fond rose pastel très clair */
 #toast.inf{background:#f0f4f8;color:#1e3a8a;border:1px solid #cbd5e1;} /* 🔵 Info : Texte bleu foncé sur fond bleu-gris */
@@ -232,7 +232,6 @@ textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58
     <div class="app-brand">🎯 Job Radar Config</div>
     <div class="hbadge">Profil : <b id="hdr-profile"></b></div>
     <div class="hbadge path" id="hdr-folder" style="font-family:monospace;font-size:.73rem;"></div>
-    <button class="btn-change" onclick="backToSetup()">↩ Changer de profil</button>
   </header>
 
   <!-- Tab bar -->
@@ -244,15 +243,11 @@ textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58
   <!-- ═══════ CONFIG TAB ═══════ -->
   <div class="tab-pane on" id="tab-config">
 
-    <!-- Score + Email -->
+    <!-- Score -->
     <div class="row2">
       <div class="fg">
         <label class="flabel" for="inp-score">Score minimum (0–100)</label>
         <input type="number" id="inp-score" min="0" max="100" value="70">
-      </div>
-      <div class="fg">
-        <label class="flabel" for="inp-email">Email destinataire du rapport</label>
-        <input type="email" id="inp-email" placeholder="votre@email.com">
       </div>
     </div>
 
@@ -260,7 +255,7 @@ textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58
     <div class="sh">
       <div class="sh-icon" style="background:rgba(46,204,113,.1)">🗺️</div>
       <div class="sh-title">Départements</div>
-      <div class="sh-hint">Cochez les zones de recherche</div>
+      <div class="sh-hint">Cochez les zones de recherche - <strong>5 maximum</strong></div>
       <button onclick="toggleAll(true)" style="margin-left:auto;background:none;border:1px solid var(--brd);color:var(--dim);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.75rem;font-family:inherit;">Tout</button>
       <button onclick="toggleAll(false)" style="background:none;border:1px solid var(--brd);color:var(--dim);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.75rem;font-family:inherit;">Aucun</button>
     </div>
@@ -282,33 +277,21 @@ textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58
     <div class="sh">
       <div class="sh-icon" style="background:rgba(79,142,247,.1)">🔍</div>
       <div class="sh-title">Mots-clés de recherche</div>
-      <div class="sh-hint">— Un mot-clé par ligne</div>
+      <div class="sh-hint">— Liste de mots-clés à filtrer dans le titre des offres</div>
     </div>
-    <textarea id="inp-keywords" rows="10" placeholder="Data Analyst&#10;Business Analyst&#10;Chef de projet data&#10;Consultant BI"></textarea>
+    <textarea id="inp-keywords" rows="10"></textarea>
 
-    <!-- Blacklist -->
-    <div class="sh">
-      <div class="sh-icon" style="background:rgba(231,76,60,.1)">🚫</div>
-      <div class="sh-title">Blacklist</div>
-      <div class="sh-hint">— Un terme par ligne, en MAJUSCULES</div>
-    </div>
-    <textarea id="inp-blacklist" rows="8" placeholder="STAGE&#10;ALTERNANCE&#10;JUNIOR&#10;APPRENTI"></textarea>
-
-    <!-- Exclusion Stage/Alternance/VIE -->
+    <!-- Exclusion Stage/Alternance -->
     <div class="sh" style="margin-top:24px;">
       <div class="sh-icon" style="background:rgba(231,76,60,.1)">🚫</div>
-      <div class="sh-title">Exclusions contractuelles</div>
-      <div class="sh-hint">— Filtrage par type de contrat</div>
+      <div class="sh-title">Exclusions pour la recherche et l'analyse IA</div>
     </div>
     <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:13px 16px;
       background:#f0f4f8;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:8px;">
       <input type="checkbox" id="chk-excl-stage" checked
         style="width:16px;height:16px;accent-color:#922b21;cursor:pointer;flex-shrink:0;">
       <span style="font-size:.88rem;color:#333333;line-height:1.5;">
-        Exclure les offres de <strong>Stage, VIE et Alternance</strong>
-        <span style="display:block;font-size:.78rem;color:#475569;">
-          Injecte automatiquement une consigne de filtrage critique dans le CV pour IA
-        </span>
+        Exclure les offres de <strong>Stage et d'Alternance</strong>
       </span>
     </label>
     <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:13px 16px;
@@ -317,11 +300,16 @@ textarea:focus{outline:none;border-color:#1e3a8a;box-shadow:0 0 0 3px rgba(30,58
         style="width:16px;height:16px;accent-color:#922b21;cursor:pointer;flex-shrink:0;">
       <span style="font-size:.88rem;color:#333333;line-height:1.5;">
         Exclure les offres destinées aux <strong>débutants</strong>
-        <span style="display:block;font-size:.78rem;color:#475569;">
-          Plafonne le score à 70 si le poste est trop junior pour ce profil
-        </span>
       </span>
     </label>
+
+    <!-- Blacklist -->
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(231,76,60,.1)">🚫</div>
+      <div class="sh-title">Autres exclusions dans la recherche des offres d'emploi (Blacklist)</div>
+      <div class="sh-hint">— Liste de mots clés à ne pas filtrer dans le titre des offres, <strong>EN MAJUSCULES</strong></div>
+    </div>
+    <textarea id="inp-blacklist" rows="8"></textarea>
 
     <div>
       <button class="btn-save" onclick="saveConfig()">💾  Sauvegarder la configuration</button>
@@ -388,7 +376,11 @@ const CV_SECS = [
 //  CONSTANTE — TEXTE D'EXCLUSION STAGE/ALTERNANCE
 // ════════════════════════════════════════════════════════
 const EXCL_STAGE_TEXT    = "Si tu détectes que cette offre est une offre de STAGE, de VIE ou d'ALTERNANCE (apprentissage/professionnalisation), attribue impérativement un SCORE de 0 et indique 'TYPE_CONTRAT_EXCLU' dans l'analyse en précisant pourquoi, même si les compétences correspondent parfaitement au CV.";
-const EXCL_DEBUTANT_TEXT = "Si l'offre mentionne 'Débutant accepté' ou une expérience requise inférieure à 10 ans, le score ne doit pas dépasser 70 car le poste est trop junior pour ce profil de Directrice. Indique si les missions et compétences sont compatibles avec le CV, même si le poste est junior ou débutant.";
+const EXCL_DEBUTANT_TEXT = "Si l'offre mentionne 'Débutant accepté' ou une expérience requise inférieure à 10 ans, le score ne doit pas dépasser 70 car le poste est trop junior pour ce profil. Indique si les missions et compétences sont compatibles avec le CV, même si le poste est junior ou débutant.";
+
+// ✨ AJOUT — mots-clés blacklist associés à chaque case d'exclusion
+const EXCL_STAGE_KEYWORDS    = ["STAGE", "STAGIAIRE", "CESURE", "CÉSURE", "FIN D'ETUDES", "FIN D'ÉTUDES", "ALTERNANCE", "ALTERNANT", "APPRENTI", "PROFESSIONNALISATION", "CONTRAT PRO", "APPRENTISSAGE", "INTERNSHIP", "COOPERATIVE EDUCATION", "TRAINEE", "WORKING STUDENT"];
+const EXCL_DEBUTANT_KEYWORDS = ["JUNIOR", "DEBUTANT", "DÉBUTANT", "PREMIERE EXPERIENCE", "PREMIÈRE EXPÉRIENCE", "DEBUT DE CARRIERE", "DÉBUT DE CARRIÈRE", "JEUNE DIPLOME", "JEUNE DIPLÔMÉ", "BAC+2", "BAC +2", "BAC+3", "BAC +3", "BAC+5", "BAC +5", "ENTRY LEVEL", "ENTRY-LEVEL", "BEGINNER", "NO EXPERIENCE", "FIRST JOB", "NEW GRADUATE", "RECENT GRADUATE", "STARTING CAREER", "EARLY CAREER", "EARLY-CAREER"];
 
 // ════════════════════════════════════════════════════════
 //  STATE
@@ -408,7 +400,45 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   buildDepGrid();
   buildCVSections();
+
+  // ✨ AJOUT — mise à jour live de la blacklist quand on (dé)coche une exclusion
+  document.getElementById('chk-excl-stage')?.addEventListener('change', syncBlacklistWithExclusions);
+  document.getElementById('chk-excl-debutant')?.addEventListener('change', syncBlacklistWithExclusions);
 });
+
+// ════════════════════════════════════════════════════════
+//  SYNCHRONISATION BLACKLIST ↔ CASES D'EXCLUSION
+// ════════════════════════════════════════════════════════
+function syncBlacklistWithExclusions() {
+  const taBlacklist = document.getElementById('inp-blacklist');
+  if (!taBlacklist) return;
+
+  let items = lines('inp-blacklist');
+  const upper = s => s.trim().toUpperCase();
+  let existingUpper = items.map(upper);
+
+  function applyKeywords(keywords, shouldInclude) {
+    keywords.forEach(kw => {
+      const kwUpper = upper(kw);
+      const idx = existingUpper.indexOf(kwUpper);
+      if (shouldInclude && idx === -1) {
+        items.push(kw);
+        existingUpper.push(kwUpper);
+      } else if (!shouldInclude && idx !== -1) {
+        items.splice(idx, 1);
+        existingUpper.splice(idx, 1);
+      }
+    });
+  }
+
+  const exclStage    = document.getElementById('chk-excl-stage')?.checked    ?? false;
+  const exclDebutant = document.getElementById('chk-excl-debutant')?.checked ?? false;
+
+  applyKeywords(EXCL_STAGE_KEYWORDS,    exclStage);
+  applyKeywords(EXCL_DEBUTANT_KEYWORDS, exclDebutant);
+
+  taBlacklist.value = items.join('\n');
+}
 
 // ════════════════════════════════════════════════════════
 //  BUILD UI
@@ -625,7 +655,6 @@ async function loadConfig() {
 function fillConfigForm(data) {
   const sp = data?.search_params || {};
   setVal('inp-score', sp.score_minimum ?? 70);
-  setVal('inp-email', sp.email ?? '');
 
   // Departments
   Object.values(depCbs).forEach(cb => cb.checked = false);
@@ -640,6 +669,8 @@ function fillConfigForm(data) {
   const chkDebutant = document.getElementById('chk-excl-debutant');
   if (chkStage)    chkStage.checked    = data?.exclude_stage_alternance    ?? true;
   if (chkDebutant) chkDebutant.checked = data?.exclude_debutant            ?? true;
+
+  syncBlacklistWithExclusions(); // ✨ AJOUT — reflète l'état des cases dans la blacklist au chargement
 }
 
 // ════════════════════════════════════════════════════════
@@ -652,28 +683,26 @@ async function saveConfig() {
     toast('❌ Le score doit être compris entre 0 et 100.', 'err'); return;
   }
 
+  // ✨ AJOUT — s'assurer que la blacklist reflète bien l'état des cases avant toute vérification
+  syncBlacklistWithExclusions();
+
   // ── 2. VÉRIFICATION DES MOTS-CLÉS ──
   const motsCles = getVal('inp-keywords').trim(); // 🔄 Corrigé avec getVal
   if (!motsCles) {
     toast("❌ Erreur : Vous devez renseigner au moins un mot-clé de recherche.", 'err'); return;
   }
 
-  // ── 3. VÉRIFICATION DE L'EMAIL ──
-  const email = getVal('inp-email').trim(); // 🔄 Nettoyé (plus de double déclaration 'const')
-  if (!email) {
-    toast("❌ Erreur : L'adresse e-mail de réception est obligatoire.", 'err'); return;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    toast("❌ L'adresse email semble invalide.", 'err'); return;
-  }
-
   // ── 4. VÉRIFICATION DES DÉPARTEMENTS ──
-  // On vérifie si au moins UNE case de l'objet depCbs est cochée
-  const aDesDepts = Object.values(depCbs).some(cb => cb.checked);
-  if (!aDesDepts) {
+  // On vérifie qu'il y a entre 1 et MAX_DEPS départements cochés
+  const nbDepts = Object.values(depCbs).filter(cb => cb.checked).length;
+  if (nbDepts === 0) {
     toast("❌ Erreur : Vous devez sélectionner au moins un département.", 'err'); return;
   }
-
+  const MAX_DEPS = 5;
+  if (nbDepts > MAX_DEPS) {
+    toast(`❌ Erreur : Vous ne pouvez pas sélectionner plus de ${MAX_DEPS} départements (actuellement ${nbDepts}).`, 'err'); return;
+  }
+  
   // ── 5. VÉRIFICATION DE LA BLACKLIST ──
   const blacklist = getVal('inp-blacklist').trim(); // 🔄 Corrigé avec getVal
   if (!blacklist) {
@@ -691,8 +720,7 @@ async function saveConfig() {
       zones_adzuna:        selCodes.map(c => { const d=DEPS.find(([k])=>k===c); return d?d[1]:c; }),
       publieeDepuis:       "7",
       range:               "0-99",
-      score_minimum:       scoreRaw,
-      email:               email
+      score_minimum:       scoreRaw
     },
     keywords:  lines('inp-keywords'),
     blacklist: lines('inp-blacklist'),
@@ -824,16 +852,8 @@ function toast(msg, type='ok') {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className   = `show ${type}`;
-  // ── ✨ FORCE LE GROS TEXTE ET LE CENTRAGE AU MILIEU ──
-  el.style.top = '50%';
-  el.style.left = '50%';
-  el.style.transform = 'translate(-50%, -50%)'; // Centrage parfait
-  el.style.fontSize = '22px';                   // Texte plus gros (au lieu de 0.87rem)
-  el.style.padding = '10px 10px';               // Boîte plus généreuse
-  el.style.maxWidth = '450px';                  // Plus large pour les longs messages
-  el.style.textAlign = 'center';                // Texte bien centré
   if (_tid) clearTimeout(_tid);
-  _tid = setTimeout(() => { el.className = ''; }, 3500);
+  _tid = setTimeout(() => { el.className = ''; }, 1800);
 }
 
 const getVal = id => document.getElementById(id).value;
