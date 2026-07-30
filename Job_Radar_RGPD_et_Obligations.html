@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Radar — RGPD & Obligations de Moyens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080E1B;
+  --surface: #0F1929;
+  --card: #172033;
+  --card2: #1C2840;
+  --border: #243050;
+  --cyan: #22D3EE;
+  --cyan-s: rgba(34, 211, 238, 0.1);
+  --blue: #3B82F6;
+  --blue-s: rgba(59, 130, 246, 0.1);
+  --purple: #A78BFA;
+  --purple-s: rgba(167, 139, 250, 0.1);
+  --green: #34D399;
+  --green-s: rgba(52, 211, 153, 0.1);
+  --amber: #FCD34D;
+  --amber-s: rgba(252, 211, 77, 0.1);
+  --text: #F1F5F9;
+  --dim: #64748B;
+  --dim2: #94A3B8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 15px;
+  min-height: 100vh;
+}
+
+/* Header Navbar */
+.topnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: rgba(8, 14, 27, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--cyan);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-tag {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--dim2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+}
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 100px 24px 80px;
+}
+
+/* Hero Header */
+.hero {
+  text-align: center;
+  padding: 32px 0 48px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--cyan-s);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: var(--cyan);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.3rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+.hero h1 span {
+  color: var(--cyan);
+}
+
+.hero-subtitle {
+  color: var(--dim2);
+  font-size: 1.02rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Section Box */
+.legal-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 32px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.section-header {
+  padding: 20px 24px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sec-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.sec-icon.blue { background: var(--blue-s); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--blue); }
+.sec-icon.purple { background: var(--purple-s); border: 1px solid rgba(167, 139, 250, 0.3); color: var(--purple); }
+.sec-icon.amber { background: var(--amber-s); border: 1px solid rgba(252, 211, 77, 0.3); color: var(--amber); }
+
+.sec-title-group {
+  flex: 1;
+}
+
+.sec-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+  margin-bottom: 2px;
+}
+
+.sec-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.section-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Subsection Box */
+.subsection {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  transition: border-color 0.2s ease;
+}
+
+.subsection:hover {
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.sub-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #E2E8F0;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub-title span.num {
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.sub-content {
+  color: var(--dim2);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.sub-content p {
+  margin-bottom: 12px;
+}
+
+.sub-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Highlight / Callout boxes */
+.callout {
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 0.88rem;
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.6;
+}
+
+.callout-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.callout.info {
+  background: var(--blue-s);
+  border-left: 3px solid var(--blue);
+  color: #BFDBFE;
+}
+
+.callout.warning {
+  background: var(--amber-s);
+  border-left: 3px solid var(--amber);
+  color: #FDE68A;
+}
+
+.callout.success {
+  background: var(--green-s);
+  border-left: 3px solid var(--green);
+  color: #A7F3D0;
+}
+
+/* Footer / Actions */
+.footer {
+  text-align: center;
+  margin-top: 50px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 0.85rem;
+}
+
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+}
+
+.contact-btn:hover {
+  background: var(--cyan);
+  color: var(--bg);
+  border-color: var(--cyan);
+}
+
+@media (max-width: 640px) {
+  .hero h1 { font-size: 1.75rem; }
+  .page { padding-top: 80px; }
+  .section-header { padding: 16px; }
+  .section-body { padding: 16px; }
+  .subsection { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="#" class="nav-brand">🎯 Job Radar</a>
+  <span class="nav-tag">Notice Légale & Protection des Données</span>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="badge">🛡️ Transparence & Conformité</div>
+    <h1>Conditions d'Utilisation,<br><span>Obligations de Moyen</span> & RGPD</h1>
+    <p class="hero-lead">Ce document définit le cadre d'utilisation du service <strong>Job Radar</strong>, la nature des engagements pris et la politique de protection de vos données personnelles.</p>
+  </header>
+
+  <!-- SECTION 1 -->
+  <section class="legal-section">
+    <div class="section-header">
+      <div class="sec-icon blue">⚖️</div>
+      <div class="sec-title-group">
+        <div class="sec-num">Article 1</div>
+        <h2 class="sec-title">Nature du service et Obligation de moyens</h2>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <!-- 1.1 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">1.1.</span> Cadre de la prestation et Obligation de moyens</h3>
+        <div class="sub-content">
+          <p>Le service <strong>« Job Radar »</strong> ne constitue pas une solution logicielle autonome ou un outil en libre-service (SaaS). Il s’agit d’un service d'aide à la recherche d'emploi, basé sur l'Intelligence Artificielle et la collecte automatisée sur le web, fourni en tant que composante intégrée et accessoire de la prestation globale d'accompagnement professionnel des Pilotes délivrée par <strong>Version Originale</strong>.</p>
+          <p>L'accès à cet outil et la génération des rapports sont indissociables du suivi personnalisé du Pilote. Le Prestataire s'engage à mettre en œuvre tout son savoir-faire pour fournir des rapports pertinents.</p>
+          
+          <div class="callout info">
+            <span class="callout-icon">📌</span>
+            <div>
+              <strong>Obligation de moyens :</strong> Il est expressément convenu que le Prestataire est soumis à une obligation de moyens. Il ne saurait garantir un nombre minimum d'offres identifiées, ni que ces offres déboucheront sur un entretien ou un recrutement.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.2 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">1.2.</span> Dépendance technique et modifications du web</h3>
+        <div class="sub-content">
+          <p>Le bon fonctionnement du service dépend exclusivement de la disponibilité et de l'accessibilité des plateformes tierces ciblées (notamment <strong>France Travail</strong> et <strong>Adzuna</strong>) ainsi que de l’API d’<strong>OpenAI</strong>.</p>
+          <p>Si ces tiers modifient leur structure technique, restreignent ou bloquent l'accès à leurs données, le service pourra être temporairement interrompu, ralenti ou modifié, le temps pour le Prestataire d'adapter son outil.</p>
+          
+          <div class="callout warning">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              Ces interruptions ou dysfonctionnements imputables à des tiers ne pourront donner lieu à aucun remboursement, indemnité ou dédommagement.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section class="legal-section">
+    <div class="section-header">
+      <div class="sec-icon purple">🔒</div>
+      <div class="sec-title-group">
+        <div class="sec-num">Article 2</div>
+        <h2 class="sec-title">Protection des données personnelles (RGPD)</h2>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <!-- 2.1 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">2.1.</span> Rôle et base légale</h3>
+        <div class="sub-content">
+          <p>Le Prestataire agit en qualité de <strong>« Responsable de traitement »</strong> au sens du RGPD. Les données personnelles du Pilote sont collectées et traitées exclusivement pour l'exécution du présent service « Job Radar » (recherche et analyse personnalisées d'offres d'emploi).</p>
+        </div>
+      </div>
+
+      <!-- 2.2 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">2.2.</span> Principe de minimisation des données</h3>
+        <div class="sub-content">
+          <p>Le Prestataire applique le principe de minimisation des données. L'outil est configuré pour fonctionner sans qu'il soit nécessaire de traiter des données d'identification directe.</p>
+          
+          <div class="callout success">
+            <span class="callout-icon">🛡️</span>
+            <div>
+              <strong>Anonymisation requise :</strong> À ce titre, le Pilote s'engage à fournir un CV préalablement anonymisé par ses soins (sans mention de ses nom, prénom, numéro de téléphone ou adresse physique).
+            </div>
+          </div>
+
+          <p style="margin-top: 12px;">Seule les adresses email du Pilote et de son Coach sont collectées pour l'envoi des rapports d'analyse par le Prestataire. Ces adresses email sont traitées de manière confidentielle et ne sont <strong>jamais transmise</strong> aux API des plateformes tierces (France Travail, Adzuna) ni à OpenAI.</p>
+        </div>
+      </div>
+
+      <!-- 2.3 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">2.3.</span> Modalités de stockage et sécurité</h3>
+        <div class="sub-content">
+          <p>Les données de configuration (critères de recherche et CV) sont stockées dans <strong>2 fichiers distincts</strong> au sein d'un espace <strong>Microsoft OneDrive sécurisé</strong>, dans un dossier spécifiquement partagé entre le Pilote et le Prestataire. Cet espace est configuré de manière à ce que seul le Pilote et le Prestataire disposent des droits d'accès.</p>
+          <p>L'adresse email du Pilote, ainsi que les fichiers de logs (journaux techniques de recherche et d'analyse générés par l'outil), sont stockés de manière confidentielle sur l'environnement d'hébergement sécurisé du Prestataire. Ces logs sont exclusivement exploités à des fins de contrôle qualité, de maintenance technique et d'optimisation des instructions (prompts) transmises à l'IA.</p>
+        </div>
+      </div>
+
+      <!-- 2.4 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">2.4.</span> Droits du Client</h3>
+        <div class="sub-content">
+          <p>Conformément au RGPD, le Pilote dispose d'un droit d'accès, de rectification, de limitation et de suppression des données le concernant. Pour exercer ces droits, il suffit d'en faire la demande par email à l'adresse <strong style="color: var(--cyan);">contact.systemed@mailo.com</strong>.</p>
+          <p>Le Prestataire s'engage à supprimer l'ensemble des fichiers du Pilote (y compris le dossier OneDrive partagé) et les logs associés à son/ses profil(s) dans les meilleurs délais.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section class="legal-section">
+    <div class="section-header">
+      <div class="sec-icon amber">⏳</div>
+      <div class="sec-title-group">
+        <div class="sec-num">Article 3</div>
+        <h2 class="sec-title">Durée, Suspension et Fin de service</h2>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <!-- 3.1 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">3.1.</span> Alignement sur la prestation d'accompagnement</h3>
+        <div class="sub-content">
+          <p>La mise à disposition et l'utilisation de l'outil « Job Radar » sont strictement indexées sur la durée de la prestation globale d'accompagnement professionnel du Pilote.</p>
+          <p>En conséquence, toute suspension, interruption temporaire ou cessation définitive de l'accompagnement (que ce soit par arrivée à son terme normal, par accord mutuel ou par résiliation anticipée à l'initiative de l'une ou l'autre des parties) entraîne de plein droit, immédiatement et sans formalité préalable, <strong>l'arrêt du service « Job Radar » et la désactivation des accès du Pilote</strong>.</p>
+        </div>
+      </div>
+
+      <!-- 3.2 -->
+      <div class="subsection">
+        <h3 class="sub-title"><span class="num">3.2.</span> Conséquences sur les données et l'espace OneDrive</h3>
+        <div class="sub-content">
+          <p>Dès la fin de la prestation d'accompagnement, pour quelque cause que ce soit, le Prestataire procède à la révocation des accès et à la <strong>suppression définitive du dossier OneDrive partagé</strong> contenant le CV et les critères de recherche du Pilote.</p>
+          <p>En parallèle, et conformément à l'article 2.4, l'adresse email du Pilote ainsi que l'ensemble des fichiers de logs associés à son profil sont définitivement supprimés de l'environnement du Prestataire.</p>
+          
+          <div class="callout warning">
+            <span class="callout-icon">💡</span>
+            <div>
+              <strong>Sauvegarde autonome :</strong> Il appartient au Pilote de copier ou de sauvegarder les rapports ou données qui lui ont été transmis et qu'il souhaite conserver avant le terme effectif de son accompagnement. Le Prestataire ne pourra en aucun cas être tenu responsable de la perte de données consécutive à la clôture de l'espace OneDrive.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p><strong>Job Radar</strong> — Un service fourni dans le cadre de l'accompagnement professionnel <strong>Version Originale</strong>.</p>
+    <p style="margin-top: 6px; color: var(--dim2);">Pour toute question concernant la gestion de vos données ou le fonctionnement du service :</p>
+    <a href="mailto:contact.systemed@mailo.com" class="contact-btn">
+      ✉️ Contacter le support (contact.systemed@mailo.com)
+    </a>
+  </footer>
+
+</div>
+
+</body>
+</html>
