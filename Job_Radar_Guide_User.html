@@ -232,64 +232,58 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 <div class="ph">
   <div class="pb pb-c">⚙️</div>
   <div>
-    <div class="plabel">Étape 1 — Config_Radar.html </div>
-    <div class="ptitle">Sélectionner votre dossier partagé</div>
+    <div class="plabel">Étape 1 </div>
+    <div class="ptitle">Pré-requis à l'utilisation de Job Radar</div>
   </div>
 </div>
 
-<p>Ouvrez le fichier <strong>Config_Radar.html</strong> dans <strong>Google Chrome</strong> ou <strong>Microsoft Edge</strong>. L'accès aux fichiers partagés n'est pas disponible sur d'autres navigateurs. Le lien est fourni en fin de page de ce guide utilisateur.</p>
-
-<p>L'outil démarre sur un écran qui vous demande de choisir le dossier partagé, et vous êtes ensuite redirigé automatiquement vers la page de configuration.</p>
-
-<!-- Mockup de l'écran de démarrage -->
-<div class="wam">
-  <div class="wam-hdr">
-    <div class="wam-dot" style="background:#ff5f57"></div>
-    <div class="wam-dot" style="background:#febc2e"></div>
-    <div class="wam-dot" style="background:#28c840"></div>
-    <div class="wam-title" style="margin-left:8px;">Config_Radar.html — Google Chrome</div>
-  </div>
-  <div class="wam-body">
-    <div style="text-align:center;margin-bottom:16px;">
-      <div style="font-size:1.6rem;margin-bottom:6px;">🎯</div>
-      <div style="font-weight:800;color:#1e3a8a;font-size:1rem;font-family:'Inter',sans-serif;">Job Radar</div>
-      <div style="font-size:.75rem;color:#475569;font-family:'Inter',sans-serif;">Configuration du profil de recherche</div>
-    </div>
-    <div class="wam-lbl"><span class="wn">1</span>Sélectionner le dossier partagé</div>
-    <div class="wam-folder-ok">✅ &nbsp;Fab</div>
-    <div class="wam-fp">📁 Fab</div>
-  </div>
-</div>
-
-<div class="cg" style="margin-top:14px;">
-  <div class="card"><h4>📁 Choisir le dossier</h4><p>Cliquez sur <strong>Choisir le dossier partagé…</strong>. Une fenêtre système s'ouvre. Naviguez jusqu'au dossier <code style="font-size:.78rem;background:var(--card2);padding:1px 5px;border-radius:3px;">de votre profil</code> partagé par l'administrateur et cliquez sur <strong>Ouvrir</strong>.</p></div>
-</div>
+<p>Vous avez défini votre <strong>cible de prospection</strong> : poste recherché, secteur d'activité et géographique.</p>
+<p>Votre CV est à jour sur <strong>votre expérience et vos compétences</strong> pour atteindre la cible.</p>
+<div class="tip tc" style="margin-top:11px;margin-bottom:0;"><div class="tl">💡 Vous pouvez configurer plusieurs profils de recherche</div>Il suffit de fournir votre cible et votre CV correspondant au profil.</p>
+<p> Par exemple, pour un candidat avec double compétence dans le secteur de l'enseignement supérieur : </p>
+<p>  * Profil SamDev pour la cible : "Responsable développement / Relations entreprises et partenaires"</p>
+<p>  * Profil SamForm pour la cible : "Coordinatrice pédagogique / Ingénierie de formation"</p></div>
 
 <a class="anchor" id="cv"></a>
 <hr>
 <div class="ph">
   <div class="pb pb-p">👤</div>
   <div>
-    <div class="plabel">Étape 2 — Config_Radar.py · Onglet Config Radar</div>
+    <div class="plabel">Étape 2</div>
     <div class="ptitle">Configurer vos critères de recherche pour le radar</div>
   </div>
 </div>
 
-<div class="psub">SCORE MINIMUM</div>
+<p>La configuration initiale (ainsi que les ajustements futurs) est effectuée avec l'administrateur de Job Radar</p>
+<p>Elle comporte 4 sections :</p>
+<p>1. Score minimum</p>
+<p>2. Départements</p>
+<p>3. Mots clés</p>
+<p>4. Exclusions</p>
+
+<div class="psub">1. SCORE MINIMUM</div>
 <p>C'est le seuil de pertinence. L'IA note chaque offre sur 100. En-dessous de ce seuil, l'offre apparaît dans votre rapport dans la section orange "faible score" — elle n'est pas perdue, juste classée différemment.</p>
 
 <div class="sr">
-  <div class="sri srg"><div class="srn">Score Min → 100</div><div class="srl">Score élevé</div><div class="srac">✅ Postulez en priorité</div></div>
-  <div class="sri srr"><div class="srn">&lt; Score Min</div><div class="srl">Score faible</div><div class="srac">📋 Peu pertinent - CV à vérifier</div></div>
+  <div class="sri srg">
+    <div class="srn">Score Min → 100</div>
+    <div class="srl">Score élevé</div>
+    <div class="srac">✅ Postulez en priorité</div>
+  </div>
+  <div class="sri srr">
+    <div class="srn" style="color: orange;">&lt; Score Min</div>
+    <div class="srl">Score faible</div>
+    <div class="srac" style="color: orange;">📋 Peu pertinent - CV à vérifier</div>
+  </div>
 </div>
 
 <div class="tip ta"><div class="tl">💡 Quelle valeur choisir ?</div>Débutez avec <strong>70</strong> pour un large filet. Vous retrouverez dans le rapport toutes les offres, quelque soit leur score. </div>
 
-<div class="psub">DÉPARTEMENTS</div>
+<div class="psub">2. DÉPARTEMENTS</div>
 <p>Cochez les départements dans lesquels vous cherchez les offres d'emploi (<strong>5 maximum</strong>). L'interface affiche en temps réel les codes en chiffres et en lettres.</p>
 <div class="tip tc"><div class="tl">🗺️ Île-de-France complète</div>Cochez : <strong>75</strong> Paris · <strong>92</strong> Hauts-de-Seine · <strong>93</strong> Seine-Saint-Denis · <strong>94</strong> Val-de-Marne · <strong>91</strong> Essonne · <strong>78</strong> Yvelines · <strong>95</strong> Val-d'Oise · <strong>77</strong> Seine-et-Marne.</div>
 
-<div class="psub">MOTS-CLÉS POUR LA RECHERCHE</div>
+<div class="psub">3. MOTS-CLÉS POUR LA RECHERCHE</div>
 <p>Une liste de mots-clés par ligne. Chaque ligne est une recherche indépendante sur les deux plateformes. Le script cherche les offres dont <strong>le titre contient tous les mots clés indiqués</strong>.</p>
 
 <div class="compare">
@@ -305,7 +299,15 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 
 <div class="tip tp"><div class="tl">🧠 Stratégie mots-clés</div>Visez des intitulés de 2 à 3 mots, fidèles aux titres de postes que vous voyez dans vos recherches manuelles sur les plateformes de job board comme LinkedIn ou Indeed. Reproduisez les termes réels utilisés par les recruteurs.</div>
 
-<div class="psub">EXCLUSIONS</div>
+<div class="psub">4. EXCLUSIONS : BLACKLIST — Mots clés pour exclure des offres de l'analyse IA</div>
+<p>Un terme par ligne, en majuscules. Toute offre dont le titre contient un de ces termes est exclue <strong>avant</strong> l'analyse IA. Elle reste visible dans la section rouge de votre rapport. Pensez à mettre les mots à exclure <strong>avec et sans accents, en FR et EN</strong> </p>
+
+<div class="cg">
+  <div class="card"><h4>🚫 Contrats non souhaités</h4><p>FREELANCE · INTERIM</p></div>
+  <div class="card"><h4>🚫 Postes à exclure</h4><p>DEVELOPPEMENT COMMERCIAL · DÉVELOPPEMENT COMMERCIAL · BUSINESS DEVELOPER</p></div>
+</div>
+
+<div class="psub">4. EXCLUSIONS : Filtres supplémentaires</div>
 <p>Deux filtres intelligents, cochés par défaut, injectent automatiquement des mots clés dans la black list et des consignes dans votre profil CV pour l'IA. Les offres comportant dans leur titre ces mots clés ne seront pas sélectionnées. Pour les offres passées au travers de ce premier filtre, une consigne stricte est donnée à l'IA qui traitera l'exception.</p>
 
 <div style="display:flex;flex-direction:column;gap:8px;margin:14px 0;">
@@ -313,7 +315,7 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
     <div style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">☑️</div>
     <div>
       <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:4px;">Exclure les offres de Stage et d'Alternance</div>
-      <div style="font-size:.84rem;color:var(--dim2);"> Si l'IA détecte qu'une offre est un stage ou une alternance, elle attribue automatiquement un <strong>score de 0</strong> et indique <code style="font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--surface);padding:1px 5px;border-radius:4px;color:var(--red);">TYPE_CONTRAT_EXCLU</code> dans l'analyse, même si les compétences correspondent parfaitement.</div>
+      <div style="font-size:.84rem;color:var(--dim2);"> Si l'IA détecte qu'une offre est un stage ou une alternance, elle attribue automatiquement un <strong>score de 0</strong> même si les compétences correspondent parfaitement.</div>
     </div>
   </div>
   <div style="display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;border-left:3px solid var(--red);">
@@ -325,14 +327,6 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
   </div>
 </div>
 
-<div class="psub">BLACKLIST — Mots clés pour exclure des offres de l'analyse IA</div>
-<p>Un terme par ligne, en majuscules. Toute offre dont le titre contient un de ces termes est exclue <strong>avant</strong> l'analyse IA. Elle reste visible dans la section rouge de votre rapport. Pensez à mettre les mots à exclure <strong>avec et sans accents, en FR et EN</strong> </p>
-
-<div class="cg">
-  <div class="card"><h4>🚫 Contrats non souhaités</h4><p>FREELANCE · INTERIM</p></div>
-  <div class="card"><h4>🚫 Postes à exclure</h4><p>DEVELOPPEMENT COMMERCIAL · DÉVELOPPEMENT COMMERCIAL · BUSINESS DEVELOPER</p></div>
-</div>
-
 <div class="tip tg"><div class="tl">✅ Pensez à sauvegarder</div>Cliquez sur <strong>💾 SAUVEGARDER LE FICHIER SÉLECTIONNÉ</strong> après chaque modification. La configuration est stockée dans iCloud et synchronisée automatiquement.</div>
 
 <a class="anchor" id="cv"></a>
@@ -340,7 +334,7 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 <div class="ph">
   <div class="pb pb-p">👤</div>
   <div>
-    <div class="plabel">Étape 3 — Config_Radar.py · Onglet CV pour IA</div>
+    <div class="plabel">Étape 3</div>
     <div class="ptitle">Rédiger votre profil CV pour l'IA</div>
   </div>
 </div>
@@ -477,14 +471,14 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   </div>
 </div>
 
-<p>Une fois vos critères de recherche et CV pour l'IA configurés, l'administrateur lancera la recherche pour tous vos profils configurés.</p>
+<p>Une fois vos critères de recherche et CV pour l'IA configurés, l'administrateur programmera la recherche pour tous vos profils configurés.</p>
 
 <div class="cg">
-  <div class="card"><h4>☑️ Vérification des ✓ CV et ✓ Config.</p></div>
-  <div class="card"><h4>📅 Envoi des rapports chaque jour de la semaine.</p></div>
+  <div class="card"><h4>☑️ Vérification des Critères et du CV.</p></div>
+  <div class="card"><h4>📅 Envoi des rapports chaque jour de la semaine (du lundi au vendredi).</p></div>
 </div>
 
-<p>Les modifications que vous apporterez seront prises en compte automatiquement.</p>
+<p>Les modifications apportées sont prises en compte automatiquement par le Radar.</p>
 
 <a class="anchor" id="rapport"></a>
 <hr>
@@ -500,10 +494,12 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 
 <div class="cg">
   <div class="card" style="border-left:3px solid #10b981;"><h4 style="color:#34D399;">🟢 Offres recommandées par l'IA</h4><p>Score ≥ votre score minimum. Ce sont les offres que l'IA juge les plus pertinentes. <strong>Commencez toujours par ici.</strong></p></div>
-  <div class="card" style="border-left:3px solid #f59e0b;"><h4 style="color:#FCD34D;">🟡 Offres avec un score faible</h4><p>Analysées mais sous le seuil. Utile en début de recherche ou pour élargir votre filet manuellement. <strong>Les offres qui sont "écartées" par l'IA peuvent potentiellement indiquer un manque dans votre CV.</strong></p></div>
-  <div class="card" style="border-left:3px solid #7c3aed;"><h4 style="color:#A78BFA;">🔎 Offres à analyser manuellement</h4><p>Description de l'offre non récupérée automatiquement. Consultez-les directement via le lien fourni.</p></div>
+  <div class="card" style="border-left:3px solid #f59e0b;"><h4 style="color:#f59e0b;">🟠 Offres avec un score faible</h4><p>Analysées mais sous le seuil. Utile en début de recherche ou pour élargir votre filet manuellement. <strong>Les offres qui sont "écartées" par l'IA peuvent potentiellement indiquer un manque dans votre CV.</strong></p></div>
+  <div class="card" style="border-left:3px solid #7c3aed;"><h4 style="color:#A78BFA;">🟣 Offres à analyser manuellement</h4><p>Description de l'offre non récupérée automatiquement. Consultez-les directement via le lien fourni.</p></div>
   <div class="card" style="border-left:3px solid #ef4444;"><h4 style="color:#F87171;">🔴 Offres exclues par la blacklist</h4><p>Filtrées par vos mots interdits. Vérifiez de temps en temps qu'aucune bonne offre n'est bloquée par erreur.</p></div>
 </div>
+
+<p><strong>Aucune offre répondant à vos critères de recherche n'est manquée, vous avez accès au lien de chaque offre trouvée, quelque que soit le résultat de l'analyse.</strong></p>
 
 <div class="psub">À quoi ressemble une fiche d'offre ?</div>
 
@@ -539,7 +535,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
       </div>
       <a class="emlink">🔗 Voir l'offre</a>
     </div>
-    <div class="emst emsta">🟡 Offres analysées par l'IA avec notation faible < 70 (5)</div>
+    <div class="emst emsta">🟠 Offres analysées par l'IA avec notation faible < 70 (5)</div>
     <div class="emc">
       <div class="emct a">
         <div><div class="emcti">Business Intelligence Manager</div><div class="emcid">ID : adz-987654</div></div>
@@ -593,7 +589,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 <div class="ph">
   <div class="pb pb-a">🔧</div>
   <div>
-    <div class="plabel">Étape 6 — Améliorer vos résultats</div>
+    <div class="plabel">Étape 6</div>
     <div class="ptitle">Affiner votre radar</div>
   </div>
 </div>
