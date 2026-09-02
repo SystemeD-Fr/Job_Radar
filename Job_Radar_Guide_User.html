@@ -189,15 +189,13 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
   <div class="stepsnav">
     <a href="#config" class="sni"><span class="sni-num">1</span><span>Pré requis</span></a>
     <span class="sep">›</span>
-    <a href="#radar" class="sni"><span class="sni-num">2</span><span>Mon Radar</span></a>
+    <a href="#radar" class="sni"><span class="sni-num">2</span><span>Configurer le Radar</span></a>
     <span class="sep">›</span>
-    <a href="#cv" class="sni"><span class="sni-num">3</span><span>Mon CV IA</span></a>
+    <a href="#cv" class="sni"><span class="sni-num">3</span><span>Configurer le CV pour l'IA</span></a>
     <span class="sep">›</span>
-    <a href="#lancer" class="sni"><span class="sni-num">4</span><span>Programmer</span></a>
+    <a href="#rapport" class="sni"><span class="sni-num">5</span><span>Comprendre le rapport</span></a>
     <span class="sep">›</span>
-    <a href="#rapport" class="sni"><span class="sni-num">5</span><span>Mon rapport</span></a>
-    <span class="sep">›</span>
-    <a href="#optimiser" class="sni"><span class="sni-num">6</span><span>Optimiser</span></a>
+    <a href="#optimiser" class="sni"><span class="sni-num">6</span><span>Optimiser la configuration</span></a>
   </div>
 </nav>
 
@@ -277,11 +275,10 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
   </div>
 </div>
 
-<div class="tip ta"><div class="tl">💡 Quelle valeur choisir ?</div>Débutez avec <strong>70</strong> pour un large filet. Vous retrouverez dans le rapport toutes les offres, quelque soit leur score. </div>
+<div class="tip ta"><div class="tl">💡 Quelle valeur choisir ?</div>Job Radar est configuré à <strong>70</strong> pour commencer, vous pourrez l'adapter par la suite. Vous retrouverez dans le rapport toutes les offres, quelque soit leur score. </div>
 
 <div class="psub">2. DÉPARTEMENTS</div>
-<p>Cochez les départements dans lesquels vous cherchez les offres d'emploi (<strong>5 maximum</strong>). L'interface affiche en temps réel les codes en chiffres et en lettres.</p>
-<div class="tip tc"><div class="tl">🗺️ Île-de-France complète</div>Cochez : <strong>75</strong> Paris · <strong>92</strong> Hauts-de-Seine · <strong>93</strong> Seine-Saint-Denis · <strong>94</strong> Val-de-Marne · <strong>91</strong> Essonne · <strong>78</strong> Yvelines · <strong>95</strong> Val-d'Oise · <strong>77</strong> Seine-et-Marne.</div>
+<p>Listez les départements dans lesquels vous cherchez les offres d'emploi (<strong>5 maximum</strong>). Donner le code du département en chiffres.</p>
 
 <div class="psub">3. MOTS-CLÉS POUR LA RECHERCHE</div>
 <p>Une liste de mots-clés par ligne. Chaque ligne est une recherche indépendante sur les deux plateformes. Le script cherche les offres dont <strong>le titre contient tous les mots clés indiqués</strong>.</p>
@@ -327,7 +324,9 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
   </div>
 </div>
 
+<!--
 <div class="tip tg"><div class="tl">✅ Pensez à sauvegarder</div>Cliquez sur <strong>💾 SAUVEGARDER LE FICHIER SÉLECTIONNÉ</strong> après chaque modification. La configuration est stockée dans iCloud et synchronisée automatiquement.</div>
+-->
 
 <a class="anchor" id="cv"></a>
 <hr>
@@ -341,21 +340,12 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 
 <div class="tip ta"><div class="tl">⚠️ Ce n'est pas votre CV classique</div>Ce profil n'est pas votre CV Word. C'est un <strong>brief structuré</strong> que vous rédigez une fois pour que l'IA comprenne précisément qui vous êtes, ce que vous savez faire et ce que vous refusez. La qualité de ce profil détermine directement la qualité des scores que vous recevez.</div>
 
-<p>Votre profil se compose de <strong>9 sections</strong>. Remplissez chacune dans l'onglet <strong>👤 CV pour IA</strong>, puis cliquez sur <strong>💾 SAUVEGARDER LE CV POUR IA</strong>.</p>
+<p>Votre profil se compose de <strong>8 sections</strong>. Vous pouvez laisser une section vide</p>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">1. SECTEURS RECHERCHÉS</div><span class="cvbb2 bi">Impact moyen</span></div>
+  <div class="cvbh"><div class="cvbt cr">1. CONTRAINTE</div><span class="cvbb2 bc">🔴 Section critique</span></div>
   <div class="cvbd">
-    <div class="cvbdesc">Listez les secteurs d'activité dans lesquels vous souhaitez travailler. L'IA commente l'adéquation entre l'entreprise qui recrute et vos préférences.</div>
-    <div class="cvbex">Exemple = Finance, Banque, Assurance, Retail, E-commerce, Conseil, Industrie pharmaceutique</div>
-    <div class="tip tc" style="margin-top:11px;margin-bottom:0;"><div class="tl">💡 Soyez inclusif</div>Les secteurs à <em>prohiber</em> vont dans la section CONTRAINTE. Ici, listez uniquement vos préférences positives.</div>
-  </div>
-</div>
-
-<div class="cvb">
-  <div class="cvbh"><div class="cvbt cr">2. CONTRAINTE</div><span class="cvbb2 bc">🔴 Section critique</span></div>
-  <div class="cvbd">
-    <div class="cvbdesc">Vos contraintes <strong>personnelles non-négociables</strong>. Si une offre viole une contrainte listée ici, l'IA <strong>force automatiquement le score en dessous de 45/100</strong>, quelle que soit l'adéquation technique, exemple ci-dessous.</div>
+    <div class="cvbdesc">Vos contraintes <strong>personnelles non-négociables</strong>. Si une offre viole une contrainte listée ici, l'IA <strong>force automatiquement le score à 0</strong>, quelle que soit l'adéquation technique, exemple ci-dessous.</div>
     <div class="cvbex">- <strong>Mode de travail :</strong> hybride, pas de travail seulement sur site
 - <strong>Contrat :</strong> Pas de freelance ou d'interim
 - <strong>Déplacements :</strong> Pas de déplacement à l'international
@@ -365,7 +355,7 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">3. PROFIL</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbh"><div class="cvbt">2. PROFIL</div><span class="cvbb2 bi">Impact fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Votre positionnement en quelques lignes : votre métier, votre niveau d'expérience, et votre valeur ajoutée principale. L'IA lit cette section pour calibrer ses attentes.</div>
     <div class="cvbex">Data Analyst avec 6 ans d'expérience dans les secteurs Finance et Retail.
@@ -376,7 +366,7 @@ Capacité à travailler en autonomie et en interface avec les équipes métiers.
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">4. COMPÉTENCES CLÉS</div><span class="cvbb2 bi">Impact très fort</span></div>
+  <div class="cvbh"><div class="cvbt">3. COMPÉTENCES CLÉS</div><span class="cvbb2 bi">Impact très fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos savoir-faire techniques. C'est ici que l'IA cherche les correspondances avec les exigences de chaque offre. Soyez précis et exhaustif.</div>
     <div class="cvbex">Analyse de données, Reporting, Visualisation de données, Modélisation,
@@ -389,7 +379,7 @@ Gestion de projets data, Data storytelling</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">5. EXPÉRIENCES MAJEURES</div><span class="cvbb2 bi">Impact très fort</span></div>
+  <div class="cvbh"><div class="cvbt">4. EXPÉRIENCES</div><span class="cvbb2 bi">Impact très fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos postes significatifs avec les responsabilités que vous y avez tenues. L'IA s'en sert pour évaluer l'adéquation avec les missions de l'offre et pour estimer votre séniorité.</div>
     <div class="cvbex"><strong>2021 – 2025 : Data Analyst Senior — Société Générale, Paris</strong>
@@ -407,7 +397,7 @@ Construction des modèles de prévision des ventes (Python, Excel)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">6. MISSIONS &amp; RÉALISATIONS PHARES</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbh"><div class="cvbt">5. MISSIONS &amp; RÉALISATIONS PHARES</div><span class="cvbb2 bi">Impact fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Au moins 5 réalisations les plus marquantes, de préférence quantifiées. Cette section complète les expériences avec des preuves concrètes de votre impact.</div>
     <div class="cvbex">• <em>Automatisation du reporting mensuel</em> : réduction de 3 jours à 2 heures de traitement
@@ -419,7 +409,7 @@ Construction des modèles de prévision des ventes (Python, Excel)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">7. FORMATION ET CERTIFICATIONS</div><span class="cvbb2 bi">Impact moyen</span></div>
+  <div class="cvbh"><div class="cvbt">6. FORMATION ET CERTIFICATIONS</div><span class="cvbb2 bi">Impact moyen</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos diplômes, formations et certifications. Utile pour les offres qui exigent un niveau de diplôme ou une certification spécifique.</div>
     <div class="cvbex">Diplôme d'ingénieur — École Centrale de Lille (2019) — Spécialisation Statistiques
@@ -429,7 +419,7 @@ Certification Microsoft Power BI Data Analyst Associate (2023)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">8. LANGUES</div><span class="cvbb2 bi">Impact variable</span></div>
+  <div class="cvbh"><div class="cvbt">7. LANGUES</div><span class="cvbb2 bi">Impact variable</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Indiquez vos langues avec votre niveau réel. L'IA vérifie l'adéquation avec le niveau exigé dans l'offre.</div>
     <div class="compare" style="margin-bottom:0;">
@@ -446,7 +436,7 @@ Certification Microsoft Power BI Data Analyst Associate (2023)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">9. OUTILS &amp; COMPÉTENCES DIGITALES</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbh"><div class="cvbt">8. OUTILS &amp; COMPÉTENCES DIGITALES</div><span class="cvbb2 bi">Impact fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos logiciels, plateformes et outils métier. Listez tout ce que vous maîtrisez : CRM, ERP, outils cloud, plateformes analytiques.</div>
     <div class="cvbex">Outils BI : Power BI, Tableau, Looker
@@ -459,33 +449,12 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   </div>
 </div>
 
-<div class="tip tg"><div class="tl">✅ Sauvegardez votre profil</div>Une fois toutes les sections remplies, cliquez sur <strong>💾 SAUVEGARDER LE CV POUR IA</strong> en bas de l'onglet. Votre profil sera utilisé pour tous les lancements suivants.</div>
-
-<a class="anchor" id="lancer"></a>
-<hr>
-<div class="ph">
-  <div class="pb pb-g">🚀</div>
-  <div>
-    <div class="plabel">Étape 4 </div>
-    <div class="ptitle">Programmer le radar</div>
-  </div>
-</div>
-
-<p>Une fois vos critères de recherche et CV pour l'IA configurés, l'administrateur programmera la recherche pour tous vos profils configurés.</p>
-
-<div class="cg">
-  <div class="card"><h4>☑️ Vérification des Critères et du CV.</p></div>
-  <div class="card"><h4>📅 Envoi des rapports chaque jour de la semaine (du lundi au vendredi).</p></div>
-</div>
-
-<p>Les modifications apportées sont prises en compte automatiquement par le Radar.</p>
-
 <a class="anchor" id="rapport"></a>
 <hr>
 <div class="ph">
   <div class="pb pb-a">📨</div>
   <div>
-    <div class="plabel">Étape 5 — Votre rapport email</div>
+    <div class="plabel">Étape 4 — Votre rapport email</div>
     <div class="ptitle">Lire et interpréter votre rapport</div>
   </div>
 </div>
@@ -499,87 +468,295 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   <div class="card" style="border-left:3px solid #ef4444;"><h4 style="color:#F87171;">🔴 Offres exclues par la blacklist</h4><p>Filtrées par vos mots interdits. Vérifiez de temps en temps qu'aucune bonne offre n'est bloquée par erreur.</p></div>
 </div>
 
-<p><strong>Aucune offre répondant à vos critères de recherche n'est manquée, vous avez accès au lien de chaque offre trouvée, quelque que soit le résultat de l'analyse.</strong></p>
+<p><strong>Aucune offre répondant à vos critères de recherche n'est manquée, vous avez accès au lien de chaque offre trouvée, quelque que soit le résultat de l'analyse, même pour les offres exclues de l'analyse.</strong></p>
 
 <div class="psub">À quoi ressemble une fiche d'offre ?</div>
 
+<style>
+  /* Conteneur principal */
+  .em {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: #f8fafc;
+    padding: 16px;
+    color: #1f2937;
+  }
+  .emh {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #0f172a;
+    margin-bottom: 12px;
+  }
+  .ems {
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .emst {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 16px 0 12px 0;
+  }
+  .emstg { color: #15803d; }
+  .emsta { color: #d97706; }
+
+  /* Carte d'offre */
+  .emc {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  /* Titre & Badge Score */
+  .emct {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .emcti {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #0f172a;
+  }
+  .emcid {
+    display: inline-block;
+    font-size: 0.72rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    border: 1px solid #e2e8f0;
+  }
+  .emsc {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+  .emsc.a {
+    background: #f59e0b;
+  }
+
+  /* Séparateur */
+  .emdiv {
+    border-bottom: 1px solid #f1f5f9;
+    margin: 12px 0;
+  }
+
+  /* Métadonnées */
+  .emm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.82rem;
+    color: #475569;
+    margin-bottom: 12px;
+  }
+
+  /* Analyse globale */
+  .ema {
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: #334155;
+  }
+  .ema-title {
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+  }
+  .eal {
+    margin-bottom: 6px;
+  }
+  .eak {
+    font-weight: bold;
+    color: #1e293b;
+  }
+
+  /* Grille 2 colonnes (Missions & Compétences) */
+  .em-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  @media (max-width: 640px) {
+    .em-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .em-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .em-box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.83rem;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+  .em-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .em-box-body {
+    font-size: 0.78rem;
+    color: #475569;
+    line-height: 1.4;
+  }
+
+  /* Bloc Vert Conseil & Vigilance */
+  .em-advice {
+    background: #f0fdf4;
+    border-left: 4px solid #10b981;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin: 12px 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .em-advice-line {
+    margin-bottom: 4px;
+    color: #14532d;
+  }
+  .em-advice-line:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Bouton */
+  .emlink {
+    display: inline-flex;
+    align-items: center;
+    background: #1e3a8a;
+    color: #ffffff !important;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+  .emlink.a {
+    background: #d97706;
+  }
+</style>
+
 <div class="em">
-  <div class="emh">🎯 Job Radar pour Alice — Rapport de Veille du 27/06/2026<div class="ems">Généré le 27/06/2026 à 08h14</div></div>
+  <div class="emh">
+    🎯 Job Radar pour Alice — Rapport de Veille du 27/06/2026
+    <div class="ems">Généré le 27/06/2026 à 08h14</div>
+  </div>
+
   <div class="emb">
-    <div class="emst emstg">🟢 Offres Recommandées par l'IA avec notation >= 70 (1)</div>
+    <div class="emst emstg">🟢 Offres Recommandées par l'IA avec notation &gt;= 70 (1)</div>
+    
+    <!-- Offre 1 (Forte adéquation) -->
     <div class="emc">
       <div class="emct">
-        <div><div class="emcti">Data Analyst Senior — Pilotage de la Performance</div><div class="emcid">ID : 195XKPT</div></div>
+        <div>
+          <div class="emcti">Data Analyst Senior — Pilotage de la Performance</div>
+          <div class="emcid">ID : 195XKPT</div>
+        </div>
         <div class="emsc">Score : 82/100</div>
       </div>
+
+      <div class="emdiv"></div>
+
       <div class="emm">
-        <span>🏢 <strong>AXA France</strong></span>
+        <span>🏢 <strong style="color: #000000;">AXA France</strong></span>
         <span>📍 Nanterre (92)</span>
         <span>📅 Publié le : 26/06/2026</span>
         <span>📄 CDI</span>
         <span>🔑 Mot-clé : Data analyst</span>
         <span>📡 France Travail</span>
       </div>
+
       <div class="ema">
-        <div style="font-weight:bold;color:#374151;margin-bottom:7px;font-size:.77rem;">💡 Analyse OPENAI (gpt-4o-mini) :</div>
-        <div class="eal"><span class="ean"></span><span class="eak">📋 Offre :</span><span class="eav">Poste d'analyste senior chez AXA France chargé du pilotage des indicateurs de performance opérationnelle. CDI basé à Nanterre.</span></div>
-        <div class="eal"><span class="ean"></span><span class="eak">🏢 Entreprise :</span><span class="eav">AXA France, leader de l'assurance en France. Contexte de transformation digitale du pôle Finance.</span></div>
-        <div class="eal"><span class="ean"></span><span class="eak">🌐 Secteur :</span><span class="eav">Assurance / Finance — secteur figurant dans vos souhaits. Bonne adéquation.</span></div>
-        <div class="eal"><span class="ean"></span><span class="eak">📊 Évaluation IA :</div>
-        <div class="eal"><span class="ean"></span><span class="eak">Missions 35/40:</span><span class="eav">Forte correspondance. Dashboards Power BI, automatisation des reportings, suivi KPI — directement alignés avec vos réalisations chez Société Générale.</span></div>
-        <div class="eal"><span class="ean"></span><span class="eak">Compétences 32/40 :</span><span class="eav">Excellent. SQL, Python, Power BI et Excel tous maîtrisés. Seul écart : Snowflake mentionné dans l'offre, non listé dans votre profil.</span></div>
-        <div class="eal"><span class="ean"></span><span class="eak">Séniorité 15/20 :</span><span class="eav">L'offre requiert 5 ans d'expérience. Vous en justifiez 6. Légère insuffisance sur le management (2 ans requis vs 1 an dans votre profil).</span></div>
-        <div class="eal"><span class="ean"></span><span class="eak">🏁 Conclusion IA :</div>
-        <div class="eal"><span class="ean"></span><span class="eak">Vigilance :</span><span class="eav">L'offre mentionne "déplacements ponctuels Europe" sans précision de fréquence. Poste nouvellement créé.</span></div>
-        <div class="eal"><span class="ean"></span><span class="eak">Conseil :</span><span class="eav">Offre à postuler. Très bonne adéquation fonctionnelle. Préparez un exemple sur votre capacité à apprendre rapidement de nouveaux outils (Snowflake).</span></div>
+        <div class="ema-title">💡 Analyse OPENAI (gpt-4o-mini)</div>
+        <div class="eal"><span class="eak">📋 Offre :</span> Poste d'analyste senior chez AXA France chargé du pilotage des indicateurs de performance opérationnelle. CDI basé à Nanterre.</div>
+        <div class="eal"><span class="eak">🏢 Entreprise :</span> AXA France, leader de l'assurance en France. Contexte de transformation digitale du pôle Finance.</div>
+        <div class="eal"><span class="eak">⏳ Séniorité :</span> L'offre requiert 5 ans d'expérience. Vous en justifiez 6. Légère insuffisance sur le management.</div>
+        <div class="eal"><span class="eak">💰 Salaire :</span> Rémunération non précisée dans l'offre.</div>
       </div>
-      <a class="emlink">🔗 Voir l'offre</a>
-    </div>
-    <div class="emst emsta">🟠 Offres analysées par l'IA avec notation faible < 70 (5)</div>
-    <div class="emc">
-      <div class="emct a">
-        <div><div class="emcti">Business Intelligence Manager</div><div class="emcid">ID : adz-987654</div></div>
-        <div class="emsc a">Score : 51/100</div>
+
+      <!-- Grille 2 colonnes (Missions / Compétences) -->
+      <div class="em-grid">
+        <div class="em-box">
+          <div class="em-box-header">
+            <span>📋 Missions</span>
+            <span class="em-badge">35/40</span>
+          </div>
+          <div class="em-box-body">
+            Forte correspondance. Dashboards Power BI, automatisation des reportings, suivi KPI — directement alignés avec vos réalisations chez Société Générale.
+          </div>
+        </div>
+        <div class="em-box">
+          <div class="em-box-header">
+            <span>🧠 Compétences</span>
+            <span class="em-badge">32/40</span>
+          </div>
+          <div class="em-box-body">
+            Excellent. SQL, Python, Power BI et Excel tous maîtrisés. Seul écart : Snowflake mentionné dans l'offre, non listé dans votre profil.
+          </div>
+        </div>
       </div>
-      <div class="emm"><span>🏢 <strong>Groupe Elior</strong></span><span>📍 Paris (75)</span><span>📄 CDI</span><span>🌐 Adzuna</span></div>
-      <div class="ema"><div class="eal"><span class="ean"></span><span class="eak">... </div></div>
-      <a class="emlink" style="background:#f59e0b;">🔗 Voir l'offre</a>
+
+      <!-- Bloc Conseil & Vigilance -->
+      <div class="em-advice">
+        <div class="em-advice-line">
+          <strong style="color: #000000;">🏁 Conseil Recruteur :</strong> Offre à postuler. Très bonne adéquation fonctionnelle. Préparez un exemple sur votre capacité à apprendre rapidement de nouveaux outils (Snowflake).
+        </div>
+        <div class="em-advice-line">
+          <strong style="color: #000000;">⚠️ Vigilance :</strong> L'offre mentionne "déplacements ponctuels Europe" sans précision de fréquence. Poste nouvellement créé.
+        </div>
+      </div>
+
+      <a href="#" class="emlink">🔗 Voir l'offre</a>
     </div>
   </div>
 </div>
 
-
 <div class="psub">Comprendre le score sur 100</div>
 <div class="card" style="margin:14px 0;">
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:center;margin-bottom:18px;">
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;text-align:center;margin-bottom:18px;">
     <div>
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--cyan);">40 pts</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--cyan);">50 pts</div>
       <div style="font-weight:600;margin-bottom:4px;">Missions</div>
       <div style="font-size:.77rem;color:var(--dim);">Savez-vous faire ce que l'offre demande ?</div>
     </div>
-    <div style="border-left:1px solid var(--border);border-right:1px solid var(--border);">
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--purple);">40 pts</div>
+    <div style="border-left:1px solid var(--border);">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--purple);">50 pts</div>
       <div style="font-weight:600;margin-bottom:4px;">Compétences</div>
-      <div style="font-size:.77rem;color:var(--dim);">Avez-vous les outils et méthodes requis ?</div>
-    </div>
-    <div>
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.7rem;font-weight:800;color:var(--amber);">20 pts</div>
-      <div style="font-weight:600;margin-bottom:4px;">Séniorité</div>
-      <div style="font-size:.77rem;color:var(--dim);">Votre niveau d'expérience correspond-il ?</div>
+      <div style="font-size:.77rem;color:var(--dim);">Avez-vous démontré votre maîtrise des outils et méthodes requis ?</div>
     </div>
   </div>
-  <div class="tip tc" style="margin:0;"><div class="tl">🧠 Pourquoi ce découpage ?</div>Un candidat très compétent techniquement ne doit pas être pénalisé sur ses missions simplement parce qu'il a 4 ans d'expérience plutôt que 5. Le manque de séniorité est <strong>isolé dans sa propre section</strong> et ne "contamine" pas l'évaluation de vos compétences réelles.</div>
 </div>
 
 <div class="psub">Les 8 points d'analyse — comment les utiliser</div>
 
 <div class="plist">
   <div class="pi"><div class="pinum" style="background:#22D3EE;">1</div><div class="pib"><h4>Offre</h4><p>Résumé neutre en 2 phrases. Vérifiez que l'IA a bien compris l'annonce avant de lire le reste.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#64748B;">2</div><div class="pib"><h4>Entreprise</h4><p>Contexte de l'employeur : taille, secteur, situation (transformation, création de poste, restructuration…). Utile pour préparer votre candidature.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#7C3AED;">3</div><div class="pib"><h4>Secteur</h4><p>Adéquation entre le secteur de l'entreprise et vos secteurs recherchés déclarés dans votre profil.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#0891B2;">4</div><div class="pib"><h4>Missions <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 40)</span></h4><p>L'IA liste les tâches de l'offre et indique lesquelles vous avez déjà accomplies. Le score est basé sur les actions fonctionnelles uniquement, pas sur votre niveau hiérarchique.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#7C3AED;">5</div><div class="pib"><h4>Compétences <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 40)</span></h4><p>Comparaison entre les outils/méthodes exigés et ceux listés dans votre profil. Les écarts identifiés sont ce que vous devrez mentionner dans votre lettre ou que vous pourrez apprendre rapidement.</p></div></div>
-  <div class="pi"><div class="pinum" style="background:#B45309;">6</div><div class="pib"><h4>Séniorité <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 20)</span></h4><p>Comparaison entre les années d'expérience requises et votre profil. Un écart ici <strong>ne pénalise que cette section</strong> — il ne plombe pas vos scores missions et compétences.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#64748B;">2</div><div class="pib"><h4>Entreprise</h4><p>Contexte de l'employeur si il est précisé dans l'annonce : taille, secteur, situation (transformation, création de poste, restructuration…). Utile pour préparer votre candidature.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#B45309;">3</div><div class="pib"><h4>Séniorité <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 20)</span></h4><p>Comparaison entre les années d'expérience requises et votre profil. Un écart ici <strong>ne pénalise que cette section</strong> — il ne plombe pas vos scores missions et compétences.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#7C3AED;">4</div><div class="pib"><h4>Salaire</h4><p>La rémunération proposée si elle est précisée dans l'offre.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#0891B2;">5</div><div class="pib"><h4>Missions <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 40)</span></h4><p>L'IA liste les tâches de l'offre et indique lesquelles vous avez déjà accomplies. Le score est basé sur les actions fonctionnelles uniquement, pas sur votre niveau hiérarchique.</p></div></div>
+  <div class="pi"><div class="pinum" style="background:#7C3AED;">6</div><div class="pib"><h4>Compétences <span style="font-size:.73rem;font-weight:400;color:var(--dim);">(Note sur 40)</span></h4><p>Comparaison entre les outils/méthodes exigés et ceux listés dans votre profil. Les écarts identifiés sont ce que vous devrez mentionner dans votre lettre ou que vous pourrez apprendre rapidement.</p></div></div>
   <div class="pi"><div class="pinum" style="background:#DC2626;">7</div><div class="pib"><h4>Points de vigilance</h4><p>Signaux d'alerte : formulations vagues, exigences contradictoires, poste nouvellement créé, niveau de langue élevé, contexte de crise. <strong>Lisez toujours ce point avant de postuler.</strong></p></div></div>
   <div class="pi"><div class="pinum" style="background:#047857;">8</div><div class="pib"><h4>Conseil recruteur</h4><p>La recommandation finale : faut-il postuler ? Et si oui, comment valoriser votre candidature ? Ce point synthétise toute l'analyse en une action concrète.</p></div></div>
 </div>
@@ -589,7 +766,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 <div class="ph">
   <div class="pb pb-a">🔧</div>
   <div>
-    <div class="plabel">Étape 6</div>
+    <div class="plabel">Étape 5</div>
     <div class="ptitle">Affiner votre radar</div>
   </div>
 </div>
@@ -622,20 +799,16 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
 <table>
   <thead><tr><th>Ce que vous observez</th><th>Cause probable</th><th>Action recommandée</th></tr></thead>
   <tbody>
-    <tr><td>Missions toujours basses (ex: 15/40)</td><td>Sections EXPÉRIENCES ou MISSIONS trop vagues</td><td>Ajoutez des verbes d'action précis et des livrables concrets</td></tr>
+    <tr><td>Missions toujours basses (ex: 25/50)</td><td>Sections EXPÉRIENCES ou MISSIONS trop vagues</td><td>Ajoutez des verbes d'action précis et des livrables concrets</td></tr>
     <tr><td>Compétences basses malgré de bons outils</td><td>Vos termes ne correspondent pas à ceux des offres</td><td>Ajoutez des synonymes dans COMPÉTENCES CLÉS et OUTILS</td></tr>
-    <tr><td>Score toujours &lt;45 sur toutes les offres</td><td>FILTRAGE CRITIQUE trop strict</td><td>Relisez et assouplissez vos CONTRAINTES</td></tr>
-    <tr><td>Séniorité systématiquement 0-2/20</td><td>Vous ciblez des postes au-dessus de votre niveau</td><td>Normal — valorisez votre potentiel dans la section PROFIL</td></tr>
+    <tr><td>Score toujours à 0 sur toutes les offres</td><td>FILTRAGE CRITIQUE trop strict</td><td>Relisez et assouplissez vos CONTRAINTES</td></tr>
+    <tr><td>Séniorité jamais en phase avec l'exéprience requise</td><td>Vous ciblez des postes au-dessus ou en dessous de votre niveau</td><td>Valorisez votre potentiel dans la section PROFIL ou ajustez votre cible</td></tr>
     <tr><td>Bonnes offres bloquées en blacklist</td><td>Un terme de la blacklist est trop générique</td><td>Retirez ou précisez le terme concerné</td></tr>
   </tbody>
 </table>
 
-<div class="psub">Les 5 erreurs les plus fréquentes</div>
+<div class="psub">Les 4 erreurs les plus fréquentes</div>
 <div style="display:flex;flex-direction:column;gap:9px;margin-top:8px;">
-  <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
-    <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
-    <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Laisser CONTRAINTE vide</div><div style="font-size:.84rem;color:var(--dim2);">Sans elles, l'IA n'a aucune règle d'exclusion automatique et peut recommander des offres hors de votre zone ou sous votre salaire minimum.</div></div>
-  </div>
   <div style="display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;">
     <div style="font-size:1.25rem;flex-shrink:0;">❌</div>
     <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Copier-coller son CV Word dans les sections</div><div style="font-size:.84rem;color:var(--dim2);">Le CV Word est optimisé pour un humain, pas pour une IA. Reformulez avec des verbes d'action, des listes claires et les termes exacts des offres cibles.</div></div>
@@ -654,12 +827,13 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   </div>
 </div>
 
-
+<!--
 <div style="text-align: center; margin: 50px 0 30px 0; padding-top: 30px; border-top: 1px solid #313659;">
     <a href="https://systemed-fr.github.io/Job_Radar/Config_Radar.html" target="_blank" style="display: inline-block; background-color: #4F8EF7; color: #FFFFFF; text-decoration: none; padding: 14px 28px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
         ⚙️ CONFIGURER VOTRE PROFIL DE RECHERCHE
     </a>
 </div>
+-->
 
 <hr style="margin-top:48px;">
 <div style="text-align:center;padding:22px 0;color:var(--dim);font-size:.84rem;">
