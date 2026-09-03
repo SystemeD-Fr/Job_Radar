@@ -193,9 +193,9 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
     <span class="sep">›</span>
     <a href="#cv" class="sni"><span class="sni-num">3</span><span>Configurer le CV pour l'IA</span></a>
     <span class="sep">›</span>
-    <a href="#rapport" class="sni"><span class="sni-num">5</span><span>Comprendre le rapport</span></a>
+    <a href="#rapport" class="sni"><span class="sni-num">4</span><span>Comprendre le rapport</span></a>
     <span class="sep">›</span>
-    <a href="#optimiser" class="sni"><span class="sni-num">6</span><span>Optimiser la configuration</span></a>
+    <a href="#optimiser" class="sni"><span class="sni-num">5</span><span>Optimiser la configuration</span></a>
   </div>
 </nav>
 
@@ -304,30 +304,6 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
   <div class="card"><h4>🚫 Postes à exclure</h4><p>DEVELOPPEMENT COMMERCIAL · DÉVELOPPEMENT COMMERCIAL · BUSINESS DEVELOPER</p></div>
 </div>
 
-<div class="psub">4. EXCLUSIONS : Filtres supplémentaires</div>
-<p>Deux filtres intelligents, cochés par défaut, injectent automatiquement des mots clés dans la black list et des consignes dans votre profil CV pour l'IA. Les offres comportant dans leur titre ces mots clés ne seront pas sélectionnées. Pour les offres passées au travers de ce premier filtre, une consigne stricte est donnée à l'IA qui traitera l'exception.</p>
-
-<div style="display:flex;flex-direction:column;gap:8px;margin:14px 0;">
-  <div style="display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;border-left:3px solid var(--red);">
-    <div style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">☑️</div>
-    <div>
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:4px;">Exclure les offres de Stage et d'Alternance</div>
-      <div style="font-size:.84rem;color:var(--dim2);"> Si l'IA détecte qu'une offre est un stage ou une alternance, elle attribue automatiquement un <strong>score de 0</strong> même si les compétences correspondent parfaitement.</div>
-    </div>
-  </div>
-  <div style="display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;border-left:3px solid var(--red);">
-    <div style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">☑️</div>
-    <div>
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:4px;">Exclure les offres destinées aux débutants</div>
-      <div style="font-size:.84rem;color:var(--dim2);">Si l'offre mentionne l'information similaire à "Débutant accepté" ou exige moins de 10 ans d'expérience, le score est <strong>plafonné à 70</strong>. L'IA indique tout de même si les missions et compétences sont compatibles avec votre profil.</div>
-    </div>
-  </div>
-</div>
-
-<!--
-<div class="tip tg"><div class="tl">✅ Pensez à sauvegarder</div>Cliquez sur <strong>💾 SAUVEGARDER LE FICHIER SÉLECTIONNÉ</strong> après chaque modification. La configuration est stockée dans iCloud et synchronisée automatiquement.</div>
--->
-
 <a class="anchor" id="cv"></a>
 <hr>
 <div class="ph">
@@ -340,22 +316,10 @@ hr{border:none;border-top:1px solid var(--border);margin:36px 0;}
 
 <div class="tip ta"><div class="tl">⚠️ Ce n'est pas votre CV classique</div>Ce profil n'est pas votre CV Word. C'est un <strong>brief structuré</strong> que vous rédigez une fois pour que l'IA comprenne précisément qui vous êtes, ce que vous savez faire et ce que vous refusez. La qualité de ce profil détermine directement la qualité des scores que vous recevez.</div>
 
-<p>Votre profil se compose de <strong>8 sections</strong>. Vous pouvez laisser une section vide</p>
+<p>Votre profil se compose de <strong>7 sections</strong>. Vous pouvez laisser une section vide</p>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt cr">1. CONTRAINTE</div><span class="cvbb2 bc">🔴 Section critique</span></div>
-  <div class="cvbd">
-    <div class="cvbdesc">Vos contraintes <strong>personnelles non-négociables</strong>. Si une offre viole une contrainte listée ici, l'IA <strong>force automatiquement le score à 0</strong>, quelle que soit l'adéquation technique, exemple ci-dessous.</div>
-    <div class="cvbex">- <strong>Mode de travail :</strong> hybride, pas de travail seulement sur site
-- <strong>Contrat :</strong> Pas de freelance ou d'interim
-- <strong>Déplacements :</strong> Pas de déplacement à l'international
-- <strong>Secteurs à exclure :</strong> Défense, Juridique, Santé</div>
-    <div class="tip tr" style="margin-top:11px;margin-bottom:0;"><div class="tl">🔴 Soyez précis, pas exhaustif</div>Ne listez que vos vrais critères éliminatoires. Trop de contraintes feront systématiquement chuter les scores et manquer de bonnes opportunités.</div>
-  </div>
-</div>
-
-<div class="cvb">
-  <div class="cvbh"><div class="cvbt">2. PROFIL</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbh"><div class="cvbt">1. PROFIL</div><span class="cvbb2 bi">Impact fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Votre positionnement en quelques lignes : votre métier, votre niveau d'expérience, et votre valeur ajoutée principale. L'IA lit cette section pour calibrer ses attentes.</div>
     <div class="cvbex">Data Analyst avec 6 ans d'expérience dans les secteurs Finance et Retail.
@@ -366,7 +330,7 @@ Capacité à travailler en autonomie et en interface avec les équipes métiers.
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">3. COMPÉTENCES CLÉS</div><span class="cvbb2 bi">Impact très fort</span></div>
+  <div class="cvbh"><div class="cvbt">2. COMPÉTENCES CLÉS</div><span class="cvbb2 bi">Impact très fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos savoir-faire techniques. C'est ici que l'IA cherche les correspondances avec les exigences de chaque offre. Soyez précis et exhaustif.</div>
     <div class="cvbex">Analyse de données, Reporting, Visualisation de données, Modélisation,
@@ -379,7 +343,7 @@ Gestion de projets data, Data storytelling</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">4. EXPÉRIENCES</div><span class="cvbb2 bi">Impact très fort</span></div>
+  <div class="cvbh"><div class="cvbt">3. EXPÉRIENCES</div><span class="cvbb2 bi">Impact très fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos postes significatifs avec les responsabilités que vous y avez tenues. L'IA s'en sert pour évaluer l'adéquation avec les missions de l'offre et pour estimer votre séniorité.</div>
     <div class="cvbex"><strong>2021 – 2025 : Data Analyst Senior — Société Générale, Paris</strong>
@@ -397,7 +361,7 @@ Construction des modèles de prévision des ventes (Python, Excel)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">5. MISSIONS &amp; RÉALISATIONS PHARES</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbh"><div class="cvbt">4. MISSIONS ET RÉALISATIONS PHARES</div><span class="cvbb2 bi">Impact fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Au moins 5 réalisations les plus marquantes, de préférence quantifiées. Cette section complète les expériences avec des preuves concrètes de votre impact.</div>
     <div class="cvbex">• <em>Automatisation du reporting mensuel</em> : réduction de 3 jours à 2 heures de traitement
@@ -409,7 +373,7 @@ Construction des modèles de prévision des ventes (Python, Excel)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">6. FORMATION ET CERTIFICATIONS</div><span class="cvbb2 bi">Impact moyen</span></div>
+  <div class="cvbh"><div class="cvbt">5. FORMATION ET CERTIFICATIONS</div><span class="cvbb2 bi">Impact moyen</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos diplômes, formations et certifications. Utile pour les offres qui exigent un niveau de diplôme ou une certification spécifique.</div>
     <div class="cvbex">Diplôme d'ingénieur — École Centrale de Lille (2019) — Spécialisation Statistiques
@@ -419,7 +383,7 @@ Certification Microsoft Power BI Data Analyst Associate (2023)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">7. LANGUES</div><span class="cvbb2 bi">Impact variable</span></div>
+  <div class="cvbh"><div class="cvbt">6. LANGUES</div><span class="cvbb2 bi">Impact variable</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Indiquez vos langues avec votre niveau réel. L'IA vérifie l'adéquation avec le niveau exigé dans l'offre.</div>
     <div class="compare" style="margin-bottom:0;">
@@ -436,7 +400,7 @@ Certification Microsoft Power BI Data Analyst Associate (2023)</div>
 </div>
 
 <div class="cvb">
-  <div class="cvbh"><div class="cvbt">8. OUTILS &amp; COMPÉTENCES DIGITALES</div><span class="cvbb2 bi">Impact fort</span></div>
+  <div class="cvbh"><div class="cvbt">7. OUTILS ET COMPÉTENCES DIGITALES</div><span class="cvbb2 bi">Impact fort</span></div>
   <div class="cvbd">
     <div class="cvbdesc">Vos logiciels, plateformes et outils métier. Listez tout ce que vous maîtrisez : CRM, ERP, outils cloud, plateformes analytiques.</div>
     <div class="cvbex">Outils BI : Power BI, Tableau, Looker
@@ -801,7 +765,6 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
   <tbody>
     <tr><td>Missions toujours basses (ex: 25/50)</td><td>Sections EXPÉRIENCES ou MISSIONS trop vagues</td><td>Ajoutez des verbes d'action précis et des livrables concrets</td></tr>
     <tr><td>Compétences basses malgré de bons outils</td><td>Vos termes ne correspondent pas à ceux des offres</td><td>Ajoutez des synonymes dans COMPÉTENCES CLÉS et OUTILS</td></tr>
-    <tr><td>Score toujours à 0 sur toutes les offres</td><td>FILTRAGE CRITIQUE trop strict</td><td>Relisez et assouplissez vos CONTRAINTES</td></tr>
     <tr><td>Séniorité jamais en phase avec l'exéprience requise</td><td>Vous ciblez des postes au-dessus ou en dessous de votre niveau</td><td>Valorisez votre potentiel dans la section PROFIL ou ajustez votre cible</td></tr>
     <tr><td>Bonnes offres bloquées en blacklist</td><td>Un terme de la blacklist est trop générique</td><td>Retirez ou précisez le terme concerné</td></tr>
   </tbody>
@@ -826,14 +789,6 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div>
     <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;margin-bottom:3px;">Ignorer les "Points de vigilance" avant de postuler</div><div style="font-size:.84rem;color:var(--dim2);">Ce point contient des alertes précieuses : poste nouvellement créé, restructuration en cours, niveau de langue supérieur à votre niveau déclaré. Lisez-le avant chaque candidature.</div></div>
   </div>
 </div>
-
-<!--
-<div style="text-align: center; margin: 50px 0 30px 0; padding-top: 30px; border-top: 1px solid #313659;">
-    <a href="https://systemed-fr.github.io/Job_Radar/Config_Radar.html" target="_blank" style="display: inline-block; background-color: #4F8EF7; color: #FFFFFF; text-decoration: none; padding: 14px 28px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        ⚙️ CONFIGURER VOTRE PROFIL DE RECHERCHE
-    </a>
-</div>
--->
 
 <hr style="margin-top:48px;">
 <div style="text-align:center;padding:22px 0;color:var(--dim);font-size:.84rem;">
