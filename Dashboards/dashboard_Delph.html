@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Radar — Tableau de bord</title>
+<!-- Inclusion de Chart.js pour des graphiques interactifs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Plugin treemap pour Chart.js (v3.1.0 : compatible Chart.js 4) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@3.1.0/dist/chartjs-chart-treemap.min.js"></script>
+<style>
+  :root {
+    --navy: #0f2942;
+    --navy-light: #16385a;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg-main: #eef1f6;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
+  }
+  header.top-bar {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: #ffffff;
+    padding: 28px 20px;
+    margin-bottom: 0;
+  }
+  header.top-bar .top-bar-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  h2 {
+    font-size: 17px;
+    color: #0f172a;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 14px;
+    color: #334155;
+    margin: 20px 0 10px 0;
+    font-weight: 600;
+  }
+  .meta {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--border-color);
+  }
+
+  /* Onglets */
+  nav.tabs-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 20px;
+  }
+  nav.tabs-nav .tabs-nav-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+  }
+  .tab-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 14px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover {
+    color: var(--navy);
+  }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .tab-panel {
+    display: none;
+    padding-top: 24px;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-dark { background: #f1f5f9; color: #475569; }
+
+  /* Contrôles de tableau interactifs */
+  .tbl-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tbl-search {
+    padding: 8px 14px;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 260px;
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .tbl-search:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  .tbl-counter {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .tbl-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+  /* Tableau à défilement vertical (en-tête figé) : ~10 lignes visibles, le reste se fait défiler */
+  .tbl-wrap.tbl-wrap-scroll {
+    max-height: 440px;
+    overflow-y: auto;
+  }
+  .tbl-wrap-scroll table.tbl {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .tbl-wrap-scroll table.tbl th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  table.tbl {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    background: #fff;
+    text-align: left;
+  }
+  table.tbl th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  table.tbl th:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  table.tbl th.sorted-asc::after { content: " ▲"; font-size: 10px; color: var(--primary); }
+  table.tbl th.sorted-desc::after { content: " ▼"; font-size: 10px; color: var(--primary); }
+  table.tbl td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    color: #334155;
+  }
+  table.tbl tr:last-child td {
+    border-bottom: none;
+  }
+  table.tbl tr:hover td {
+    background: #f8fafc;
+  }
+  table.tbl tr.tbl-total td {
+    background: #f8fafc;
+    border-top: 2px solid var(--border-color);
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* Conteneurs pour les graphiques interactifs Chart.js */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    height: 350px;
+  }
+  .pie-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    margin: 20px auto;
+    height: 400px;
+  }
+  /* Deux camemberts d'entreprises côte à côte (passent l'un sous l'autre si l'écran est étroit) */
+  .pie-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .pie-col {
+    flex: 1 1 420px;
+    min-width: 0;
+  }
+  .pie-col .pie-container {
+    max-width: 100%;
+  }
+  .profile-filters {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2px 14px 12px 14px;
+    margin-bottom: 18px;
+  }
+  .lieu-dom-box {
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  .lieu-dom-box button { margin-left: 6px; font-size: 12px; cursor: pointer; }
+  .lieu-dom-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 8px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .lieu-dom-item { font-size: 13px; white-space: nowrap; cursor: pointer; }
+  .lieu-loc-group { margin-top: 10px; }
+  .lieu-geo-scroll { max-height: 340px; overflow-y: auto; margin-top: 6px; border-top: 1px solid var(--border-color, #e5e7eb); }
+  .lieu-grp { margin: 2px 0; }
+  .lieu-grp-head { display: flex; align-items: center; gap: 4px; }
+  .lieu-grp-toggle { width: 22px; border: none; background: none; cursor: pointer; padding: 0; }
+  .lieu-grp-spacer { display: inline-block; width: 22px; }
+  .lieu-grp-body { margin-left: 26px; max-height: 160px; }
+  .lieu-loc-group button { margin-left: 6px; font-size: 12px; cursor: pointer; }
+  .lieu-tip {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    padding: 8px 10px;
+    font-size: 12px;
+    max-width: 380px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .lieu-tip ul { margin: 6px 0 0 0; padding-left: 16px; }
+  .lieu-tip li { margin-bottom: 3px; }
+  .treemap-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    height: 380px;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+  .callout {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 13px;
+    color: #78350f;
+  }
+  .callout strong {
+    color: #92400e;
+  }
+  .callout ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+  }
+  .callout li {
+    margin-bottom: 2px;
+  }
+  .profile-block {
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border-color);
+  }
+  .profile-block:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  footer.foot {
+    max-width: 1140px;
+    margin: 24px auto 0 auto;
+    padding: 16px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <h1>Job Radar — Tableau de bord</h1>
+    <div class="meta">Généré le 09/10/2026 11:00 — Profils inclus : Delph</div>
+  </div>
+</header>
+
+<nav class="tabs-nav">
+  <div class="tabs-nav-inner">
+    <button class="tab-btn active" data-target="panel-Delph">Delph</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="tab-panel active" id="panel-Delph"><div class="card"><h2>Delph — Statistiques au 09/10/2026</h2><div class="profile-filters"><h3>Filtres du profil Delph</h3><p class="note">Cochez les domaines et les régions / départements / villes à conserver. Ces filtres s'appliquent à tous les tableaux et graphiques de ce profil. Tout est coché par défaut.</p><div class="lieu-dom-box"><strong>Domaines</strong> <span class="note">(nombre d'offres avec un lieu identifié)</span> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_Delph" data-check="1">Tout cocher</button> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_Delph" data-check="0">Tout décocher</button><div class="lieu-dom-list"><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="0" checked> SAP SD <span class="note">(117)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="1" checked> Business Process <span class="note">(70)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="2" checked> O2C <span class="note">(22)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="3" checked> BPO <span class="note">(18)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="4" checked> Sales &amp; Service <span class="note">(9)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="5" checked> Order-to-Cash <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="6" checked> S/4HANA Sales <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="7" checked> Service Client <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="8" checked> Processus Métier <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="9" checked> SAP Functional <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="10" checked> Administration des ventes <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="11" checked> Customer Service Process <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="12" checked> Processus ADV <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Delph" value="13" checked> SAP OTC <span class="note">(1)</span></label></div></div><div class="lieu-dom-box"><div class="lieu-loc-group"><strong>Départements et villes</strong> <span class="note">(5 département(s), 27 ville(s) ; cliquez sur ▸ pour afficher les villes d'un département)</span> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_Delph" data-section="geo" data-check="1">Tout cocher</button> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_Delph" data-section="geo" data-check="0">Tout décocher</button><div class="lieu-geo-scroll"><div class="lieu-grp" data-canvas="lieu_chart_Delph"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Delph" data-section="geo" data-idx="" checked> <strong>Paris</strong> <span class="note">(1 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="0" checked> Paris <span class="note">(152)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Delph"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Delph" data-section="geo" data-idx="2" checked> <strong>Hauts-de-Seine</strong> <span class="note">(9 ville(s) ; 22 offre(s) citant seulement le département)</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="1" checked> Nanterre <span class="note">(28)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="3" checked> Boulogne-Billancourt <span class="note">(13)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="4" checked> Neuilly-sur-Seine <span class="note">(11)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="5" checked> Antony <span class="note">(10)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="6" checked> Courbevoie <span class="note">(9)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="7" checked> Issy-les-Moulineaux <span class="note">(7)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="9" checked> Levallois-Perret <span class="note">(7)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="10" checked> Suresnes <span class="note">(7)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="12" checked> Puteaux <span class="note">(4)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Delph"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Delph" data-section="geo" data-idx="" checked> <strong>Indre et Loire</strong> <span class="note">(1 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="15" checked> Tours <span class="note">(2)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Delph"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Delph" data-section="geo" data-idx="" checked> <strong>Vienne</strong> <span class="note">(2 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="22" checked> Poitiers <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="23" checked> Vouneuil-sous-Biard <span class="note">(1)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Delph"><div class="lieu-grp-head"><span class="lieu-grp-spacer"></span><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="28" checked> Seine-Saint-Denis <span class="note">(1)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Delph"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Delph" data-section="geo" data-idx="" checked> <strong>Villes sans département identifié</strong> <span class="note">(14 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="8" checked> La Défense <span class="note">(7)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="11" checked> Saint-Cloud <span class="note">(5)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="13" checked> Châtillon <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="14" checked> Colombes <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="16" checked> La Courneuve <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="17" checked> Saint-Denis <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="18" checked> Sceaux <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="19" checked> Villepinte <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="20" checked> Le Raincy <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="21" checked> Joué-lès-Tours <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="24" checked> Malakoff <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="25" checked> Rueil-Malmaison <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="26" checked> Le Plessis-Robinson <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Delph" data-section="geo" value="27" checked> Montrouge <span class="note">(1)</span></label></div></div></div></div></div></div><h3><span id="nb_offres_Delph">93</span> Offres en adéquation avec le CV - depuis le lancement du Radar</h3><table class='tbl tbl-scroll' id=tbl_offres_Delph><thead><tr><th>#</th><th>Poste</th><th>Entreprise</th><th>Lieu</th><th>Score</th><th>Mot-clé Domaine</th><th>Mot-clé Fonction</th><th>Date Publication</th><th>Lien</th></tr></thead><tbody><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>1</td><td>Consultant SAP SD - Business Analyst (IT) / Freelance H/F (CDI)</td><td>Free-Work</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>100</span></td><td>SAP SD</td><td>Consultant</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858074143?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Saint-Cloud&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>2</td><td>Consultant SAP SD S/4HANA - Freelance</td><td>Collective.work</td><td>Saint-Cloud, Boulogne-Billancourt</td><td><span class='badge badge-green'>100</span></td><td>SAP SD</td><td>Consultant</td><td>28/08/2026</td><td><a href="https://www.adzuna.fr/details/5859125166?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>3</td><td>Consultant SAP Sd - Mm Expérimenté H/F</td><td>Lojelis</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>100</span></td><td>SAP SD</td><td>Consultant</td><td>30/08/2026</td><td><a href="https://www.adzuna.fr/details/5861724290?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>4</td><td>Consultant Senior SAP SD</td><td>Kaino</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>90</span></td><td>SAP SD</td><td>Consultant</td><td>08/08/2026</td><td><a href="https://www.adzuna.fr/details/5832796190?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>5</td><td>Consultant Fonctionnel SAP SD F/H</td><td>Scalesys</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>90</span></td><td>SAP SD</td><td>Consultant</td><td>01/09/2026</td><td><a href="https://www.adzuna.fr/details/5864389964?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>6</td><td>Consultant Fonctionnel SAP SD F/H</td><td>Scalesys</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>88</span></td><td>SAP SD</td><td>Consultant</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/details/5896718327?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="O2C" data-locs="[&quot;ville|Boulogne-Billancourt&quot;]"><td>7</td><td>Mission O2C Process & Financial Analyst</td><td>Exclusive Networks</td><td>Boulogne-Billancourt, Hauts-de-Seine</td><td><span class='badge badge-green'>85</span></td><td>O2C</td><td>Analyst</td><td>12/06/2026</td><td><a href="https://www.adzuna.fr/details/5761728801?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Paris&quot;]"><td>8</td><td>Business Process Owner</td><td>RED Global</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>Business Process</td><td>Owner</td><td>14/06/2026</td><td><a href="https://www.adzuna.fr/details/5763511272?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Paris&quot;]"><td>9</td><td>Business Process Owner O2C – SAP S/4HANA - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>85</span></td><td>Business Process</td><td>Owner</td><td>14/06/2026</td><td><a href="https://www.adzuna.fr/details/5763123315?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>10</td><td>SAP S/4HANA SD Senior Consultant (H/F/X)</td><td>Ekkiden</td><td>3ème Arrondissement, Paris</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>14/06/2026</td><td><a href="https://www.adzuna.fr/details/5763841250?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>11</td><td>Consultant SAP SD/MM confirmé F/H</td><td>LOJELIS</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>16/06/2026</td><td><a href="https://www.adzuna.fr/details/5765365217?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>12</td><td>SAP S - 4Hana Sd Senior Consultant H/F</td><td>Ekkiden</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>16/06/2026</td><td><a href="https://www.adzuna.fr/details/5765199903?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>13</td><td>Consultant Fonctionnel SAP MM/SD Senior F/H</td><td>ISC INFORMATION SYSTEM CONSULTING</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>26/06/2026</td><td><a href="https://www.adzuna.fr/details/5777513583?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>14</td><td>Consultant SAP SD Technico-Fonctionnel — O2C e-Invoicing / Generix</td><td>Ascalium</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>27/06/2026</td><td><a href="https://www.adzuna.fr/details/5778463274?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>15</td><td>Consultant(e) Senior SAP S/4HANA SD MM F/H</td><td>MeltOne Advisory</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>01/07/2026</td><td><a href="https://www.adzuna.fr/details/5783390627?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>16</td><td>CONSULTANT TECHNIQUE SAP SD/MM H/F</td><td>N/C</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>08/07/2026</td><td><a href="https://www.adzuna.fr/details/5792479165?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>17</td><td>Consultant Senior SAP SD</td><td>Kaino</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>08/07/2026</td><td><a href="https://www.adzuna.fr/details/5791669697?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Malakoff&quot;, &quot;ville|Antony&quot;]"><td>18</td><td>Consultant SAP Sd Sales & Distribution - Senior H/F</td><td>Informatis</td><td>Malakoff, Antony</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>09/07/2026</td><td><a href="https://www.adzuna.fr/details/5793886908?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Order-to-Cash" data-locs="[&quot;ville|Paris&quot;]"><td>19</td><td>SAP Order-To-Cash Sd Module Senior Manager H/F</td><td>Accenture France</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>85</span></td><td>Order-to-Cash</td><td>Manager</td><td>10/07/2026</td><td><a href="https://www.adzuna.fr/details/5795283002?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="BPO" data-locs="[&quot;ville|Paris&quot;]"><td>20</td><td>Directeur BPO S4Hana - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>85</span></td><td>BPO</td><td>Freelance</td><td>16/07/2026</td><td><a href="https://www.adzuna.fr/details/5802074067?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Levallois-Perret&quot;, &quot;ville|Nanterre&quot;]"><td>21</td><td>Consultant Senior SAP Sd Otc H/F</td><td>Devoteam France</td><td>Levallois-Perret, Nanterre</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>22/07/2026</td><td><a href="https://www.adzuna.fr/details/5810707434?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Levallois-Perret&quot;, &quot;ville|Nanterre&quot;]"><td>22</td><td>Consultant Senior SAP Sd Otc H/F</td><td>Devoteam</td><td>Levallois-Perret, Nanterre</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>25/07/2026</td><td><a href="https://www.adzuna.fr/details/5815146413?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;]"><td>23</td><td>Consultante / Consultant fonctionnel - Expert S4HANA SAP SD (H/F)</td><td>N/C</td><td>92 - Issy-les-Moulineaux</td><td><span class='badge badge-green'>85</span></td><td>SAP SD</td><td>Consultant</td><td>05/08/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/5713542" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Levallois-Perret&quot;]"><td>24</td><td>Consultant Fonctionnel SAP SD/MM (H/F)</td><td>NEOSIGHT</td><td>92 - LEVALLOIS PERRET</td><td><span class='badge badge-green'>83</span></td><td>SAP SD</td><td>Consultant</td><td>16/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213YJFC" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Order-to-Cash" data-locs="[&quot;ville|Paris&quot;]"><td>25</td><td>Order-to-Cash Manager</td><td>Veesion</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>82</span></td><td>Order-to-Cash</td><td>Manager</td><td>19/09/2026</td><td><a href="https://www.adzuna.fr/details/5889838194?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="O2C" data-locs="[&quot;ville|Paris&quot;]"><td>26</td><td>Consultant Finance Transformation / O2C (H/F)</td><td>PeersGroup</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>82</span></td><td>O2C</td><td>Consultant</td><td>20/09/2026</td><td><a href="https://www.adzuna.fr/land/ad/5891620470?se=5mccWIq18RGTKupd6C_-Ew&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=A051B462760376CBE15451FB53425688900EA394" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Suresnes&quot;, &quot;ville|Nanterre&quot;]"><td>27</td><td>Business Process Expert – Regulatory Information Management (RIM) (IT)</td><td>TEOLIA CONSULTING</td><td>Suresnes, Nanterre</td><td><span class='badge badge-green'>82</span></td><td>Business Process</td><td>Expert</td><td>23/09/2026</td><td><a href="https://www.adzuna.fr/details/5895600125?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="BPO" data-locs="[&quot;ville|Paris&quot;]"><td>28</td><td>CDI - BPO & chef de projet IT H/F</td><td>Covivio</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>82</span></td><td>BPO</td><td>NA</td><td>23/09/2026</td><td><a href="https://www.adzuna.fr/details/5895358700?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="BPO" data-locs="[&quot;ville|Montrouge&quot;, &quot;ville|Antony&quot;]"><td>29</td><td>Responsable Bpo & Projets de Transformation Relation Client H/F</td><td>Edenred</td><td>Montrouge, Antony</td><td><span class='badge badge-green'>82</span></td><td>BPO</td><td>NA</td><td>25/09/2026</td><td><a href="https://www.adzuna.fr/details/5897690562?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>30</td><td>Stream Lead SAP SD – Pilote de Domaine Ventes & Distribution H/F (CDI)</td><td>Free-Work</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>82</span></td><td>SAP SD</td><td>Lead</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/land/ad/5897049433?se=ag7Yt6-48RG0YIE6S5IGQw&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=6A160DFF126CD8FA291BFB4B775B0BD2E729E1B5" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>31</td><td>Consultant SAP SD/MM F/H</td><td>PREREQUIS</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>82</span></td><td>SAP SD</td><td>Consultant</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/details/5896708491?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>32</td><td>Consultant Senior SAP SD / Fashion Management (H/F) - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>82</span></td><td>SAP SD</td><td>Consultant</td><td>26/09/2026</td><td><a href="https://www.adzuna.fr/details/5899071566?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;]"><td>33</td><td>Consultante / Consultant fonctionnel - Expert S4HANA SAP SD (H/F)</td><td>N/C</td><td>92 - Issy-les-Moulineaux</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>27/06/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/4295024" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Châtillon&quot;, &quot;ville|Antony&quot;]"><td>34</td><td>Consultant SAP S/4HANA MM/SD Senior - Freelance</td><td>Collective.work</td><td>Châtillon, Antony</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>07/07/2026</td><td><a href="https://www.adzuna.fr/details/5790479904?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>35</td><td>SAP SD/MM Consultant</td><td>Conexus DX Limited</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>10/07/2026</td><td><a href="https://www.adzuna.fr/details/5794907292?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Châtillon&quot;, &quot;ville|Antony&quot;]"><td>36</td><td>Consultant SAP S/4HANA MM/SD Expert</td><td>Metaline</td><td>Châtillon, Antony</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>10/07/2026</td><td><a href="https://www.adzuna.fr/details/5796014489?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>37</td><td>IT Business Process Owner H/F</td><td>Michael Page</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>80</span></td><td>Business Process</td><td>Owner</td><td>15/07/2026</td><td><a href="https://www.adzuna.fr/details/5800921653?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>38</td><td>IT Business Process Owner H/F</td><td>Michael Page</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>80</span></td><td>Business Process</td><td>Owner</td><td>23/07/2026</td><td><a href="https://www.adzuna.fr/details/5812046502?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>39</td><td>Consultant(e) Technico-Fonctionnel(le) Senior sur SAP SD / MM - CDI</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>04/08/2026</td><td><a href="https://www.adzuna.fr/details/5827230676?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Order-to-Cash" data-locs="[&quot;ville|Paris&quot;]"><td>40</td><td>Lead SAP S/4HANA Public Cloud – Order-to-Cash (O2C) - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>Order-to-Cash</td><td>Lead</td><td>19/08/2026</td><td><a href="https://www.adzuna.fr/details/5847677827?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>41</td><td>Consultant SAP SD/MM S4/HANA - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>22/08/2026</td><td><a href="https://www.adzuna.fr/details/5851861937?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>42</td><td>Consultant Fonctionnel SAP MM/SD Senior (H/F)</td><td>ISC INFORMATION SYSTEM CONSULTING</td><td>75 - Paris (Dept.)</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>27/08/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/212ZDFQ" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="O2C" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>43</td><td>Stream Lead O2C SAP Cloud public, Subscription Billing (H/F) (CDI)</td><td>Free-Work</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>80</span></td><td>O2C</td><td>Lead</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858076031?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>44</td><td>Consultant SAP SD (Billing expert) (IT) / Freelance H/F (CDI)</td><td>Free-Work</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858077417?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>45</td><td>Consultant technico-fonctionnel SAP SD MM (H/F) (IT) / Freelance (CDI)</td><td>Free-Work</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858076848?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>46</td><td>Consultant technico-fonctionnel SAP S/4HANA modules MM/SD H/F (CDD)</td><td>Free-Work</td><td>Issy-les-Moulineaux, Boulogne-Billancourt</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858077940?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|La Courneuve&quot;, &quot;ville|Saint-Denis&quot;]"><td>47</td><td>Sap sd consultant (it) / freelance h/f (CDI)</td><td>Free-Work</td><td>La Courneuve, Saint-Denis</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858077451?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>48</td><td>Consultant - Manager AMOA SAP Mm - Sd - Pp - Industrie H/F</td><td>Square Management</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>30/08/2026</td><td><a href="https://www.adzuna.fr/details/5861722782?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>49</td><td>Consultant SAP Sd-Mm H/F</td><td>Onepoint</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>30/08/2026</td><td><a href="https://www.adzuna.fr/details/5861724317?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Levallois-Perret&quot;, &quot;ville|Nanterre&quot;]"><td>50</td><td>Consultant Senior SAP Sd Otc H/F</td><td>Devoteam France</td><td>Levallois-Perret, Nanterre</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>30/08/2026</td><td><a href="https://www.adzuna.fr/details/5861723213?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Saint-Cloud&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>51</td><td>Consultant Fonctionnel SAP Mm Sd H/F</td><td>Viveris.</td><td>Saint-Cloud, Boulogne-Billancourt</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>30/08/2026</td><td><a href="https://www.adzuna.fr/details/5861724219?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Villepinte&quot;, &quot;ville|Le Raincy&quot;]"><td>52</td><td>Chef de projet confirmé SAP SD/CS H/F (CDI)</td><td>Michael Page</td><td>Villepinte, Le Raincy</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Chef de projet</td><td>04/09/2026</td><td><a href="https://www.adzuna.fr/details/5869879404?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Saint-Cloud&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>53</td><td>Consultant(e) SAP SD MM Hu002FF</td><td>Duonext</td><td>Saint-Cloud, Boulogne-Billancourt</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>04/09/2026</td><td><a href="https://www.adzuna.fr/details/5870774164?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;departement|Hauts-de-Seine&quot;]"><td>54</td><td>Consultante / Consultant fonctionnel - Expert S4HANA SAP SD</td><td>Capgemini</td><td>Hauts-de-Seine, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>04/09/2026</td><td><a href="https://www.adzuna.fr/details/5870608192?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Villepinte&quot;, &quot;ville|Le Raincy&quot;]"><td>55</td><td>Chef de Projet Confirmé SAP Sd - Cs H/F</td><td>Michael Page</td><td>Villepinte, Le Raincy</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Chef de projet</td><td>05/09/2026</td><td><a href="https://www.adzuna.fr/details/5871209997?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>56</td><td>Consultante / Consultant fonctionnel - Expert S4HANA SAP SD</td><td>Capgemini</td><td>Issy-les-Moulineaux, Boulogne-Billancourt</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>05/09/2026</td><td><a href="https://www.adzuna.fr/details/5872139618?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Customer Service Process" data-locs="[&quot;ville|Paris&quot;]"><td>57</td><td>Leap - Global Business Process Manager - Customer Service H/F</td><td>Pernod Ricard SA</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>Customer Service Process</td><td>Manager</td><td>06/09/2026</td><td><a href="https://www.adzuna.fr/land/ad/5872472811?se=yKywZ8Gp8RGwYOjHHrvHXA&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=74B0697D69CEA8117FBB432709FA1C89DADDD0EF" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>58</td><td>Consultant Senior SAP SD</td><td>Kaino</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>SAP SD</td><td>Consultant</td><td>08/09/2026</td><td><a href="https://www.adzuna.fr/details/5875080432?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="O2C" data-locs="[&quot;ville|Paris&quot;]"><td>59</td><td>Adjoint(e) Manager O2C – SAP - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>O2C</td><td>Manager</td><td>15/09/2026</td><td><a href="https://www.adzuna.fr/details/5884171916?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Administration des ventes" data-locs="[&quot;ville|Joué-lès-Tours&quot;, &quot;ville|Tours&quot;]"><td>60</td><td>RESPONSABLE ADMINISTRATION DES VENTES H/F</td><td>Boréal 360</td><td>Joué-lès-Tours, Tours</td><td><span class='badge badge-green'>78</span></td><td>Administration des ventes</td><td>NA</td><td>08/10/2026</td><td><a href="https://www.adzuna.fr/details/5918458043?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Processus Métier" data-locs="[&quot;departement|Seine-Saint-Denis&quot;]"><td>61</td><td>Référent formateur processus métier et logiciel (F/H)</td><td>Médecins du Monde</td><td>Seine-Saint-Denis, Ile-de-France</td><td><span class='badge badge-green'>77</span></td><td>Processus Métier</td><td>NA</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/details/5896550237?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>62</td><td>Consultant fonctionnel SAP SD/MM Retail (Fashion/CAR) (H/F)</td><td>Signe+</td><td>75 - Paris</td><td><span class='badge badge-green'>75</span></td><td>SAP SD</td><td>Consultant</td><td>21/07/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/5192426" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="O2C" data-locs="[&quot;ville|Paris&quot;]"><td>63</td><td>Expert SAP S/4HANA Public Cloud O2C - CDI</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>75</span></td><td>O2C</td><td>Consultant</td><td>06/08/2026</td><td><a href="https://www.adzuna.fr/details/5829886461?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Puteaux&quot;, &quot;ville|Nanterre&quot;]"><td>64</td><td>Expert fonctionnel SAP S/4 HANA Order To Cash (SD) - Freelance</td><td>Collective.work</td><td>Puteaux, Nanterre</td><td><span class='badge badge-green'>75</span></td><td>SAP SD</td><td>Expert</td><td>02/09/2026</td><td><a href="https://www.adzuna.fr/details/5866125147?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Courbevoie&quot;, &quot;ville|Nanterre&quot;]"><td>65</td><td>Business Process Manager F/H</td><td>Ecosystem</td><td>Courbevoie, Nanterre</td><td><span class='badge badge-green'>71</span></td><td>Business Process</td><td>Manager</td><td>17/09/2026</td><td><a href="https://www.adzuna.fr/details/5887575675?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>66</td><td>Consultant Senior SAP SD / Fashion Management (H/F) - Freelance</td><td>Collective.work</td><td>75 - Paris</td><td><span class='badge badge-green'>71</span></td><td>SAP SD</td><td>Consultant</td><td>26/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/7421775" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>67</td><td>Consultante - Consultant Fonctionnel - Expert S4hana SAP Sd H/F</td><td>Capgemini</td><td>Issy-les-Moulineaux, Boulogne-Billancourt</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>26/06/2026</td><td><a href="https://www.adzuna.fr/details/5777431260?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Paris&quot;]"><td>68</td><td>Controlling Group Business Process Owner H/F</td><td>GEODIS</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Process</td><td>Owner</td><td>01/07/2026</td><td><a href="https://www.adzuna.fr/details/5783128222?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>69</td><td>Consultant SAP RETAIL SD-MM ECC6 / EHP8 H/F</td><td>PROPULSE IT</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>02/07/2026</td><td><a href="https://www.adzuna.fr/details/5785195270?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>70</td><td>Consultant SAP SD/MM F/H</td><td>PREREQUIS</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>02/07/2026</td><td><a href="https://www.adzuna.fr/details/5785264161?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="BPO" data-locs="[&quot;ville|Paris&quot;]"><td>71</td><td>BPO Finance H/F</td><td>Polène Paris</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>BPO</td><td>NA</td><td>08/07/2026</td><td><a href="https://www.adzuna.fr/details/5791473203?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="O2C" data-locs="[&quot;ville|Paris&quot;]"><td>72</td><td>Business Process Owner O2C – SAP S/4HANA - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>O2C</td><td>Owner</td><td>16/07/2026</td><td><a href="https://www.adzuna.fr/details/5802074106?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>73</td><td>Consultante - Consultant Fonctionnel - Expert S4hana SAP Sd H/F</td><td>Capgemini</td><td>Issy-les-Moulineaux, Boulogne-Billancourt</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>10/07/2026</td><td><a href="https://www.adzuna.fr/details/5795283604?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>74</td><td>Consultant SAP RETAIL SD-MM  ECC6 / EHP8 (H/F)</td><td>PROPULSE IT</td><td>75 - Paris 1er Arrondissement</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>24/07/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/5423779" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>75</td><td>Consultant SAP RETAIL SD-MM ECC6 / EHP8</td><td>Propulse It</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>24/07/2026</td><td><a href="https://www.adzuna.fr/details/5813680592?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>76</td><td>Consultant senior SAP SD & intégration Salesforce (H/F) - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>28/07/2026</td><td><a href="https://www.adzuna.fr/details/5817886416?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Antony&quot;]"><td>77</td><td>Global Business Process Owner P2P (H/F)</td><td>Lynkus</td><td>92 - Antony</td><td><span class='badge badge-green'>70</span></td><td>Business Process</td><td>Owner</td><td>30/07/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/5590759" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>78</td><td>Consultant SAP RETAIL SD-MM ECC6 / EHP8</td><td>PROPULSE IT</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>06/08/2026</td><td><a href="https://www.adzuna.fr/details/5830324183?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;departement|Hauts-de-Seine&quot;]"><td>79</td><td>Controlling Group Business Process Owner H/F</td><td>GEODIS</td><td>Hauts-de-Seine, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Process</td><td>Owner</td><td>08/08/2026</td><td><a href="https://www.adzuna.fr/details/5833124736?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>80</td><td>Consultant(e) Fonctionnel SAP SD</td><td>Business At Work part of Mantu</td><td>10ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>08/08/2026</td><td><a href="https://www.adzuna.fr/details/5833594321?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;]"><td>81</td><td>Consultant SAP SD/MM (H/F)</td><td>PREREQUIS</td><td>92 - NEUILLY SUR SEINE</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>12/08/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/212KQNY" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;ville|Paris&quot;]"><td>82</td><td>Business Process Owner — SAP LE/WM</td><td>ECM Talent</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Process</td><td>Owner</td><td>16/08/2026</td><td><a href="https://www.adzuna.fr/details/5844162109?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Process" data-locs="[&quot;departement|Hauts-de-Seine&quot;]"><td>83</td><td>Controlling Group Business Process Owner H/F</td><td>GEODIS</td><td>Hauts-de-Seine, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Process</td><td>Owner</td><td>17/08/2026</td><td><a href="https://www.adzuna.fr/details/5844983854?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>84</td><td>Consultant SAP RETAIL SD-MM ECC6 / EHP8</td><td>PROPULSE IT</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>19/08/2026</td><td><a href="https://www.adzuna.fr/details/5848044126?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="O2C" data-locs="[&quot;ville|Paris&quot;]"><td>85</td><td>Consultant SAP S/4HANA – SD O2C - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>O2C</td><td>Consultant</td><td>21/08/2026</td><td><a href="https://www.adzuna.fr/details/5850379249?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>86</td><td>Consultant Fonctionnel SAP Mm - Sd H/F</td><td>MC2I</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>20/08/2026</td><td><a href="https://www.adzuna.fr/details/5849057175?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>87</td><td>Consultant(e) Fonctionnel SAP MM/SD H/F</td><td>mc2i</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>23/08/2026</td><td><a href="https://www.adzuna.fr/details/5853707466?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>88</td><td>Consultant fonctionnel SAP SD/MM (H/F)</td><td>Signe+</td><td>75 - Paris</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>28/08/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/6359105" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Nanterre&quot;]"><td>89</td><td>Consultante / Consultant fonctionnel - Expert S4HANA SAP SD H/F</td><td>N/C</td><td>92 - Nanterre</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>03/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/6576903" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>90</td><td>Consultante - Consultant Fonctionnel - Expert S4hana SAP Sd H/F</td><td>Capgemini</td><td>Issy-les-Moulineaux, Boulogne-Billancourt</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>05/09/2026</td><td><a href="https://www.adzuna.fr/details/5871209932?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="BPO" data-locs="[&quot;ville|Paris&quot;]"><td>91</td><td>Responsable Opérations, BPO & Qualité Client</td><td>N/C</td><td>9ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>BPO</td><td>Responsable</td><td>09/09/2026</td><td><a href="https://www.adzuna.fr/details/5877382610?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|Paris&quot;]"><td>92</td><td>Consultant Fonctionnel SAP Sd - Mm H/F</td><td>Signe Plus</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Consultant</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879106374?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="SAP SD" data-locs="[&quot;ville|La Défense&quot;, &quot;ville|Courbevoie&quot;]"><td>93</td><td>Manager SAP SD</td><td>WAVY SERVICES</td><td>La Défense, Courbevoie</td><td><span class='badge badge-green'>70</span></td><td>SAP SD</td><td>Manager</td><td>16/09/2026</td><td><a href="https://www.adzuna.fr/details/5885632561?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr></tbody></table><p class='note'>Mot-Clé Fonction=NA : offre trouvée via un mot-clé Domaine seul (filtre Fonction non appliqué).</p><div class="pie-row"><div class="pie-col"><h3>Top 10 des entreprises qui recrutent le plus pour ce profil - depuis le lancement du Radar</h3><div class="pie-container"><canvas id="ent_chart_Delph"></canvas></div></div><div class="pie-col"><h3>Top 10 des entreprises qui proposent un poste qui match avec le CV (Score ≥ 70)</h3><div class="pie-container"><canvas id="ent_ge70_chart_Delph"></canvas></div></div></div><h3>Toutes les villes/départements où les entreprises recrutent pour ce profil - depuis le lancement du Radar</h3><p class="note" id="lieu_chart_Delph_info"></p><div class="treemap-container"><canvas id="lieu_chart_Delph"></canvas></div><p class="note"><strong>Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong><br>Couleurs : bleu = ville, vert = département, orange = région.<br>Règle : si le lieu cite au moins une ville, seules les villes sont comptées;sinon, s'il cite un département, seuls les départements sont comptés; sinon la région.<br></p><h3>Top 10 des villes/départements où les entreprises proposent un poste qui match avec le CV (Score ≥ 70)</h3><p class="note" id="lieu_ge70_chart_Delph_info"></p><div class="chart-container"><canvas id="lieu_ge70_chart_Delph"></canvas></div><p class="note"><strong> Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong></p><h3>Évolution hebdomadaire des offres filtrées par Job Radar</h3><div class="chart-container"><canvas id="evo_chart_Delph"></canvas></div><p class="note">Découpage par semaine calendaire (lundi-dimanche).</p><h3>Pertinence des mots-clé Domaine pour filtrer des offres</h3><div class="chart-container" style="height: 510px;"><canvas id="kw_dom_chart_Delph"></canvas></div><h3>Pertinence des mots-clé Fonction pour filtrer des offres</h3><div class="chart-container"><canvas id="kw_fct_chart_Delph"></canvas></div><div class="callout"><strong>⚠️ Mots-clés Domaine configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>ECC 6</li><li>SAP Field Service</li><li>SAP Application</li><li>SAP ADV</li><li>SAP Ventes</li><li>Customer Service</li><li>SAP Processus Métier</li><li>SAP Migration</li><li>SAP Intégration MM QM</li><li>SAP Reengineering process</li></ul></div><div class="callout"><strong>⚠️ Mots-clés Fonction configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>Specialist</li><li>Gestionnaire</li><li>Advisor</li><li>Coordinator</li><li>Coordinateur</li><li>Coordinatrice</li><li>Interim</li></ul></div></div></div>
+  <footer class="foot">Job Radar — document généré automatiquement le 09/10/2026 11:00.</footer>
+</div>
+
+<!-- Injection des données JSON pour Chart.js -->
+<script>
+  const dashboardData = {"evolution": {"Delph": {"labels": ["08-14/06", "15-21/06", "22-28/06", "29/06-05/07", "06-12/07", "13-19/07", "20-26/07", "27/07-02/08", "03-09/08", "10-16/08", "17-23/08", "24-30/08", "31/08-06/09", "07-13/09", "14-20/09", "21-27/09", "28/09-04/10", "05-11/10"], "ge70": [4, 2, 4, 4, 9, 3, 6, 2, 7, 2, 7, 14, 10, 3, 6, 9, 0, 1], "lt70": [0, 0, 0, 2, 12, 2, 5, 4, 6, 7, 10, 29, 12, 9, 20, 13, 7, 2], "manuel": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 1, 5, 4, 2, 0]}}, "keywords": {"Delph": {"domaine": {"labels": ["Administration des ventes", "Customer Service Process", "SAP OTC", "Processus ADV", "SAP Functional", "Processus Métier", "Service Client", "S/4HANA Sales", "Order-to-Cash", "Sales & Service", "BPO", "O2C", "Business Process", "SAP SD"], "ge70": [1, 1, 0, 0, 0, 1, 0, 0, 3, 0, 5, 7, 11, 64], "lt70": [0, 0, 1, 1, 0, 1, 3, 3, 0, 8, 13, 14, 51, 45], "manuel": [0, 0, 0, 0, 2, 0, 0, 0, 1, 1, 0, 1, 6, 6]}, "fonction": {"labels": ["Chef de Projet", "Conseiller", "Freelance", "Architect", "Chef de projet", "Analyst", "Responsable", "Lead", "Expert", "Manager", "Owner", "Consultant"], "ge70": [0, 0, 1, 0, 2, 1, 1, 3, 2, 6, 10, 62], "lt70": [1, 2, 1, 3, 1, 3, 4, 1, 3, 11, 43, 52], "manuel": [0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 7, 5]}}}, "entreprises_profil": {"Delph": {"labels": ["Collective.work", "Free-Work", "GEODIS", "Capgemini", "RATP", "PROPULSE IT", "Pernod Ricard SA", "Kaino", "Michael Page", "Servier"], "values": [33, 23, 18, 13, 12, 7, 5, 4, 4, 4]}}, "entreprises_ge70": {"Delph": {"labels": ["Collective.work", "Free-Work", "Capgemini", "PROPULSE IT", "Michael Page", "GEODIS", "PREREQUIS", "Kaino", "Ekkiden", "ISC INFORMATION SYSTEM CONSULTING"], "values": [15, 7, 5, 4, 4, 3, 3, 3, 2, 2]}}, "lieux_profil": {"Delph": {"labels": ["Paris", "Nanterre", "Hauts-de-Seine", "Boulogne-Billancourt", "Neuilly-sur-Seine", "Antony", "Courbevoie", "Issy-les-Moulineaux", "La Défense", "Levallois-Perret", "Suresnes", "Saint-Cloud", "Puteaux", "Châtillon", "Colombes", "Tours", "La Courneuve", "Saint-Denis", "Sceaux", "Villepinte", "Le Raincy", "Joué-lès-Tours", "Poitiers", "Vouneuil-sous-Biard", "Malakoff", "Rueil-Malmaison", "Le Plessis-Robinson", "Montrouge", "Seine-Saint-Denis"], "types": ["ville", "ville", "departement", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "departement"], "values": [152, 28, 22, 13, 11, 10, 9, 7, 7, 7, 7, 5, 4, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1], "total": 254, "offres": [{"p": "Mission O2C Process & Financial Analyst", "e": "Exclusive Networks", "u": "https://www.adzuna.fr/details/5761728801?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "12/06/2026"}, {"p": "Business Process Owner", "e": "RED Global", "u": "https://www.adzuna.fr/details/5763511272?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "14/06/2026"}, {"p": "Business Process Owner O2C – SAP S/4HANA - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5763123315?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "14/06/2026"}, {"p": "SAP S/4HANA SD Senior Consultant (H/F/X)", "e": "Ekkiden", "u": "https://www.adzuna.fr/details/5763841250?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "14/06/2026"}, {"p": "Consultant SAP SD/MM confirmé F/H", "e": "LOJELIS", "u": "https://www.adzuna.fr/details/5765365217?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "16/06/2026"}, {"p": "SAP S - 4Hana Sd Senior Consultant H/F", "e": "Ekkiden", "u": "https://www.adzuna.fr/details/5765199903?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "16/06/2026"}, {"p": "Consultant Fonctionnel SAP MM/SD Senior F/H", "e": "ISC INFORMATION SYSTEM CONSULTING", "u": "https://www.adzuna.fr/details/5777513583?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "26/06/2026"}, {"p": "Consultante - Consultant Fonctionnel - Expert S4hana SAP Sd H/F", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5777431260?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "26/06/2026"}, {"p": "Consultant SAP SD Technico-Fonctionnel — O2C e-Invoicing / Generix", "e": "Ascalium", "u": "https://www.adzuna.fr/details/5778463274?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "27/06/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD (H/F)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/4295024", "s": 80, "d": "27/06/2026"}, {"p": "CNAV - Responsable administratif / Responsable administrative du service clients (H/F)", "e": "CNAV", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6830274", "s": 47, "d": "11/09/2026"}, {"p": "RESPONSABLE ADMINISTRATION DES VENTES H/F", "e": "Boréal 360", "u": "https://www.adzuna.fr/details/5918458043?utm_medium=api&utm_source=90a8d42a", "s": 78, "d": "08/10/2026"}, {"p": "Conseiller·ère Service Client Francophone", "e": "Cross Border Talents", "u": "https://www.adzuna.fr/details/5918666798?utm_medium=api&utm_source=90a8d42a", "s": 25, "d": "08/10/2026"}, {"p": "Conseiller-ère Services et Expériences Client (H/F) CDI 35H", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/7773078", "s": 0, "d": "08/10/2026"}, {"p": "Consultant(e) Senior SAP S/4HANA SD MM F/H", "e": "MeltOne Advisory", "u": "https://www.adzuna.fr/details/5783390627?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "01/07/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5783128222?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "01/07/2026"}, {"p": "Consultant SAP RETAIL SD-MM ECC6 / EHP8 H/F", "e": "PROPULSE IT", "u": "https://www.adzuna.fr/details/5785195270?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "02/07/2026"}, {"p": "Consultant SAP SD/MM F/H", "e": "PREREQUIS", "u": "https://www.adzuna.fr/details/5785264161?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "02/07/2026"}, {"p": "Consultant Senior SAP SD Logistics – SAP S/4HANA Fashion Management Greenfield ( - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5784729160?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "02/07/2026"}, {"p": "Lead SAP S/4HANA Solution Architect - Pre-Sales and Integration (H/F)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/4513635", "s": 0, "d": "03/07/2026"}, {"p": "Consultant SAP S/4HANA MM/SD Senior - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5790479904?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "07/07/2026"}, {"p": "SAP BPO Supply Chain - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5790480064?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "07/07/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/details/5790723516?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "07/07/2026"}, {"p": "Aftersales Area Service Manager（Paris & North Region）", "e": "BYD Europe", "u": "https://www.adzuna.fr/details/5790257414?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "06/07/2026"}, {"p": "CONSULTANT TECHNIQUE SAP SD/MM H/F", "e": "N/C", "u": "https://www.adzuna.fr/details/5792479165?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "08/07/2026"}, {"p": "BPO Finance H/F", "e": "Polène Paris", "u": "https://www.adzuna.fr/details/5791473203?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "08/07/2026"}, {"p": "Consultant Senior SAP SD", "e": "Kaino", "u": "https://www.adzuna.fr/details/5791669697?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "08/07/2026"}, {"p": "Consultant SAP Sd Sales & Distribution - Senior H/F", "e": "Informatis", "u": "https://www.adzuna.fr/details/5793886908?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "09/07/2026"}, {"p": "Lead SAP S/4HANA Solution Architect - Pre-Sales and Integration (H/F)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/4761019", "s": 0, "d": "09/07/2026"}, {"p": "Consultant Senior Oracle Cloud O2C", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5794145367?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "09/07/2026"}, {"p": "Consultant Senior Oracle Cloud O2c H/F", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5793878080?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "09/07/2026"}, {"p": "Consultant AMOA finance SAP S/4HANA – MM et SD et intégration FI - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5793564744?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "09/07/2026"}, {"p": "SAP Order-To-Cash Sd Module Senior Manager H/F", "e": "Accenture France", "u": "https://www.adzuna.fr/details/5795283002?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "10/07/2026"}, {"p": "Consultant Senior Oracle Cloud O2C (H/F)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/4786101", "s": 60, "d": "10/07/2026"}, {"p": "Business Process Owner F/H", "e": "RATP", "u": "https://www.adzuna.fr/details/5795450776?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "10/07/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5795572406?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "10/07/2026"}, {"p": "Sales & Account Manager (h/f/d) - Services de conseil Modern PM & AI Business Solutions", "e": "Campana & Schott", "u": "https://www.adzuna.fr/details/5794656113?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "09/07/2026"}, {"p": "Directeur BPO S4Hana - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5802074067?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "16/07/2026"}, {"p": "SAP SD/MM Consultant", "e": "Conexus DX Limited", "u": "https://www.adzuna.fr/details/5794907292?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "10/07/2026"}, {"p": "Consultant SAP S/4HANA MM/SD Expert", "e": "Metaline", "u": "https://www.adzuna.fr/details/5796014489?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "10/07/2026"}, {"p": "IT Business Process Owner H/F", "e": "Michael Page", "u": "https://www.adzuna.fr/details/5800921653?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "15/07/2026"}, {"p": "Business Process Owner O2C – SAP S/4HANA - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5802074106?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "16/07/2026"}, {"p": "Consultante - Consultant Fonctionnel - Expert S4hana SAP Sd H/F", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5795283604?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "10/07/2026"}, {"p": "Business Analyst SAP SD - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5802074065?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "16/07/2026"}, {"p": "directeur informatique BPO S4Hana (IT)", "e": "LeHibou", "u": "https://www.adzuna.fr/details/5801498073?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "15/07/2026"}, {"p": "Consultant Bpo - Expertise SAP Fi - Co Secteur Cosmétique H/F", "e": "IS Consulting", "u": "https://www.adzuna.fr/details/5795468702?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "10/07/2026"}, {"p": "Consultant Senior SAP Sd Otc H/F", "e": "Devoteam France", "u": "https://www.adzuna.fr/details/5810707434?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "22/07/2026"}, {"p": "IT Business Process Owner H/F", "e": "Michael Page", "u": "https://www.adzuna.fr/details/5812046502?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "23/07/2026"}, {"p": "Consultant fonctionnel SAP SD/MM Retail (Fashion/CAR) (H/F)", "e": "Signe+", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5192426", "s": 75, "d": "21/07/2026"}, {"p": "Business Process Owner F/H", "e": "RATP", "u": "https://www.adzuna.fr/details/5809219566?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "21/07/2026"}, {"p": "Lead SAP S/4HANA Solution Architect - Pre-Sales and Integration H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5384914", "s": 0, "d": "23/07/2026"}, {"p": "IT Business Process Owner H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5203478", "s": 0, "d": "21/07/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/details/5809017954?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "21/07/2026"}, {"p": "Consultant Senior SAP Sd Otc H/F", "e": "Devoteam", "u": "https://www.adzuna.fr/details/5815146413?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "25/07/2026"}, {"p": "Consultant SAP RETAIL SD-MM  ECC6 / EHP8 (H/F)", "e": "PROPULSE IT", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5423779", "s": 70, "d": "24/07/2026"}, {"p": "Consultant SAP RETAIL SD-MM ECC6 / EHP8", "e": "Propulse It", "u": "https://www.adzuna.fr/details/5813680592?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "24/07/2026"}, {"p": "Consultant Senior Oracle Cloud O2C", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5815848645?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "26/07/2026"}, {"p": "Consultant senior SAP SD & intégration Salesforce (H/F) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5817886416?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "28/07/2026"}, {"p": "Global Business Process Owner P2P (H/F)", "e": "Lynkus", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5590759", "s": 70, "d": "30/07/2026"}, {"p": "Global Business Process Owner P2P (H/F)", "e": "Lynkus", "u": "https://www.adzuna.fr/details/5821005889?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "30/07/2026"}, {"p": "Consultant Senior Oracle Cloud O2C H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5665275", "s": 0, "d": "01/08/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/land/ad/5823599971?se=ZKxbP8SN8RGGgO_n0rmdiQ&utm_medium=api&utm_source=90a8d42a&v=4993386B520192D585BC8E2C2E75A46CDD0C3E74", "s": 0, "d": "01/08/2026"}, {"p": "Consultant Senior SAP SD (H/F)", "e": "Kaino", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5689456", "s": 0, "d": "03/08/2026"}, {"p": "Head of Sales - Building Maintenance & Technical Services - France", "e": "WeMaintain", "u": "https://www.adzuna.fr/details/5822727937?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "31/07/2026"}, {"p": "Consultant(e) Technico-Fonctionnel(le) Senior sur SAP SD / MM - CDI", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5827230676?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "04/08/2026"}, {"p": "IT Business Process Owner H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5690981", "s": 0, "d": "04/08/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5827734515?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "04/08/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD (H/F)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5713542", "s": 85, "d": "05/08/2026"}, {"p": "Expert SAP S/4HANA Public Cloud O2C - CDI", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5829886461?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "06/08/2026"}, {"p": "Global Business Process Owner P2p H/F", "e": "Lynkus", "u": "https://www.adzuna.fr/details/5829768975?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "06/08/2026"}, {"p": "Consultant SAP RETAIL SD-MM ECC6 / EHP8", "e": "PROPULSE IT", "u": "https://www.adzuna.fr/details/5830324183?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "06/08/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5780022", "s": 0, "d": "06/08/2026"}, {"p": "Consultant Senior SAP SD", "e": "Kaino", "u": "https://www.adzuna.fr/details/5832796190?utm_medium=api&utm_source=90a8d42a", "s": 90, "d": "08/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5833124736?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "08/08/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/details/5831729067?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "07/08/2026"}, {"p": "Consultant(e) Fonctionnel SAP SD", "e": "Business At Work part of Mantu", "u": "https://www.adzuna.fr/details/5833594321?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "08/08/2026"}, {"p": "Head Of Sales - Lift Maintenance & Technical Services - France - Wemaintain H/F", "e": "Wemaintain", "u": "https://www.adzuna.fr/details/5836176246?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "11/08/2026"}, {"p": "Solutions & Services Sales Specialist - Sustainability H/F", "e": "Lenovo France", "u": "https://www.adzuna.fr/details/5836176372?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "11/08/2026"}, {"p": "Finance Business Process Owner F/H", "e": "Robert Half International", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5910181", "s": 45, "d": "12/08/2026"}, {"p": "Finance Business Process Owner F/H", "e": "Robert Half Finance et Comptabilité Interim", "u": "https://www.adzuna.fr/details/5837517981?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "12/08/2026"}, {"p": "Consultant SAP SD/MM (H/F)", "e": "PREREQUIS", "u": "https://candidat.francetravail.fr/offres/recherche/detail/212KQNY", "s": 70, "d": "12/08/2026"}, {"p": "Consultant Senior / Manager Sales & Services Strategy", "e": "Deloitte", "u": "https://www.adzuna.fr/details/5840368991?utm_medium=api&utm_source=90a8d42a", "s": 55, "d": "13/08/2026"}, {"p": "Consultant Bpo - Expertise SAP Fi - Co Secteur Cosmétique H/F", "e": "IS Consulting", "u": "https://www.adzuna.fr/details/5841044543?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "14/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5842839960?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "15/08/2026"}, {"p": "Business Process Owner — SAP LE/WM", "e": "ECM Talent", "u": "https://www.adzuna.fr/details/5844162109?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "16/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5844983854?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "17/08/2026"}, {"p": "Compliance Manager & Bpo Business Process Owner Healthcare Compliance H/F", "e": "Servier", "u": "https://www.adzuna.fr/details/5845751544?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "18/08/2026"}, {"p": "Responsable Compliance & Bpo Business Process Owner Healthcare Compliance H/F", "e": "Servier", "u": "https://www.adzuna.fr/details/5845751545?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "18/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5847919446?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "19/08/2026"}, {"p": "BPO - Supply X AI Specialist", "e": "Veepee", "u": "https://www.adzuna.fr/details/5847918072?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "19/08/2026"}, {"p": "IT Business Process Owner H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6078888", "s": 0, "d": "18/08/2026"}, {"p": "Consultant SAP RETAIL SD-MM ECC6 / EHP8", "e": "PROPULSE IT", "u": "https://www.adzuna.fr/details/5848044126?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "19/08/2026"}, {"p": "Finance Business Process Owner H/F", "e": "Robert Half", "u": "https://www.adzuna.fr/details/5847547156?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "19/08/2026"}, {"p": "Consultant SAP S/4HANA – SD O2C - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5850379249?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "21/08/2026"}, {"p": "Business Process Owner Finance (H/F)", "e": "LA CADETTE", "u": "https://candidat.francetravail.fr/offres/recherche/detail/212SHVM", "s": 60, "d": "20/08/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/land/ad/5850537424?se=zJHmX0Od8RGbxYB7cJc2xQ&utm_medium=api&utm_source=90a8d42a&v=C7284B6430C701E159165620C4C1492F7914BD80", "s": 0, "d": "21/08/2026"}, {"p": "Consultant Manager SAP SD expriment H/F - IBM France", "e": "IBM", "u": "https://www.adzuna.fr/land/ad/5850598373?se=jCExFkOd8RGGU_tiBppXSA&utm_medium=api&utm_source=90a8d42a&v=AB01280617ED836DBAB0A8DE0F0823D98ED7A1C8", "s": null, "d": "21/08/2026"}, {"p": "Lead SAP S/4HANA Public Cloud – Order-to-Cash (O2C) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5847677827?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "19/08/2026"}, {"p": "Consultant SAP SD/MM S4/HANA - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5851861937?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "22/08/2026"}, {"p": "Consultant SAP Retail Sd-Mm Ecc6 - Ehp8 H/F", "e": "Propulse It", "u": "https://www.adzuna.fr/details/5849057113?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "20/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5852202827?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "22/08/2026"}, {"p": "Consultant Fonctionnel SAP Mm - Sd H/F", "e": "MC2I", "u": "https://www.adzuna.fr/details/5849057175?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "20/08/2026"}, {"p": "Consultant(e) Fonctionnel SAP MM/SD H/F", "e": "mc2i", "u": "https://www.adzuna.fr/details/5853707466?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "23/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5854233049?utm_medium=api&utm_source=90a8d42a", "s": 55, "d": "24/08/2026"}, {"p": "Consultant SAP SD - Business Analyst (IT) / Freelance H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858074143?utm_medium=api&utm_source=90a8d42a", "s": 100, "d": "27/08/2026"}, {"p": "Consultant Fonctionnel SAP MM/SD Senior (H/F)", "e": "ISC INFORMATION SYSTEM CONSULTING", "u": "https://candidat.francetravail.fr/offres/recherche/detail/212ZDFQ", "s": 80, "d": "27/08/2026"}, {"p": "Stream Lead O2C SAP Cloud public, Subscription Billing (H/F) (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858076031?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "27/08/2026"}, {"p": "Consultant SAP SD (Billing expert) (IT) / Freelance H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077417?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "27/08/2026"}, {"p": "Consultant technico-fonctionnel SAP SD MM (H/F) (IT) / Freelance (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858076848?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "27/08/2026"}, {"p": "Consultant technico-fonctionnel SAP S/4HANA modules MM/SD H/F (CDD)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077940?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "27/08/2026"}, {"p": "Sap sd consultant (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077451?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "27/08/2026"}, {"p": "Consultant SAP SD (E-invoicing) (IT) / Freelance H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858076891?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "27/08/2026"}, {"p": "Consultant technico-fonctionnel SAP S/4HANA modules MM/SD H/F (CDD)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077936?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "27/08/2026"}, {"p": "Opportunité Mission BPO Logistique (IT) / Freelance H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858078317?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "27/08/2026"}, {"p": "Consultant Sénior SAP SD - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5857751437?utm_medium=api&utm_source=90a8d42a", "s": 40, "d": "27/08/2026"}, {"p": "Consultant sap fscm-o2c (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077837?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant(e) amoa finance sap s/4hana – modules mm & sd h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077683?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant amoa finance sap s/4hana – mm et sd et intégration fi (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077645?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant sap sd is-oil (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077792?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant SAP SD MM Retail Technico-Fonctionnel (Architecte Solution) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5857751426?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant sap fi (integration sd mm) (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858078250?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Pot9315 - un consultant technique sap sd/mm sur paris (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858077721?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant sap retail sd-mm ecc6 / ehp8 (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858074817?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant fonctionnel confirmé SAP SD MM (IT) / Freelance H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858078394?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "Geodis", "u": "https://www.adzuna.fr/details/5857936721?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Consultant sap le / sd (it) / freelance h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858075707?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "27/08/2026"}, {"p": "Pricing Tools & Systems Business Process Owner", "e": "Eaton Corporation", "u": "https://www.adzuna.fr/land/ad/5857926825?se=wkY8wfqh8RGObYN7JdJhpQ&utm_medium=api&utm_source=90a8d42a&v=39C3986E9C84C79625ADCF98E50A6E7A0BC5757B", "s": null, "d": "27/08/2026"}, {"p": "Consultant SAP SD S/4HANA - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5859125166?utm_medium=api&utm_source=90a8d42a", "s": 100, "d": "28/08/2026"}, {"p": "Consultant fonctionnel SAP SD/MM (H/F)", "e": "Signe+", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6359105", "s": 70, "d": "28/08/2026"}, {"p": "Consultant fonctionnel SAP SD/MM Retail (Fashion/CAR) (H/F)", "e": "Signe+", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6359090", "s": 50, "d": "28/08/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/details/5859329105?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "28/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5859468649?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "28/08/2026"}, {"p": "Pricing Tools & Systems Business Process Owner", "e": "Eaton Corporation", "u": "https://www.adzuna.fr/land/ad/5857926832?se=0CWg8cOi8RGxH5ioOanSMw&utm_medium=api&utm_source=90a8d42a&v=92C29DFA639153ED484E3B7CF3B467C0EED2540E", "s": null, "d": "27/08/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6384315", "s": 0, "d": "28/08/2026"}, {"p": "Chef de Projet Senior - Bpo Opérations H/F", "e": "Brink's", "u": "https://www.adzuna.fr/details/5860436417?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "29/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5860866121?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "29/08/2026"}, {"p": "Consultant SAP Sd - Mm Expérimenté H/F", "e": "Lojelis", "u": "https://www.adzuna.fr/details/5861724290?utm_medium=api&utm_source=90a8d42a", "s": 100, "d": "30/08/2026"}, {"p": "Consultant - Manager AMOA SAP Mm - Sd - Pp - Industrie H/F", "e": "Square Management", "u": "https://www.adzuna.fr/details/5861722782?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "30/08/2026"}, {"p": "Consultant SAP Sd-Mm H/F", "e": "Onepoint", "u": "https://www.adzuna.fr/details/5861724317?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "30/08/2026"}, {"p": "Consultant Senior SAP Sd Otc H/F", "e": "Devoteam France", "u": "https://www.adzuna.fr/details/5861723213?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "30/08/2026"}, {"p": "Consultant Fonctionnel SAP Mm Sd H/F", "e": "Viveris.", "u": "https://www.adzuna.fr/details/5861724219?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "30/08/2026"}, {"p": "Consultant(e) SAP SD/MM - Secteur retail F/H", "e": "CGI", "u": "https://www.adzuna.fr/details/5861242729?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "29/08/2026"}, {"p": "Consultant(e) SAP SD/MM - Secteur Luxe & Cosméto F/H", "e": "CGI", "u": "https://www.adzuna.fr/details/5861236905?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "29/08/2026"}, {"p": "Consultant fonctionnel SAP SD/MM senior - IA & Testing - Migration S/4HANA (H/F)", "e": "CERCAR", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6425407", "s": 0, "d": "30/08/2026"}, {"p": "Consultant Finance Transformation / O2C (H/F)", "e": "PeersGroup", "u": "https://www.adzuna.fr/details/5861009645?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "29/08/2026"}, {"p": "Consultant SAP Sd - Mm - Secteur Luxe & Cosméto H/F", "e": "CGI", "u": "https://www.adzuna.fr/details/5861723715?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "30/08/2026"}, {"p": "Consultant fonctionnel SAP SD/MM senior - IA & Testing - Migration S/4HANA", "e": "CERCAR", "u": "https://www.adzuna.fr/details/5860982858?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "29/08/2026"}, {"p": "Consultant fonctionnel SAP SD/MM senior - IA & Testing - Migration S/4HANA", "e": "CERCAR", "u": "https://www.adzuna.fr/details/5860962225?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "29/08/2026"}, {"p": "BPO Finance H/F", "e": "Polène Paris", "u": "https://www.adzuna.fr/details/5862292293?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "30/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5862776213?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "31/08/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5864052464?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "01/09/2026"}, {"p": "Global Tech Process Expert - SAP Sd - Mm & Intercompany H/F", "e": "Pernod Ricard SA", "u": "https://www.adzuna.fr/land/ad/5863586303?se=JlQzceil8RGc4pJMwYBZ8A&utm_medium=api&utm_source=90a8d42a&v=0C946C9E6D948216F23596988CCBBFA9AAF60019", "s": null, "d": "01/09/2026"}, {"p": "Consultant Fonctionnel SAP SD F/H", "e": "Scalesys", "u": "https://www.adzuna.fr/details/5864389964?utm_medium=api&utm_source=90a8d42a", "s": 90, "d": "01/09/2026"}, {"p": "IT Business Process Owner H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6519338", "s": 60, "d": "02/09/2026"}, {"p": "Consultant SAP RETAIL SD-MM ECC6 / EHP8", "e": "PROPULSE IT", "u": "https://www.adzuna.fr/details/5864380356?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "01/09/2026"}, {"p": "Consultant Senior Oracle Cloud O2C", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5867097139?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "02/09/2026"}, {"p": "Consultant(e) Fonctionnel(le) Senior SAP SD u002F MM", "e": "HRC Group", "u": "https://www.adzuna.fr/details/5867246172?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "02/09/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5868514456?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "03/09/2026"}, {"p": "Chef de projet confirmé SAP SD/CS H/F (CDI)", "e": "Michael Page", "u": "https://www.adzuna.fr/details/5869879404?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "04/09/2026"}, {"p": "Expert fonctionnel SAP S/4 HANA Order To Cash (SD) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5866125147?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "02/09/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6576903", "s": 70, "d": "03/09/2026"}, {"p": "Consultant Senior Oracle Cloud O2C H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6577034", "s": 50, "d": "03/09/2026"}, {"p": "Consultant(e) SAP SD MM Hu002FF", "e": "Duonext", "u": "https://www.adzuna.fr/details/5870774164?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "04/09/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5870608192?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "04/09/2026"}, {"p": "Chef de Projet Confirmé SAP Sd - Cs H/F", "e": "Michael Page", "u": "https://www.adzuna.fr/details/5871209997?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "05/09/2026"}, {"p": "Consultante - Consultant Fonctionnel - Expert S4hana SAP Sd H/F", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5871209932?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "05/09/2026"}, {"p": "Consultant Senior Oracle Cloud O2c H/F", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5871209786?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "05/09/2026"}, {"p": "Package Consultant - SAP MM SD - IBM France - (H/F)", "e": "IBM", "u": "https://www.adzuna.fr/land/ad/5871522260?se=vsKK0_eo8RGogquEo3zAlQ&utm_medium=api&utm_source=90a8d42a&v=348869BAE6B44D5824BB23F45EB3E03535D63821", "s": null, "d": "05/09/2026"}, {"p": "Consultante / Consultant fonctionnel - Expert S4HANA SAP SD", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5872139618?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "05/09/2026"}, {"p": "Leap - Global Business Process Manager - Customer Service H/F", "e": "Pernod Ricard SA", "u": "https://www.adzuna.fr/land/ad/5872472811?se=yKywZ8Gp8RGwYOjHHrvHXA&utm_medium=api&utm_source=90a8d42a&v=74B0697D69CEA8117FBB432709FA1C89DADDD0EF", "s": 80, "d": "06/09/2026"}, {"p": "Responsable d'application Expert SAP MM/SD", "e": "Metaline", "u": "https://www.adzuna.fr/details/5872343971?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "06/09/2026"}, {"p": "Business Process Manager - O2c - Pricing H/F", "e": "Pernod Ricard SA", "u": "https://www.adzuna.fr/land/ad/5872472816?se=yCyjGMGp8RGogquEo3zAlQ&utm_medium=api&utm_source=90a8d42a&v=00F2760E10BE6700425CAF23021CA4ECC4999FFA", "s": null, "d": "06/09/2026"}, {"p": "Global Tech Process Manager - SAP Logistics & Transportation Tm Sd - Mm Ewm - Wms Api H/F", "e": "Pernod Ricard SA", "u": "https://www.adzuna.fr/land/ad/5872472823?se=xLmnIcGp8RGlI_dq_IL75Q&utm_medium=api&utm_source=90a8d42a&v=85449913C9A5A031266CCD59B3D91059E3204515", "s": null, "d": "06/09/2026"}, {"p": "Global Business Process Owner - Manufacturing And Traceability Processes H/F", "e": "Pernod Ricard SA", "u": "https://www.adzuna.fr/land/ad/5872472813?se=hLaaccGp8RGalKtEgDn_oA&utm_medium=api&utm_source=90a8d42a&v=C138140B29F54D113F8B600F1CB6C38EE8B5D267", "s": null, "d": "06/09/2026"}, {"p": "Consultant(e) SAP SD/MM - Secteur retail F/H", "e": "CGI", "u": "https://www.adzuna.fr/details/5873205365?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "06/09/2026"}, {"p": "Consultant Senior Oracle Cloud O2C", "e": "Capgemini", "u": "https://www.adzuna.fr/details/5873184988?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "06/09/2026"}, {"p": "Consultant Senior SAP SD", "e": "Kaino", "u": "https://www.adzuna.fr/details/5875080432?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "08/09/2026"}, {"p": "SAP SD/MM Consultant", "e": "Conexus DX Limited", "u": "https://www.adzuna.fr/details/5876447201?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "09/09/2026"}, {"p": "Responsable Opérations, BPO & Qualité Client", "e": "N/C", "u": "https://www.adzuna.fr/details/5877382610?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "09/09/2026"}, {"p": "Responsable Opérations, BPO & Qualité Client (H/F)", "e": "DN8 Solutions LTD", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6795001", "s": 66, "d": "10/09/2026"}, {"p": "Business Process Owner F/H", "e": "RATP", "u": "https://www.adzuna.fr/details/5876988288?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "09/09/2026"}, {"p": "Manager O2C Senior - Finance SAP - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5877846862?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "10/09/2026"}, {"p": "Consultant Fonctionnel SAP Sd - Mm H/F", "e": "Signe Plus", "u": "https://www.adzuna.fr/details/5879106374?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "11/09/2026"}, {"p": "Chef de Projet - Business Process Analyst & Transformation (F/H)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6798818", "s": 66, "d": "10/09/2026"}, {"p": "Consultant Fonctionnel SAP Sd - Mm Retail Fashion - Car H/F", "e": "Signe Plus", "u": "https://www.adzuna.fr/details/5879106373?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "11/09/2026"}, {"p": "Manager O2C Senior - Finance SAP - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6825536", "s": 62, "d": "11/09/2026"}, {"p": "Consultant SAP RETAIL SD-MM ECC6 / EHP8", "e": "PROPULSE IT", "u": "https://www.adzuna.fr/details/5879534989?utm_medium=api&utm_source=90a8d42a", "s": 54, "d": "11/09/2026"}, {"p": "Consultant Manager SAP SD H/F - IBM France", "e": "IBM", "u": "https://www.adzuna.fr/land/ad/5882250153?se=Fv_6ZUGv8RGhe8--YZ_w9w&utm_medium=api&utm_source=90a8d42a&v=14F6CA7806C7670AAFDE747CB6BC96D679E418FD", "s": null, "d": "13/09/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/land/ad/5883307423?se=Pk8Z9gqw8RGhe8--YZ_w9w&utm_medium=api&utm_source=90a8d42a&v=2FD5B35748DF9AD23CEB28EEDEFF7BFB63A1C7FD", "s": 0, "d": "14/09/2026"}, {"p": "Adjoint(e) Manager O2C – SAP - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5884171916?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "15/09/2026"}, {"p": "Senior Sales Manager Banking & Financial Services H/F", "e": "Accenture France", "u": "https://www.adzuna.fr/details/5884105924?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "15/09/2026"}, {"p": "Consultant SAP Retail Sd-Mm Ecc6 - Ehp8 H/F", "e": "Propulse It", "u": "https://www.adzuna.fr/land/ad/5884107453?se=8qmNhtOw8RGCBrkP8JhYHA&utm_medium=api&utm_source=90a8d42a&v=90B69D8700F14179DCE2666A9F2AACB97632CC3E", "s": null, "d": "15/09/2026"}, {"p": "Manager SAP SD", "e": "WAVY SERVICES", "u": "https://www.adzuna.fr/details/5885632561?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "16/09/2026"}, {"p": "Adjoint(e) Manager O2C - SAP - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6895290", "s": 66, "d": "15/09/2026"}, {"p": "Business Process Manager F/H", "e": "ecosystem", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6907609", "s": 66, "d": "15/09/2026"}, {"p": "Consultant SAP SD/MM S4/HANA - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6894987", "s": 62, "d": "15/09/2026"}, {"p": "Manager SAP Sd H/F", "e": "WAVY SERVICES", "u": "https://www.adzuna.fr/details/5885401282?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "16/09/2026"}, {"p": "Product Owner Salesforce – Service Cloud & Sales Cloud (IT)", "e": "BTI - Advisory", "u": "https://www.adzuna.fr/details/5885091241?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "15/09/2026"}, {"p": "Business process owner f/h (CDI)", "e": "Morgan Philips Specialist Recruitment", "u": "https://www.adzuna.fr/land/ad/5883959190?se=DiRYR52x8RG80dqbAPfRRQ&utm_medium=api&utm_source=90a8d42a&v=517ABBCAA2043A7696BCAE62E0DAB216A3401F43", "s": 0, "d": "15/09/2026"}, {"p": "Consultant SAP Functional Lead | Solution Lead (H/F) (CDD)", "e": "Free-Work", "u": "https://www.adzuna.fr/land/ad/5885012638?se=HDyD8Zyx8RGEx_5DqbUvug&utm_medium=api&utm_source=90a8d42a&v=D7781144E11AA0F65E1CC7E1040E7EB4BEBC769F", "s": null, "d": "15/09/2026"}, {"p": "Consultant Fonctionnel SAP SD/MM (H/F)", "e": "NEOSIGHT", "u": "https://candidat.francetravail.fr/offres/recherche/detail/213YJFC", "s": 83, "d": "16/09/2026"}, {"p": "Consultant SAP SD/MM Retail S4/HANA - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5887003282?utm_medium=api&utm_source=90a8d42a", "s": 61, "d": "17/09/2026"}, {"p": "Responsable Compliance & Bpo Business Process Owner Healthcare Compliance H/F", "e": "Servier", "u": "https://www.adzuna.fr/details/5886944164?utm_medium=api&utm_source=90a8d42a", "s": 61, "d": "17/09/2026"}, {"p": "Finance Business Process Owner F/H", "e": "Robert Half International", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6943577", "s": 46, "d": "17/09/2026"}, {"p": "Manager sap sd h/f (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/land/ad/5886328202?se=uKXrV2iy8RGPhZDySvILTw&utm_medium=api&utm_source=90a8d42a&v=3F2723998B47EA4FCA737D2826E5CE0ACFE19412", "s": 46, "d": "16/09/2026"}, {"p": "Compliance Manager & Bpo Business Process Owner Healthcare Compliance H/F", "e": "Servier", "u": "https://www.adzuna.fr/details/5886944735?utm_medium=api&utm_source=90a8d42a", "s": 11, "d": "17/09/2026"}, {"p": "Finance Business Process Owner F/H", "e": "Robert Half Finance et Comptabilité Interim", "u": "https://www.adzuna.fr/details/5886967373?utm_medium=api&utm_source=90a8d42a", "s": 10, "d": "17/09/2026"}, {"p": "Finance MOA - Functional Process Owner SAP S - 4Hana F - M - D H/F", "e": "Free2move", "u": "https://www.adzuna.fr/land/ad/5886953160?se=UAFAZWiy8RGW7Jd0wGJW9Q&utm_medium=api&utm_source=90a8d42a&v=46034B42151C36A2559BB5ADE02A0A6F7AD29D11", "s": null, "d": "17/09/2026"}, {"p": "Product Owner Salesforce – Service Cloud & Sales Cloud H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/land/ad/5886328233?se=4pQRr2iy8RGRr_JonSYGrg&utm_medium=api&utm_source=90a8d42a&v=B8E5B6DC66AB1CCED2F99B70EAAE6AD2FF710F35", "s": null, "d": "16/09/2026"}, {"p": "Business Process Manager F/H", "e": "Ecosystem", "u": "https://www.adzuna.fr/details/5887575675?utm_medium=api&utm_source=90a8d42a", "s": 71, "d": "17/09/2026"}, {"p": "Consultant SAP SD/MM Retail S4/HANA - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6961821", "s": 35, "d": "17/09/2026"}, {"p": "Business Process Manager (Réglementaire)", "e": "Excelya", "u": "https://www.adzuna.fr/details/5888035514?utm_medium=api&utm_source=90a8d42a", "s": 10, "d": "17/09/2026"}, {"p": "Order-to-Cash Manager", "e": "Veesion", "u": "https://www.adzuna.fr/details/5889838194?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "19/09/2026"}, {"p": "Business Process Manager Réglementaire H/F", "e": "Excelya", "u": "https://www.adzuna.fr/land/ad/5890022295?se=wtIH3Piz8RGSI57gYuD12g&utm_medium=api&utm_source=90a8d42a&v=B8A4F1495DD6B8F47EC9F26E757C05B01741F703", "s": null, "d": "19/09/2026"}, {"p": "Business Process Owner H/F", "e": "Morgan Philips Specialist", "u": "https://www.adzuna.fr/details/5891194900?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "20/09/2026"}, {"p": "Consultant Technico- fonctionnel confirmé SAP MM/SD I VALUA - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5891241064?utm_medium=api&utm_source=90a8d42a", "s": 31, "d": "20/09/2026"}, {"p": "Consultant Finance Transformation / O2C (H/F)", "e": "PeersGroup", "u": "https://www.adzuna.fr/land/ad/5891620470?se=5mccWIq18RGTKupd6C_-Ew&utm_medium=api&utm_source=90a8d42a&v=A051B462760376CBE15451FB53425688900EA394", "s": 82, "d": "20/09/2026"}, {"p": "Consultant Technico- fonctionnel confirmé SAP MM/SD I VALUA - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/7042539", "s": 56, "d": "20/09/2026"}, {"p": "Lead support SAP SD/MM - Groupe LVMH", "e": "KatchMe", "u": "https://www.adzuna.fr/land/ad/5891624695?se=LhW0YYq18RGk6dCvHcHp9g&utm_medium=api&utm_source=90a8d42a&v=7155785D4CDE1047D461DAA9694938609B98BC9F", "s": 30, "d": "20/09/2026"}, {"p": "Business Process Owner F/H (CDI)", "e": "RATP", "u": "https://www.adzuna.fr/land/ad/5893522387?se=FiCLGFS28RGVK77OOimlQQ&utm_medium=api&utm_source=90a8d42a&v=7C008B3BF115A42D3A2E7B7830A8F9A542A97EFD", "s": null, "d": "22/09/2026"}, {"p": "Business Expert SAP OTC (H/F)", "e": "Meent Life Sciences", "u": "https://candidat.francetravail.fr/offres/recherche/detail/7094181", "s": 66, "d": "22/09/2026"}, {"p": "Consultant.e SAP Senior FI/CO/SD/PS Fonctionnel (F/H/)", "e": "Metaline", "u": "https://www.adzuna.fr/details/5894382518?utm_medium=api&utm_source=90a8d42a", "s": 25, "d": "23/09/2026"}, {"p": "Business Process manager informatique (H/F) (IT)", "e": "REACTIS", "u": "https://www.adzuna.fr/details/5894304443?utm_medium=api&utm_source=90a8d42a", "s": 10, "d": "22/09/2026"}, {"p": "Business Process Owner 'Ratp Evolution Services H/F", "e": "Non External", "u": "https://www.adzuna.fr/details/5894571820?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "23/09/2026"}, {"p": "Business Process Expert – Regulatory Information Management (RIM) (IT)", "e": "TEOLIA CONSULTING", "u": "https://www.adzuna.fr/details/5895600125?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "23/09/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5895603249?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "23/09/2026"}, {"p": "Business Process Expert – Regulatory Information Management (RIM) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5896121435?utm_medium=api&utm_source=90a8d42a", "s": 10, "d": "24/09/2026"}, {"p": "Consultant Fonctionnel SAP SD (H/F) (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/land/ad/5895308075?se=Zkbav-W38RGy9Y8VGxfkJg&utm_medium=api&utm_source=90a8d42a&v=31D9D5DF4CDBAE6A020D2F8D1F470B5E6F16EB2E", "s": null, "d": "23/09/2026"}, {"p": "Finance Business Process Owner H/F", "e": "Robert Half", "u": "https://www.adzuna.fr/details/5896032951?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "24/09/2026"}, {"p": "CDI - BPO & chef de projet IT H/F", "e": "Covivio", "u": "https://www.adzuna.fr/details/5895358700?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "23/09/2026"}, {"p": "Business Process Expert - Regulatory Information Management (RIM) - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/7161790", "s": 6, "d": "24/09/2026"}, {"p": "Consultant Fonctionnel SAP SD F/H", "e": "Scalesys", "u": "https://www.adzuna.fr/details/5896718327?utm_medium=api&utm_source=90a8d42a", "s": 88, "d": "24/09/2026"}, {"p": "Responsable Bpo & Projets de Transformation Relation Client H/F", "e": "Edenred", "u": "https://www.adzuna.fr/details/5897690562?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "25/09/2026"}, {"p": "Stream Lead SAP SD – Pilote de Domaine Ventes & Distribution H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/land/ad/5897049433?se=ag7Yt6-48RG0YIE6S5IGQw&utm_medium=api&utm_source=90a8d42a&v=6A160DFF126CD8FA291BFB4B775B0BD2E729E1B5", "s": 82, "d": "24/09/2026"}, {"p": "Consultant SAP SD/MM F/H", "e": "PREREQUIS", "u": "https://www.adzuna.fr/details/5896708491?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "24/09/2026"}, {"p": "Référent formateur processus métier et logiciel (F/H)", "e": "Médecins du Monde", "u": "https://www.adzuna.fr/details/5896550237?utm_medium=api&utm_source=90a8d42a", "s": 77, "d": "24/09/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5897945485?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "25/09/2026"}, {"p": "Consultant SAP RETAIL SD-MM ECC6 / EHP8", "e": "PROPULSE IT", "u": "https://www.adzuna.fr/details/5896669192?utm_medium=api&utm_source=90a8d42a", "s": 40, "d": "24/09/2026"}, {"p": "Consultant Senior SAP SD / Fashion Management (H/F) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5899071566?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "26/09/2026"}, {"p": "Responsable Système de Management de la Qualité Groupe & BPO Qualité Groupe F/H", "e": "Sodiaal", "u": "https://www.adzuna.fr/details/5898487526?utm_medium=api&utm_source=90a8d42a", "s": 46, "d": "25/09/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5899322590?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "26/09/2026"}, {"p": "Lead fonctionnel SAP Order-to-Cash F/H", "e": "KPMG France", "u": "https://www.adzuna.fr/details/5899007897?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "26/09/2026"}, {"p": "Consultant Senior SAP SD / Fashion Management (H/F) - Freelance", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/7421775", "s": 71, "d": "26/09/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5900352819?utm_medium=api&utm_source=90a8d42a", "s": 54, "d": "27/09/2026"}, {"p": "Consultant(e) Fonctionnel(le) Senior SAP SD / MM", "e": "HRC Group", "u": "https://www.adzuna.fr/details/5900735912?utm_medium=api&utm_source=90a8d42a", "s": 64, "d": "27/09/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5901251726?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "28/09/2026"}, {"p": "Controlling Group Business Process Owner H/F", "e": "GEODIS", "u": "https://www.adzuna.fr/details/5902582379?utm_medium=api&utm_source=90a8d42a", "s": 56, "d": "29/09/2026"}, {"p": "Business analyste informatiquee Expert Métier & Process Mining – Celonis / Processus Bancaires Retail (IT)", "e": "KEONI CONSULTING", "u": "https://www.adzuna.fr/details/5901928937?utm_medium=api&utm_source=90a8d42a", "s": 41, "d": "28/09/2026"}, {"p": "Consultant ADV & facturation – prestations IT & processus achats - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5902352398?utm_medium=api&utm_source=90a8d42a", "s": 25, "d": "29/09/2026"}, {"p": "IT généraliste / Business analyste informatique – Process Mining / Celonis H/F (IT)", "e": "Sapiens Group", "u": "https://www.adzuna.fr/details/5901928960?utm_medium=api&utm_source=90a8d42a", "s": 25, "d": "28/09/2026"}, {"p": "IT généraliste / Business Analyst – Process Mining / Celonis H/F - CDI", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5902352145?utm_medium=api&utm_source=90a8d42a", "s": 17, "d": "29/09/2026"}, {"p": "Responsable Opérations, BPO & Qualité Client", "e": "DN8 Solutions LTD", "u": "https://www.adzuna.fr/details/5901352741?utm_medium=api&utm_source=90a8d42a", "s": 10, "d": "28/09/2026"}, {"p": "Business Process Owner '(RATP Evolution Services)", "e": "RATP", "u": "https://www.adzuna.fr/land/ad/5901316794?se=JDGLoNS78RGTcuZ3r2Yb6w&utm_medium=api&utm_source=90a8d42a&v=D9378C50D69440F485362E5459BEDCD14562C9EE", "s": null, "d": "28/09/2026"}, {"p": "Business process owner f/h (CDI)", "e": "Fyte", "u": "https://www.adzuna.fr/land/ad/5902222838?se=LHx5pdS78RGejf_fsaIHJQ&utm_medium=api&utm_source=90a8d42a&v=962C21DE9FE592EC5901F75A86EBC2AE0C3CB77D", "s": null, "d": "29/09/2026"}], "domaines": [{"nom": "SAP SD", "offres": 117, "counts": [[0, 76], [1, 13], [2, 3], [3, 8], [4, 4], [5, 6], [6, 3], [7, 7], [8, 3], [9, 4], [11, 3], [12, 1], [13, 4], [14, 3], [16, 2], [17, 2], [19, 2], [20, 2], [24, 1], [26, 1]], "offres70": 64, "counts70": [[0, 36], [1, 8], [2, 1], [3, 8], [4, 4], [5, 3], [6, 1], [7, 7], [8, 1], [9, 4], [11, 3], [12, 1], [13, 2], [16, 1], [17, 1], [19, 2], [20, 2], [24, 1]], "liens": [[0, [3, 4, 5, 6, 8, 14, 16, 18, 24, 26, 31, 38, 48, 54, 55, 57, 62, 64, 70, 72, 75, 91, 98, 99, 101, 102, 104, 105, 107, 108, 111, 114, 116, 117, 118, 119, 120, 121, 122, 123, 125, 128, 129, 136, 138, 141, 142, 143, 145, 146, 147, 151, 152, 154, 156, 172, 174, 176, 177, 182, 184, 186, 191, 195, 201, 210, 215, 217, 218, 227, 231, 233, 237, 238, 242, 244]], [1, [17, 46, 53, 71, 96, 133, 137, 139, 159, 160, 167, 187, 234]], [2, [35, 66, 163]], [3, [7, 42, 109, 127, 140, 162, 165, 168]], [4, [17, 80, 137, 234]], [5, [20, 27, 39, 112, 170, 221]], [6, [192, 196, 204]], [7, [7, 9, 42, 67, 109, 165, 168]], [8, [192, 196, 204]], [9, [46, 53, 139, 200]], [11, [127, 140, 162]], [12, [159]], [13, [20, 39, 112, 170]], [14, [96, 167, 187]], [16, [43, 110]], [17, [43, 110]], [19, [158, 164]], [20, [158, 164]], [24, [27]], [26, [221]]]}, {"nom": "Business Process", "offres": 70, "counts": [[0, 30], [1, 11], [2, 18], [3, 2], [4, 6], [5, 3], [6, 2], [9, 3], [10, 5], [11, 1], [18, 2]], "offres70": 11, "counts70": [[0, 4], [1, 4], [2, 2], [4, 2], [5, 1], [6, 1], [10, 1]], "liens": [[0, [1, 2, 15, 22, 34, 49, 52, 61, 74, 78, 79, 84, 92, 94, 95, 126, 130, 173, 180, 183, 188, 203, 206, 219, 222, 223, 228, 249, 250, 252]], [1, [40, 47, 132, 198, 202, 205, 209, 214, 224, 226, 253]], [2, [73, 83, 85, 88, 100, 103, 124, 131, 135, 149, 150, 157, 225, 236, 240, 243, 245, 246]], [3, [211, 213]], [4, [40, 47, 51, 65, 90, 153]], [5, [58, 59, 69]], [6, [194, 209]], [9, [198, 214, 253]], [10, [202, 205, 224, 226, 230]], [11, [213]], [18, [59, 69]]]}, {"nom": "O2C", "offres": 22, "counts": [[0, 20], [1, 1], [3, 1], [4, 1]], "offres70": 7, "counts70": [[0, 5], [1, 1], [3, 1], [4, 1]], "liens": [[0, [29, 30, 33, 41, 56, 60, 68, 93, 115, 144, 155, 161, 166, 171, 175, 181, 185, 189, 193, 216]], [1, [106]], [3, [0]], [4, [106]]]}, {"nom": "BPO", "offres": 18, "counts": [[0, 13], [1, 2], [5, 1], [6, 2], [8, 2], [10, 2], [27, 1]], "offres70": 5, "counts70": [[0, 4], [5, 1], [27, 1]], "liens": [[0, [21, 25, 37, 44, 89, 113, 134, 148, 178, 179, 229, 239, 251]], [1, [86, 87]], [5, [232]], [6, [45, 82]], [8, [45, 82]], [10, [86, 87]], [27, [232]]]}, {"nom": "Sales & Service", "offres": 9, "counts": [[0, 6], [1, 1], [2, 1], [6, 1], [8, 1], [25, 1]], "offres70": 0, "counts70": [], "liens": [[0, [36, 63, 76, 190, 197, 208]], [1, [77]], [2, [81]], [6, [23]], [8, [23]], [25, [77]]]}, {"nom": "Order-to-Cash", "offres": 4, "counts": [[0, 3], [6, 1], [8, 1]], "offres70": 3, "counts70": [[0, 3]], "liens": [[0, [32, 97, 212]], [6, [241]], [8, [241]]]}, {"nom": "S/4HANA Sales", "offres": 3, "counts": [[12, 3]], "offres70": 0, "counts70": [], "liens": [[12, [19, 28, 50]]]}, {"nom": "Service Client", "offres": 3, "counts": [[15, 1], [22, 1], [23, 1]], "offres70": 0, "counts70": [], "liens": [[15, [10]], [22, [12]], [23, [13]]]}, {"nom": "Processus Métier", "offres": 2, "counts": [[0, 1], [28, 1]], "offres70": 1, "counts70": [[28, 1]], "liens": [[0, [247]], [28, [235]]]}, {"nom": "SAP Functional", "offres": 2, "counts": [[0, 1], [3, 1], [11, 1]], "offres70": 0, "counts70": [], "liens": [[0, [207]], [3, [199]], [11, [199]]]}, {"nom": "Administration des ventes", "offres": 1, "counts": [[15, 1], [21, 1]], "offres70": 1, "counts70": [[15, 1], [21, 1]], "liens": [[15, [11]], [21, [11]]]}, {"nom": "Customer Service Process", "offres": 1, "counts": [[0, 1]], "offres70": 1, "counts70": [[0, 1]], "liens": [[0, [169]]]}, {"nom": "Processus ADV", "offres": 1, "counts": [[0, 1]], "offres70": 0, "counts70": [], "liens": [[0, [248]]]}, {"nom": "SAP OTC", "offres": 1, "counts": [[3, 1]], "offres70": 0, "counts70": [], "liens": [[3, [220]]]}]}}, "lieux_ge70": {"Delph": {"labels": ["Paris", "Nanterre", "Boulogne-Billancourt", "Issy-les-Moulineaux", "Neuilly-sur-Seine", "Antony", "Levallois-Perret", "Hauts-de-Seine", "Saint-Cloud", "Châtillon"], "types": ["ville", "ville", "ville", "ville", "ville", "ville", "ville", "departement", "ville", "ville"], "values": [53, 13, 9, 7, 7, 5, 4, 3, 3, 2], "total": 93}}, "offres_filtre": {"Delph": {"lieux": ["ville|Boulogne-Billancourt", "ville|Paris", "ville|Issy-les-Moulineaux", "ville|Tours", "ville|Joué-lès-Tours", "ville|Poitiers", "ville|Vouneuil-sous-Biard", "ville|Neuilly-sur-Seine", "ville|Nanterre", "ville|Puteaux", "ville|Châtillon", "ville|Antony", "ville|La Défense", "ville|Courbevoie", "ville|Malakoff", "departement|Hauts-de-Seine", "ville|La Courneuve", "ville|Saint-Denis", "ville|Levallois-Perret", "ville|Sceaux", "ville|Rueil-Malmaison", "ville|Suresnes", "ville|Colombes", "ville|Saint-Cloud", "ville|Villepinte", "ville|Le Raincy", "ville|Le Plessis-Robinson", "ville|Montrouge", "departement|Seine-Saint-Denis"], "nweeks": 18, "recs": [{"d": "O2C", "l": [0], "c": "g", "e": "Exclusive Networks", "kd": "O2C", "kf": "Analyst", "w": 0}, {"d": "Business Process", "l": [1], "c": "g", "e": "RED Global", "kd": "Business Process", "kf": "Owner", "w": 0}, {"d": "Business Process", "l": [1], "c": "g", "e": "Collective.work", "kd": "Business Process", "kf": "Owner", "w": 0}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Ekkiden", "kd": "SAP SD", "kf": "Consultant", "w": 0}, {"d": "SAP SD", "l": [1], "c": "g", "e": "LOJELIS", "kd": "SAP SD", "kf": "Consultant", "w": 1}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Ekkiden", "kd": "SAP SD", "kf": "Consultant", "w": 1}, {"d": "SAP SD", "l": [1], "c": "g", "e": "ISC INFORMATION SYSTEM CONSULTING", "kd": "SAP SD", "kf": "Consultant", "w": 2}, {"d": "SAP SD", "l": [2, 0], "c": "g", "e": "Capgemini", "kd": "SAP SD", "kf": "Consultant", "w": 2}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Ascalium", "kd": "SAP SD", "kf": "Consultant", "w": 2}, {"d": "SAP SD", "l": [2], "c": "g", "e": "", "kd": "SAP SD", "kf": "Consultant", "w": 2}, {"d": "Service Client", "l": [3], "c": "l", "e": "CNAV", "kd": "Service Client", "kf": "Responsable", "w": 13}, {"d": "Administration des ventes", "l": [4, 3], "c": "g", "e": "Boréal 360", "kd": "Administration des ventes", "kf": "", "w": 17}, {"d": "Service Client", "l": [5], "c": "l", "e": "Cross Border Talents", "kd": "Service Client", "kf": "Conseiller", "w": 17}, {"d": "Service Client", "l": [6], "c": "l", "e": "", "kd": "Service Client", "kf": "Conseiller", "w": 17}, {"d": "SAP SD", "l": [1], "c": "g", "e": "MeltOne Advisory", "kd": "SAP SD", "kf": "Consultant", "w": 3}, {"d": "Business Process", "l": [1], "c": "g", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 3}, {"d": "SAP SD", "l": [1], "c": "g", "e": "PROPULSE IT", "kd": "SAP SD", "kf": "Consultant", "w": 3}, {"d": "SAP SD", "l": [7, 8], "c": "g", "e": "PREREQUIS", "kd": "SAP SD", "kf": "Consultant", "w": 3}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 3}, {"d": "S/4HANA Sales", "l": [9], "c": "l", "e": "", "kd": "S/4HANA Sales", "kf": "Architect", "w": 3}, {"d": "SAP SD", "l": [10, 11], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "BPO", "l": [1], "c": "l", "e": "Collective.work", "kd": "BPO", "kf": "Freelance", "w": 4}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 4}, {"d": "Sales & Service", "l": [12, 13], "c": "l", "e": "BYD Europe", "kd": "Sales & Service", "kf": "Manager", "w": 4}, {"d": "SAP SD", "l": [1], "c": "g", "e": "", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "BPO", "l": [1], "c": "g", "e": "Polène Paris", "kd": "BPO", "kf": "", "w": 4}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Kaino", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "SAP SD", "l": [14, 11], "c": "g", "e": "Informatis", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "S/4HANA Sales", "l": [9], "c": "l", "e": "", "kd": "S/4HANA Sales", "kf": "Architect", "w": 4}, {"d": "O2C", "l": [1], "c": "l", "e": "Capgemini", "kd": "O2C", "kf": "Consultant", "w": 4}, {"d": "O2C", "l": [1], "c": "l", "e": "Capgemini", "kd": "O2C", "kf": "Consultant", "w": 4}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "Order-to-Cash", "l": [1], "c": "g", "e": "Accenture France", "kd": "Order-to-Cash", "kf": "Manager", "w": 4}, {"d": "O2C", "l": [1], "c": "l", "e": "", "kd": "O2C", "kf": "Consultant", "w": 4}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 4}, {"d": "SAP SD", "l": [15], "c": "l", "e": "Capgemini", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "Sales & Service", "l": [1], "c": "l", "e": "Campana & Schott", "kd": "Sales & Service", "kf": "Manager", "w": 4}, {"d": "BPO", "l": [1], "c": "g", "e": "Collective.work", "kd": "BPO", "kf": "Freelance", "w": 5}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Conexus DX Limited", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "SAP SD", "l": [10, 11], "c": "g", "e": "Metaline", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "Business Process", "l": [7, 8], "c": "g", "e": "Michael Page", "kd": "Business Process", "kf": "Owner", "w": 5}, {"d": "O2C", "l": [1], "c": "g", "e": "Collective.work", "kd": "O2C", "kf": "Owner", "w": 5}, {"d": "SAP SD", "l": [2, 0], "c": "g", "e": "Capgemini", "kd": "SAP SD", "kf": "Consultant", "w": 4}, {"d": "SAP SD", "l": [16, 17], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Analyst", "w": 5}, {"d": "BPO", "l": [1], "c": "l", "e": "LeHibou", "kd": "BPO", "kf": "", "w": 5}, {"d": "BPO", "l": [12, 13], "c": "l", "e": "IS Consulting", "kd": "BPO", "kf": "Consultant", "w": 4}, {"d": "SAP SD", "l": [18, 8], "c": "g", "e": "Devoteam France", "kd": "SAP SD", "kf": "Consultant", "w": 6}, {"d": "Business Process", "l": [7, 8], "c": "g", "e": "Michael Page", "kd": "Business Process", "kf": "Owner", "w": 6}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Signe+", "kd": "SAP SD", "kf": "Consultant", "w": 6}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 6}, {"d": "S/4HANA Sales", "l": [9], "c": "l", "e": "", "kd": "S/4HANA Sales", "kf": "Architect", "w": 6}, {"d": "Business Process", "l": [7], "c": "l", "e": "", "kd": "Business Process", "kf": "Owner", "w": 6}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 6}, {"d": "SAP SD", "l": [18, 8], "c": "g", "e": "Devoteam", "kd": "SAP SD", "kf": "Consultant", "w": 6}, {"d": "SAP SD", "l": [1], "c": "g", "e": "PROPULSE IT", "kd": "SAP SD", "kf": "Consultant", "w": 6}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Propulse It", "kd": "SAP SD", "kf": "Consultant", "w": 6}, {"d": "O2C", "l": [1], "c": "l", "e": "Capgemini", "kd": "O2C", "kf": "Consultant", "w": 6}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 7}, {"d": "Business Process", "l": [11], "c": "g", "e": "Lynkus", "kd": "Business Process", "kf": "Owner", "w": 7}, {"d": "Business Process", "l": [19, 11], "c": "l", "e": "Lynkus", "kd": "Business Process", "kf": "Owner", "w": 7}, {"d": "O2C", "l": [1], "c": "l", "e": "", "kd": "O2C", "kf": "Consultant", "w": 7}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 7}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Kaino", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "Sales & Service", "l": [1], "c": "l", "e": "WeMaintain", "kd": "Sales & Service", "kf": "", "w": 7}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "Business Process", "l": [7], "c": "l", "e": "", "kd": "Business Process", "kf": "Owner", "w": 8}, {"d": "SAP SD", "l": [15], "c": "l", "e": "Capgemini", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "SAP SD", "l": [2], "c": "g", "e": "", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "O2C", "l": [1], "c": "g", "e": "Collective.work", "kd": "O2C", "kf": "Consultant", "w": 8}, {"d": "Business Process", "l": [19, 11], "c": "l", "e": "Lynkus", "kd": "Business Process", "kf": "Owner", "w": 8}, {"d": "SAP SD", "l": [1], "c": "g", "e": "PROPULSE IT", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "SAP SD", "l": [8], "c": "l", "e": "", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Kaino", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "Business Process", "l": [15], "c": "g", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 8}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 8}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Business At Work part of Mantu", "kd": "SAP SD", "kf": "Consultant", "w": 8}, {"d": "Sales & Service", "l": [1], "c": "l", "e": "Wemaintain", "kd": "Sales & Service", "kf": "", "w": 9}, {"d": "Sales & Service", "l": [20, 8], "c": "l", "e": "Lenovo France", "kd": "Sales & Service", "kf": "", "w": 9}, {"d": "Business Process", "l": [1], "c": "l", "e": "Robert Half International", "kd": "Business Process", "kf": "Owner", "w": 9}, {"d": "Business Process", "l": [1], "c": "l", "e": "Robert Half Finance et Comptabilité Interim", "kd": "Business Process", "kf": "Owner", "w": 9}, {"d": "SAP SD", "l": [7], "c": "g", "e": "PREREQUIS", "kd": "SAP SD", "kf": "Consultant", "w": 9}, {"d": "Sales & Service", "l": [15], "c": "l", "e": "Deloitte", "kd": "Sales & Service", "kf": "", "w": 9}, {"d": "BPO", "l": [12, 13], "c": "l", "e": "IS Consulting", "kd": "BPO", "kf": "", "w": 9}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 9}, {"d": "Business Process", "l": [1], "c": "g", "e": "ECM Talent", "kd": "Business Process", "kf": "Owner", "w": 9}, {"d": "Business Process", "l": [15], "c": "g", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 10}, {"d": "BPO", "l": [21, 8], "c": "l", "e": "Servier", "kd": "BPO", "kf": "", "w": 10}, {"d": "BPO", "l": [21, 8], "c": "l", "e": "Servier", "kd": "BPO", "kf": "", "w": 10}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 10}, {"d": "BPO", "l": [1], "c": "l", "e": "Veepee", "kd": "BPO", "kf": "", "w": 10}, {"d": "Business Process", "l": [7], "c": "l", "e": "", "kd": "Business Process", "kf": "Owner", "w": 10}, {"d": "SAP SD", "l": [1], "c": "g", "e": "PROPULSE IT", "kd": "SAP SD", "kf": "Consultant", "w": 10}, {"d": "Business Process", "l": [1], "c": "l", "e": "Robert Half", "kd": "Business Process", "kf": "Owner", "w": 10}, {"d": "O2C", "l": [1], "c": "g", "e": "Collective.work", "kd": "O2C", "kf": "Consultant", "w": 10}, {"d": "Business Process", "l": [1], "c": "l", "e": "LA CADETTE", "kd": "Business Process", "kf": "Owner", "w": 10}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 10}, {"d": "SAP SD", "l": [22, 8], "c": null, "e": "IBM", "kd": "", "kf": "", "w": 10}, {"d": "Order-to-Cash", "l": [1], "c": "g", "e": "Collective.work", "kd": "Order-to-Cash", "kf": "Lead", "w": 10}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 10}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Propulse It", "kd": "SAP SD", "kf": "Consultant", "w": 10}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 10}, {"d": "SAP SD", "l": [1], "c": "g", "e": "MC2I", "kd": "SAP SD", "kf": "Consultant", "w": 10}, {"d": "SAP SD", "l": [1], "c": "g", "e": "mc2i", "kd": "SAP SD", "kf": "Consultant", "w": 10}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 11}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "g", "e": "ISC INFORMATION SYSTEM CONSULTING", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "O2C", "l": [7, 8], "c": "g", "e": "Free-Work", "kd": "O2C", "kf": "Lead", "w": 11}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [2, 0], "c": "g", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [16, 17], "c": "g", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [10, 11], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "BPO", "l": [1], "c": "l", "e": "Free-Work", "kd": "BPO", "kf": "", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "O2C", "l": [1], "c": "l", "e": "Free-Work", "kd": "O2C", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "Business Process", "l": [15], "c": "l", "e": "Geodis", "kd": "Business Process", "kf": "Owner", "w": 11}, {"d": "SAP SD", "l": [1], "c": null, "e": "Free-Work", "kd": "", "kf": "", "w": 11}, {"d": "Business Process", "l": [1], "c": null, "e": "Eaton Corporation", "kd": "", "kf": "", "w": 11}, {"d": "SAP SD", "l": [23, 0], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Signe+", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Signe+", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 11}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 11}, {"d": "Business Process", "l": [8], "c": null, "e": "Eaton Corporation", "kd": "", "kf": "", "w": 11}, {"d": "SAP SD", "l": [8], "c": "l", "e": "", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "BPO", "l": [1], "c": "l", "e": "Brink's", "kd": "BPO", "kf": "Chef de Projet", "w": 11}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 11}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Lojelis", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [7, 8], "c": "g", "e": "Square Management", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Onepoint", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [18, 8], "c": "g", "e": "Devoteam France", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [23, 0], "c": "g", "e": "Viveris.", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "CGI", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "CGI", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "CERCAR", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "O2C", "l": [1], "c": "l", "e": "PeersGroup", "kd": "O2C", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "CGI", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "CERCAR", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "SAP SD", "l": [1], "c": "l", "e": "CERCAR", "kd": "SAP SD", "kf": "Consultant", "w": 11}, {"d": "BPO", "l": [1], "c": "l", "e": "Polène Paris", "kd": "BPO", "kf": "", "w": 11}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 12}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 12}, {"d": "SAP SD", "l": [1], "c": "m", "e": "Pernod Ricard SA", "kd": "SAP SD", "kf": "Expert", "w": 12}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Scalesys", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "Business Process", "l": [7], "c": "l", "e": "", "kd": "Business Process", "kf": "Owner", "w": 12}, {"d": "SAP SD", "l": [1], "c": "l", "e": "PROPULSE IT", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "O2C", "l": [1], "c": "l", "e": "Capgemini", "kd": "O2C", "kf": "Consultant", "w": 12}, {"d": "SAP SD", "l": [1], "c": "l", "e": "HRC Group", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 12}, {"d": "SAP SD", "l": [24, 25], "c": "g", "e": "Michael Page", "kd": "SAP SD", "kf": "Chef de projet", "w": 12}, {"d": "SAP SD", "l": [9, 8], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Expert", "w": 12}, {"d": "SAP SD", "l": [8], "c": "g", "e": "", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "O2C", "l": [1], "c": "l", "e": "", "kd": "O2C", "kf": "Consultant", "w": 12}, {"d": "SAP SD", "l": [23, 0], "c": "g", "e": "Duonext", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "SAP SD", "l": [15], "c": "g", "e": "Capgemini", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "SAP SD", "l": [24, 25], "c": "g", "e": "Michael Page", "kd": "SAP SD", "kf": "Chef de projet", "w": 12}, {"d": "SAP SD", "l": [2, 0], "c": "g", "e": "Capgemini", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "O2C", "l": [1], "c": "l", "e": "Capgemini", "kd": "O2C", "kf": "Consultant", "w": 12}, {"d": "SAP SD", "l": [22, 8], "c": "m", "e": "IBM", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "SAP SD", "l": [2, 0], "c": "g", "e": "Capgemini", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "Customer Service Process", "l": [1], "c": "g", "e": "Pernod Ricard SA", "kd": "Customer Service Process", "kf": "Manager", "w": 12}, {"d": "SAP SD", "l": [10, 11], "c": "l", "e": "Metaline", "kd": "SAP SD", "kf": "Responsable", "w": 12}, {"d": "O2C", "l": [1], "c": "m", "e": "Pernod Ricard SA", "kd": "O2C", "kf": "Manager", "w": 12}, {"d": "SAP SD", "l": [1], "c": "m", "e": "Pernod Ricard SA", "kd": "SAP SD", "kf": "Manager", "w": 12}, {"d": "Business Process", "l": [1], "c": "m", "e": "Pernod Ricard SA", "kd": "Business Process", "kf": "Owner", "w": 12}, {"d": "SAP SD", "l": [1], "c": "l", "e": "CGI", "kd": "SAP SD", "kf": "Consultant", "w": 12}, {"d": "O2C", "l": [1], "c": "l", "e": "Capgemini", "kd": "O2C", "kf": "Consultant", "w": 12}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Kaino", "kd": "SAP SD", "kf": "Consultant", "w": 13}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Conexus DX Limited", "kd": "SAP SD", "kf": "Consultant", "w": 13}, {"d": "BPO", "l": [1], "c": "g", "e": "", "kd": "BPO", "kf": "Responsable", "w": 13}, {"d": "BPO", "l": [1], "c": "l", "e": "DN8 Solutions LTD", "kd": "BPO", "kf": "Responsable", "w": 13}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 13}, {"d": "O2C", "l": [1], "c": "l", "e": "Collective.work", "kd": "O2C", "kf": "Manager", "w": 13}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Signe Plus", "kd": "SAP SD", "kf": "Consultant", "w": 13}, {"d": "Business Process", "l": [1], "c": "l", "e": "", "kd": "Business Process", "kf": "Chef de projet", "w": 13}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Signe Plus", "kd": "SAP SD", "kf": "Consultant", "w": 13}, {"d": "O2C", "l": [1], "c": "l", "e": "Collective.work", "kd": "O2C", "kf": "Manager", "w": 13}, {"d": "SAP SD", "l": [1], "c": "l", "e": "PROPULSE IT", "kd": "SAP SD", "kf": "Consultant", "w": 13}, {"d": "SAP SD", "l": [22, 8], "c": "m", "e": "IBM", "kd": "SAP SD", "kf": "Consultant", "w": 13}, {"d": "Business Process", "l": [1], "c": "l", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 14}, {"d": "O2C", "l": [1], "c": "g", "e": "Collective.work", "kd": "O2C", "kf": "Manager", "w": 14}, {"d": "Sales & Service", "l": [1], "c": "l", "e": "Accenture France", "kd": "Sales & Service", "kf": "Manager", "w": 14}, {"d": "SAP SD", "l": [1], "c": "m", "e": "Propulse It", "kd": "SAP SD", "kf": "Consultant", "w": 14}, {"d": "SAP SD", "l": [12, 13], "c": "g", "e": "WAVY SERVICES", "kd": "SAP SD", "kf": "Manager", "w": 14}, {"d": "O2C", "l": [1], "c": "l", "e": "Collective.work", "kd": "O2C", "kf": "Manager", "w": 14}, {"d": "Business Process", "l": [13], "c": "l", "e": "ecosystem", "kd": "Business Process", "kf": "Manager", "w": 14}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 14}, {"d": "SAP SD", "l": [12, 13], "c": "l", "e": "WAVY SERVICES", "kd": "SAP SD", "kf": "Manager", "w": 14}, {"d": "Sales & Service", "l": [1], "c": "l", "e": "BTI - Advisory", "kd": "Sales & Service", "kf": "Owner", "w": 14}, {"d": "Business Process", "l": [18, 8], "c": "l", "e": "Morgan Philips Specialist Recruitment", "kd": "Business Process", "kf": "Owner", "w": 14}, {"d": "SAP Functional", "l": [23, 0], "c": "m", "e": "Free-Work", "kd": "SAP Functional", "kf": "Consultant", "w": 14}, {"d": "SAP SD", "l": [18], "c": "g", "e": "NEOSIGHT", "kd": "SAP SD", "kf": "Consultant", "w": 14}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 14}, {"d": "Business Process", "l": [21, 8], "c": "l", "e": "Servier", "kd": "Business Process", "kf": "Responsable", "w": 14}, {"d": "Business Process", "l": [1], "c": "l", "e": "Robert Half International", "kd": "Business Process", "kf": "Owner", "w": 14}, {"d": "SAP SD", "l": [12, 13], "c": "l", "e": "Free-Work", "kd": "SAP SD", "kf": "Manager", "w": 14}, {"d": "Business Process", "l": [21, 8], "c": "l", "e": "Servier", "kd": "Business Process", "kf": "Owner", "w": 14}, {"d": "Business Process", "l": [1], "c": "l", "e": "Robert Half Finance et Comptabilité Interim", "kd": "Business Process", "kf": "Owner", "w": 14}, {"d": "SAP Functional", "l": [1], "c": "m", "e": "Free2move", "kd": "SAP Functional", "kf": "Owner", "w": 14}, {"d": "Sales & Service", "l": [1], "c": "m", "e": "Free-Work", "kd": "Sales & Service", "kf": "Owner", "w": 14}, {"d": "Business Process", "l": [13, 8], "c": "g", "e": "Ecosystem", "kd": "Business Process", "kf": "Manager", "w": 14}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 14}, {"d": "Business Process", "l": [0], "c": "l", "e": "Excelya", "kd": "Business Process", "kf": "Manager", "w": 14}, {"d": "Order-to-Cash", "l": [1], "c": "g", "e": "Veesion", "kd": "Order-to-Cash", "kf": "Manager", "w": 14}, {"d": "Business Process", "l": [23, 0], "c": "m", "e": "Excelya", "kd": "Business Process", "kf": "Manager", "w": 14}, {"d": "Business Process", "l": [18, 8], "c": "l", "e": "Morgan Philips Specialist", "kd": "Business Process", "kf": "Owner", "w": 14}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 14}, {"d": "O2C", "l": [1], "c": "g", "e": "PeersGroup", "kd": "O2C", "kf": "Consultant", "w": 14}, {"d": "SAP SD", "l": [1], "c": "l", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 14}, {"d": "SAP SD", "l": [1], "c": "l", "e": "KatchMe", "kd": "SAP SD", "kf": "Lead", "w": 14}, {"d": "Business Process", "l": [1], "c": "m", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 15}, {"d": "SAP OTC", "l": [0], "c": "l", "e": "Meent Life Sciences", "kd": "SAP OTC", "kf": "Expert", "w": 15}, {"d": "SAP SD", "l": [26, 11], "c": "l", "e": "Metaline", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "Business Process", "l": [1], "c": "l", "e": "REACTIS", "kd": "Business Process", "kf": "Manager", "w": 15}, {"d": "Business Process", "l": [1], "c": "l", "e": "Non External", "kd": "Business Process", "kf": "Owner", "w": 15}, {"d": "Business Process", "l": [21, 8], "c": "g", "e": "TEOLIA CONSULTING", "kd": "Business Process", "kf": "Expert", "w": 15}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 15}, {"d": "Business Process", "l": [21, 8], "c": "l", "e": "Collective.work", "kd": "Business Process", "kf": "Expert", "w": 15}, {"d": "SAP SD", "l": [1], "c": "m", "e": "Free-Work", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "Business Process", "l": [1], "c": "m", "e": "Robert Half", "kd": "Business Process", "kf": "Owner", "w": 15}, {"d": "BPO", "l": [1], "c": "g", "e": "Covivio", "kd": "BPO", "kf": "", "w": 15}, {"d": "Business Process", "l": [21], "c": "l", "e": "Collective.work", "kd": "Business Process", "kf": "Expert", "w": 15}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Scalesys", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "BPO", "l": [27, 11], "c": "g", "e": "Edenred", "kd": "BPO", "kf": "", "w": 15}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Free-Work", "kd": "SAP SD", "kf": "Lead", "w": 15}, {"d": "SAP SD", "l": [7, 8], "c": "g", "e": "PREREQUIS", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "Processus Métier", "l": [28], "c": "g", "e": "Médecins du Monde", "kd": "Processus Métier", "kf": "", "w": 15}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 15}, {"d": "SAP SD", "l": [1], "c": "l", "e": "PROPULSE IT", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "BPO", "l": [1], "c": "l", "e": "Sodiaal", "kd": "BPO", "kf": "", "w": 15}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 15}, {"d": "Order-to-Cash", "l": [12, 13], "c": "m", "e": "KPMG France", "kd": "Order-to-Cash", "kf": "Lead", "w": 15}, {"d": "SAP SD", "l": [1], "c": "g", "e": "Collective.work", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 15}, {"d": "SAP SD", "l": [1], "c": "l", "e": "HRC Group", "kd": "SAP SD", "kf": "Consultant", "w": 15}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 16}, {"d": "Business Process", "l": [15], "c": "l", "e": "GEODIS", "kd": "Business Process", "kf": "Owner", "w": 16}, {"d": "Processus Métier", "l": [1], "c": "l", "e": "KEONI CONSULTING", "kd": "Processus Métier", "kf": "", "w": 16}, {"d": "Processus ADV", "l": [1], "c": "l", "e": "Collective.work", "kd": "Processus ADV", "kf": "", "w": 16}, {"d": "Business Process", "l": [1], "c": "l", "e": "Sapiens Group", "kd": "Business Process", "kf": "Analyst", "w": 16}, {"d": "Business Process", "l": [1], "c": "l", "e": "Collective.work", "kd": "Business Process", "kf": "Analyst", "w": 16}, {"d": "BPO", "l": [1], "c": "l", "e": "DN8 Solutions LTD", "kd": "BPO", "kf": "", "w": 16}, {"d": "Business Process", "l": [1], "c": "m", "e": "RATP", "kd": "Business Process", "kf": "Owner", "w": 16}, {"d": "Business Process", "l": [18, 8], "c": "m", "e": "Fyte", "kd": "Business Process", "kf": "Owner", "w": 16}]}}};
+
+  // Initialisation du graphique des Tokens
+  if (dashboardData.tokens && dashboardData.tokens.labels.length > 0) {
+    new Chart(document.getElementById('tokensChart'), {
+      type: 'bar',
+      data: {
+        labels: dashboardData.tokens.labels,
+        datasets: [
+          { label: 'Tokens Input', data: dashboardData.tokens.inputs, backgroundColor: '#3b82f6' },
+          { label: 'Tokens Output', data: dashboardData.tokens.outputs, backgroundColor: '#10b981' },
+          { label: 'Tokens Total', data: dashboardData.tokens.totals, backgroundColor: '#6366f1' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // Initialisation du camembert "Tous Profils"
+  if (dashboardData.entreprises_all && dashboardData.entreprises_all.labels.length > 0) {
+    new Chart(document.getElementById('entreprisesAllChart'), {
+      type: 'pie',
+      data: {
+        labels: dashboardData.entreprises_all.labels,
+        datasets: [{
+          data: dashboardData.entreprises_all.values,
+          backgroundColor: [
+            '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+            '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right' } }
+      }
+    });
+  }
+
+  // Initialisation dynamique des graphiques d'évolution par profil
+  if (dashboardData.evolution) {
+    Object.keys(dashboardData.evolution).forEach(profile => {
+      const canvasId = 'evo_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const evo = dashboardData.evolution[profile];
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: evo.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: evo.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: evo.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: evo.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: false },
+              y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des graphiques de mots-clés par profil (Domaine et Fonction)
+  if (dashboardData.keywords) {
+    Object.keys(dashboardData.keywords).forEach(profile => {
+      // Domaine
+      const domCanvasId = 'kw_dom_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctxDom = document.getElementById(domCanvasId);
+      if (ctxDom && dashboardData.keywords[profile].domaine) {
+        const kwDom = dashboardData.keywords[profile].domaine;
+        new Chart(ctxDom, {
+          type: 'bar',
+          data: {
+            labels: kwDom.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: kwDom.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: kwDom.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: kwDom.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1 } },
+              y: { ticks: { autoSkip: false } }
+            }
+          }
+        });
+      }
+
+      // Fonction
+      const fctCanvasId = 'kw_fct_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctxFct = document.getElementById(fctCanvasId);
+      if (ctxFct && dashboardData.keywords[profile].fonction) {
+        const kwFct = dashboardData.keywords[profile].fonction;
+        new Chart(ctxFct, {
+          type: 'bar',
+          data: {
+            labels: kwFct.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: kwFct.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: kwFct.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: kwFct.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des camemberts d'entreprises par profil
+  if (dashboardData.entreprises_profil) {
+    Object.keys(dashboardData.entreprises_profil).forEach(profile => {
+      const canvasId = 'ent_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const ent = dashboardData.entreprises_profil[profile];
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ent.labels,
+            datasets: [{
+              data: ent.values,
+              backgroundColor: [
+                '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des camemberts d'entreprises (Score >= 70) par profil
+  if (dashboardData.entreprises_ge70) {
+    Object.keys(dashboardData.entreprises_ge70).forEach(profile => {
+      const canvasId = 'ent_ge70_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const ent = dashboardData.entreprises_ge70[profile];
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ent.labels,
+            datasets: [{
+              data: ent.values,
+              backgroundColor: [
+                '#10b981', '#2563eb', '#f59e0b', '#8b5cf6', '#ec4899',
+                '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#ef4444'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+    });
+  }
+
+  // Treemap (depuis le lancement) et histogramme (Score >= 70) des lieux par profil
+  const TREEMAP_COLORS = [
+    '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+    '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+  ];
+  // Retour à la ligne des titres du treemap : découpe le texte selon la largeur réelle du
+  // rectangle (mesurée en pixels), coupe aux espaces et après les traits d'union, et
+  // n'abrège avec "…" que si la hauteur du rectangle ne permet pas d'afficher toutes les lignes.
+  const TM_FONT_SIZE = 12;
+  const TM_LINE_H = TM_FONT_SIZE * 1.2;
+  let _tmCtx = null;
+  function tmMeasure(text) {
+    if (!_tmCtx) _tmCtx = document.createElement('canvas').getContext('2d');
+    _tmCtx.font = 'bold ' + TM_FONT_SIZE + 'px ' + Chart.defaults.font.family;
+    return _tmCtx.measureText(text).width;
+  }
+  function tmWrap(text, maxW, maxLines) {
+    const pieces = [];
+    String(text).trim().split(/\s+/).forEach((word, wi) => {
+      (word.match(/[^-]+-?|-/g) || [word]).forEach((part, pi) => pieces.push({ s: part, sp: wi > 0 && pi === 0 }));
+    });
+    let lines = [];
+    let cur = '';
+    pieces.forEach(pc => {
+      const cand = cur ? cur + (pc.sp ? ' ' : '') + pc.s : pc.s;
+      if (!cur || tmMeasure(cand) <= maxW) { cur = cand; } else { lines.push(cur); cur = pc.s; }
+    });
+    if (cur) lines.push(cur);
+    // Mot plus large que le rectangle : coupure caractère par caractère
+    const broken = [];
+    lines.forEach(line => {
+      while (tmMeasure(line) > maxW && line.length > 1) {
+        let k = line.length - 1;
+        while (k > 1 && tmMeasure(line.slice(0, k)) > maxW) k--;
+        broken.push(line.slice(0, k));
+        line = line.slice(k);
+      }
+      broken.push(line);
+    });
+    lines = broken;
+    if (lines.length > maxLines) {
+      lines = lines.slice(0, maxLines);
+      let last = lines[maxLines - 1];
+      while (last.length > 1 && tmMeasure(last + '…') > maxW) last = last.slice(0, -1);
+      lines[maxLines - 1] = last + '…';
+    }
+    return lines;
+  }
+  function tmFormatter(c) {
+    if (c.type !== 'data') return '';
+    const w = c.raw.w, h = c.raw.h;
+    const maxW = Math.max(w - 12, 10);                       // marge intérieure gauche/droite
+    const maxLines = Math.max(1, Math.floor((h - 12) / TM_LINE_H) - 1);  // 1 ligne réservée au nombre
+    return tmWrap(c.raw._data.label, maxW, maxLines).concat(String(c.raw.v));
+  }
+  const LIEU_TYPE_COLORS = { ville: '#2563eb', departement: '#10b981', region: '#f59e0b' };
+  const LIEU_TYPE_LABELS = { ville: 'ville', departement: 'département', region: 'région' };
+  function lieuPct(v, lieux, baseLabel) {
+    const pct = lieux.total ? (100 * v / lieux.total).toFixed(1).replace('.', ',') : '0';
+    return ' (' + pct + ' % ' + baseLabel + ')';
+  }
+  // Filtre du tableau des offres en adéquation (id tbl_offres_<slug>) : lignes masquées si leur domaine
+  // n'est pas coché, ou si aucun de leurs lieux n'est coché (quand la liste des lieux est restreinte).
+  const _offresState = {};   // slug -> { doms: Set des domaines cochés, keys: Set 'type|libellé' cochés ou null (= tout) }
+  function applyOffresFilter(slug) {
+    const st = _offresState[slug];
+    const tbl = document.getElementById('tbl_offres_' + slug);
+    if (!st || !tbl) return;
+    let shown = 0, total = 0;
+    tbl.querySelectorAll('tbody tr').forEach(r => {
+      if (r._locs === undefined) {
+        try { r._locs = JSON.parse(r.getAttribute('data-locs') || '[]'); } catch (e) { r._locs = []; }
+      }
+      const okDom = st.doms.has(r.getAttribute('data-dom'));
+      const okLoc = !st.keys || r._locs.some(k => st.keys.has(k));
+      r._pf = !(okDom && okLoc);
+      total++;
+      if (!r._pf) shown++;
+    });
+    const nb = document.getElementById('nb_offres_' + slug);
+    if (nb) nb.textContent = shown;
+    if (tbl._refilter) tbl._refilter();
+  }
+  // Fiches des offres par profil (slug -> { lieux, nweeks, recs }) : servent à recalculer les graphiques filtrés
+  const _offresBySlug = {};
+  if (dashboardData.offres_filtre) {
+    Object.keys(dashboardData.offres_filtre).forEach(p => {
+      _offresBySlug[p.replace(/[^a-zA-Z0-9]/g, '_')] = dashboardData.offres_filtre[p];
+    });
+  }
+  // Recalcule, avec les domaines et lieux cochés, les graphiques d'un profil : top 10 des entreprises (tous
+  // scores, puis Score >= 70), évolution hebdomadaire et mots-clés Domaine / Fonction. Mêmes règles de
+  // comptage que le script Python (voir categorize), appliquées aux offres retenues par les filtres.
+  function updateProfileCharts(slug) {
+    const of = _offresBySlug[slug], st = _offresState[slug];
+    if (!of || !st) return;
+    const recs = of.recs.filter(r => st.doms.has(r.d) && (!st.keys || r.l.some(i => st.keys.has(of.lieux[i]))));
+    const ent = new Map(), ent70 = new Map(), kd = new Map(), kf = new Map();
+    const g = new Array(of.nweeks).fill(0), l = new Array(of.nweeks).fill(0), m = new Array(of.nweeks).fill(0);
+    function bump(map, k, c) {
+      let o = map.get(k);
+      if (!o) { o = { g: 0, l: 0, m: 0, t: 0 }; map.set(k, o); }
+      o[c]++; o.t++;
+    }
+    recs.forEach(r => {
+      if (r.e) {
+        ent.set(r.e, (ent.get(r.e) || 0) + 1);
+        if (r.c === 'g') ent70.set(r.e, (ent70.get(r.e) || 0) + 1);
+      }
+      if (r.c) {
+        if (r.w >= 0) { (r.c === 'g' ? g : r.c === 'l' ? l : m)[r.w]++; }
+        if (r.kd) bump(kd, r.kd, r.c);
+        if (r.kf) bump(kf, r.kf, r.c);
+      }
+    });
+    function setPie(id, map) {
+      const ch = Chart.getChart(id);
+      if (!ch) return;
+      const items = Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      ch.data.labels = items.map(x => x[0]);
+      ch.data.datasets[0].data = items.map(x => x[1]);
+      ch.update();
+    }
+    function setKw(id, map) {
+      const ch = Chart.getChart(id);
+      if (!ch) return;
+      const items = Array.from(map.entries()).sort((a, b) => a[1].t - b[1].t);
+      ch.data.labels = items.map(x => x[0]);
+      ch.data.datasets[0].data = items.map(x => x[1].g);
+      ch.data.datasets[1].data = items.map(x => x[1].l);
+      ch.data.datasets[2].data = items.map(x => x[1].m);
+      ch.update();
+    }
+    setPie('ent_chart_' + slug, ent);
+    setPie('ent_ge70_chart_' + slug, ent70);
+    setKw('kw_dom_chart_' + slug, kd);
+    setKw('kw_fct_chart_' + slug, kf);
+    const evo = Chart.getChart('evo_chart_' + slug);
+    if (evo) {
+      evo.data.datasets[0].data = g;
+      evo.data.datasets[1].data = l;
+      evo.data.datasets[2].data = m;
+      evo.update();
+    }
+  }
+  const _lieuCharts = {};
+  const _lieuState = {};       // canvas du treemap -> { sums70, offres70, locOn, doms } (dernier état filtré)
+  const _lieuListeners = {};   // canvas du treemap -> fonction de mise à jour de l'histogramme Score >= 70
+  function buildLieuxTreemap(canvasId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    const boxes = Array.from(document.querySelectorAll('input.lieu-dom[data-canvas="' + canvasId + '"]'));
+    const locBoxes = Array.from(document.querySelectorAll('input.lieu-loc[data-canvas="' + canvasId + '"]'));
+    const parents = Array.from(document.querySelectorAll('input.lieu-parent[data-canvas="' + canvasId + '"]'));
+    // Lieux cochés (indices dans lieux.labels). Un département qui a des villes est pris en compte
+    // (offres citant seulement le département) tant qu'au moins une de ses cases est cochée.
+    function currentLocOn() {
+      if (!locBoxes.length && !parents.length) return null;
+      const on = new Set();
+      locBoxes.forEach(cb => { if (cb.checked) on.add(parseInt(cb.value, 10)); });
+      parents.forEach(pb => {
+        if (pb.dataset.idx !== '' && (pb.checked || pb.indeterminate)) on.add(parseInt(pb.dataset.idx, 10));
+      });
+      return on;
+    }
+    function groupChildren(pb) {
+      return Array.from(pb.closest('.lieu-grp').querySelectorAll('input.lieu-loc'));
+    }
+    function syncParent(pb) {
+      const ch = groupChildren(pb);
+      const n = ch.filter(c => c.checked).length;
+      pb.checked = ch.length > 0 && n === ch.length;
+      pb.indeterminate = n > 0 && n < ch.length;
+    }
+    const info = document.getElementById(canvasId + '_info');
+    let curDoms = [];            // indices des domaines cochés (mis à jour à chaque render)
+    let curOffres = 0;           // base des pourcentages (offres des domaines cochés)
+    let mouseX = 0, mouseY = 0;  // dernière position de la souris sur le graphique (coordonnées de page)
+    let tipKey = '';
+    let hideTimer = null;
+    let showTimer = null;
+    let lastRaw = null;          // case actuellement survolée (null si aucune)
+    let pinned = false;          // liste épinglée par un clic
+    const TIP_DWELL = 350;       // ms de pause du curseur sur une case avant d'afficher la liste
+    const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la case
+    let tip = document.getElementById(canvasId + '_tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = canvasId + '_tip';
+      tip.className = 'lieu-tip';
+      document.body.appendChild(tip);
+    }
+    function stopHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function stopShow() { if (showTimer) { clearTimeout(showTimer); showTimer = null; } }
+    function hideTip() {
+      stopHide();
+      stopShow();
+      pinned = false;
+      tip.style.display = 'none';
+      tipKey = '';
+    }
+    // La liste reste affichée tant que la souris est dessus (pour cliquer les liens)
+    tip.addEventListener('mouseenter', () => { stopHide(); stopShow(); });
+    tip.addEventListener('mouseleave', () => { if (!pinned) hideTip(); });
+    ctx.addEventListener('mousemove', e => {
+      mouseX = e.pageX;
+      mouseY = e.pageY;
+      // le délai d'affichage ne court que si le curseur est à l'arrêt
+      if (showTimer && lastRaw) {
+        clearTimeout(showTimer);
+        const r = lastRaw;
+        showTimer = setTimeout(() => showTipFor(r, false), TIP_DWELL);
+      }
+    });
+    // Clic sur une case : épingle la liste (reste affichée jusqu'à un clic ailleurs, Échap ou la croix)
+    ctx.addEventListener('click', () => {
+      if (lastRaw) showTipFor(lastRaw, true);
+      else if (pinned) hideTip();
+    });
+    document.addEventListener('mousedown', e => {
+      if (pinned && !tip.contains(e.target) && e.target !== ctx) hideTip();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
+    // Offres du lieu (indice idx) pour les domaines cochés, triées par score décroissant
+    function lieuOffres(idx) {
+      const seen = new Set();
+      const out = [];
+      curDoms.forEach(di => {
+        (lieux.domaines[di].liens || []).forEach(pair => {
+          if (pair[0] !== idx) return;
+          pair[1].forEach(oi => {
+            if (!seen.has(oi)) { seen.add(oi); out.push(lieux.offres[oi]); }
+          });
+        });
+      });
+      out.sort((a, b) => (b.s === null ? -1 : b.s) - (a.s === null ? -1 : a.s));
+      return out;
+    }
+    function showTipFor(raw, pin) {
+      stopHide();
+      stopShow();
+      const d = raw._data;
+      const key = d.idx + '|' + curDoms.join(',');
+      if (!pin && key === tipKey && tip.style.display === 'block') return;
+      tipKey = key;
+      pinned = pin;
+      tip.textContent = '';
+      const h = document.createElement('div');
+      h.style.fontWeight = 'bold';
+      h.style.display = 'flex';
+      h.style.justifyContent = 'space-between';
+      h.style.gap = '10px';
+      const ttl = document.createElement('span');
+      ttl.textContent = d.label + ' (' + (LIEU_TYPE_LABELS[d.type] || '') + ')';
+      h.appendChild(ttl);
+      if (pin) {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'Fermer';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', hideTip);
+        h.appendChild(x);
+      }
+      const pct = curOffres ? (100 * raw.v / curOffres).toFixed(1).replace('.', ',') : '0';
+      const c = document.createElement('div');
+      c.textContent = raw.v + ' ' + unitLabel + ' (' + pct + ' % ' + baseLabel + ')';
+      tip.appendChild(h);
+      tip.appendChild(c);
+      const list = lieuOffres(d.idx);
+      const MAX = 30;
+      if (list.length) {
+        const hint = document.createElement('div');
+        hint.className = 'note';
+        hint.textContent = pin
+          ? 'Liste épinglée : cliquez ailleurs, appuyez sur Échap ou sur × pour fermer.'
+          : 'Cliquez sur la case pour épingler cette liste.';
+        tip.appendChild(hint);
+        const ul = document.createElement('ul');
+        list.slice(0, MAX).forEach(o => {
+          const li = document.createElement('li');
+          const txt = o.p + ' — ' + o.e;
+          li.appendChild(document.createTextNode((o.d || 'N/C') + ' — '));
+          if (o.u && o.u.toLowerCase().indexOf('http') === 0) {
+            const a = document.createElement('a');
+            a.href = o.u;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = txt;
+            li.appendChild(a);
+          } else {
+            li.appendChild(document.createTextNode(txt));
+          }
+          ul.appendChild(li);
+        });
+        tip.appendChild(ul);
+        if (list.length > MAX) {
+          const more = document.createElement('div');
+          more.className = 'note';
+          more.textContent = '… et ' + (list.length - MAX) + ' autre(s) offre(s) non affichée(s)';
+          tip.appendChild(more);
+        }
+      }
+      tip.scrollTop = 0;
+      tip.style.display = 'block';
+      let left = mouseX + 6;
+      let top = mouseY + 6;
+      const maxLeft = window.pageXOffset + document.documentElement.clientWidth - tip.offsetWidth - 10;
+      if (left > maxLeft) left = Math.max(window.pageXOffset, maxLeft);
+      const maxTop = window.pageYOffset + window.innerHeight - tip.offsetHeight - 10;
+      if (top > maxTop) top = Math.max(window.pageYOffset, maxTop);
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    }
+    // Appelé par Chart.js à chaque changement de case survolée (tooltip externe)
+    function lieuTooltip(context) {
+      const t = context.tooltip;
+      const act = t && t.getActiveElements ? t.getActiveElements() : [];
+      if (!act.length || !t.dataPoints || !t.dataPoints.length) {
+        lastRaw = null;
+        stopShow();
+        if (!pinned && tip.style.display === 'block' && !hideTimer) hideTimer = setTimeout(hideTip, TIP_HIDE);
+        return;
+      }
+      const raw = t.dataPoints[0].raw;
+      lastRaw = raw;
+      if (pinned) return;
+      stopHide();
+      const key = raw._data.idx + '|' + curDoms.join(',');
+      if (key === tipKey && tip.style.display === 'block') { stopShow(); return; }
+      stopShow();
+      showTimer = setTimeout(() => showTipFor(raw, false), TIP_DWELL);
+    }
+    function render() {
+      const sums = lieux.labels.map(() => 0);
+      const sums70 = lieux.labels.map(() => 0);
+      let offres70 = 0;
+      let offres = 0, nbDom = 0;
+      curDoms = [];
+      boxes.forEach(cb => {
+        if (!cb.checked) return;
+        const d = lieux.domaines[parseInt(cb.value, 10)];
+        nbDom++;
+        curDoms.push(parseInt(cb.value, 10));
+        offres += d.offres;
+        offres70 += (d.offres70 || 0);
+        (d.counts70 || []).forEach(p => { sums70[p[0]] += p[1]; });
+        d.counts.forEach(p => { sums[p[0]] += p[1]; });
+      });
+      // Lieux cochés (indice dans lieux.labels) ; sans liste de lieux dans la page, aucun filtre
+      const locOn = currentLocOn();
+      // Filtre du tableau des offres en adéquation (mêmes domaines et mêmes lieux cochés)
+      const slugTbl = canvasId.replace('lieu_chart_', '');
+      const locAll = locBoxes.every(cb => cb.checked);
+      _offresState[slugTbl] = {
+        doms: new Set(curDoms.map(di => lieux.domaines[di].nom)),
+        keys: (!locOn || locAll) ? null : new Set(Array.from(locOn).map(i => lieux.types[i] + '|' + lieux.labels[i]))
+      };
+      applyOffresFilter(slugTbl);
+      updateProfileCharts(slugTbl);
+      const tree = [];
+      lieux.labels.forEach((l, i) => {
+        if (sums[i] > 0 && (!locOn || locOn.has(i))) tree.push({ label: l, type: lieux.types[i], value: sums[i], idx: i });
+      });
+      tree.sort((a, b) => b.value - a.value);
+      hideTip();
+      lastRaw = null;
+      curOffres = offres;
+      // État transmis à l'histogramme Score >= 70 (mêmes domaines et mêmes lieux cochés)
+      _lieuState[canvasId] = { sums70: sums70, offres70: offres70, locOn: locOn, doms: curDoms.slice() };
+      if (_lieuListeners[canvasId]) _lieuListeners[canvasId](_lieuState[canvasId]);
+      if (_lieuCharts[canvasId]) { _lieuCharts[canvasId].destroy(); _lieuCharts[canvasId] = null; }
+      if (info) {
+        info.textContent = tree.length
+          ? tree.length + ' lieu(x) distinct(s) affiché(s) pour ' + nbDom + ' domaine(s) coché(s), à partir de ' + offres + ' offre(s) des domaines cochés.'
+          : 'Aucun lieu à afficher : cochez au moins un domaine et un lieu ayant des offres dans les domaines cochés.';
+      }
+      if (!tree.length) return;
+      _lieuCharts[canvasId] = new Chart(ctx, {
+        type: 'treemap',
+        data: {
+          datasets: [{
+            tree: tree,
+            key: 'value',
+            backgroundColor: c => c.type === 'data' ? (LIEU_TYPE_COLORS[c.raw._data.type] || '#6b7280') : 'transparent',
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            spacing: 0,
+            labels: {
+              display: true,
+              color: '#ffffff',
+              font: { size: TM_FONT_SIZE, weight: 'bold' },
+              formatter: tmFormatter
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: false,
+              external: context => lieuTooltip(context)
+            }
+          }
+        }
+      });
+    }
+    boxes.forEach(cb => cb.addEventListener('change', render));
+    // Case d'un département : coche/décoche toutes ses villes
+    parents.forEach(pb => {
+      pb.addEventListener('change', () => {
+        groupChildren(pb).forEach(cb => { cb.checked = pb.checked; });
+        pb.indeterminate = false;
+        render();
+      });
+    });
+    // Case d'une ville / région : met à jour l'état (coché, partiel, décoché) du département parent
+    locBoxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const g = cb.closest('.lieu-grp');
+        const pb = g ? g.querySelector('input.lieu-parent') : null;
+        if (pb) syncParent(pb);
+        render();
+      });
+    });
+    // Afficher / masquer les villes d'un département
+    document.querySelectorAll('.lieu-grp[data-canvas="' + canvasId + '"] .lieu-grp-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const g = btn.closest('.lieu-grp');
+        const body = g.querySelector('.lieu-grp-body');
+        const open = body.style.display === 'none';
+        body.style.display = open ? '' : 'none';
+        g.dataset.open = open ? '1' : '0';
+        btn.textContent = open ? '▾' : '▸';
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+    // Tout cocher / décocher une section (régions, ou départements et villes) : cases visibles seulement
+    document.querySelectorAll('button.lieu-loc-all[data-canvas="' + canvasId + '"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sec = btn.dataset.section;
+        const v = btn.dataset.check === '1';
+        locBoxes.forEach(cb => {
+          if (cb.dataset.section !== sec) return;
+          const g = cb.closest('.lieu-grp');
+          if (cb.closest('label').style.display === 'none' || (g && g.style.display === 'none')) return;
+          cb.checked = v;
+        });
+        parents.forEach(pb => {
+          if (pb.dataset.section === sec && pb.closest('.lieu-grp').style.display !== 'none') syncParent(pb);
+        });
+        render();
+      });
+    });
+    document.querySelectorAll('button.lieu-dom-all[data-canvas="' + canvasId + '"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        boxes.forEach(cb => { cb.checked = btn.dataset.check === '1'; });
+        render();
+      });
+    });
+    render();
+  }
+  function buildLieuxHistogramStatic(canvasId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: lieux.labels,
+        datasets: [{
+          label: unitLabel,
+          data: lieux.values,
+          backgroundColor: lieux.types.map(t => LIEU_TYPE_COLORS[t] || '#6b7280')
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: items => items[0].label + ' (' + (LIEU_TYPE_LABELS[lieux.types[items[0].dataIndex]] || '') + ')',
+              label: item => item.raw + ' ' + unitLabel + lieuPct(item.raw, lieux, baseLabel)
+            }
+          }
+        }
+      }
+    });
+  }
+  if (dashboardData.lieux_profil) {
+    Object.keys(dashboardData.lieux_profil).forEach(profile => {
+      buildLieuxTreemap('lieu_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_'),
+                        dashboardData.lieux_profil[profile], 'offre(s)',
+                        'des offres avec au moins un lieu identifié');
+    });
+  }
+  // Histogramme Score >= 70 : Top 10 recalculé avec les mêmes cases cochées que le treemap
+  // (domaines, régions, départements, villes)
+  function buildLieuxHistogram(canvasId, tmId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    const info = document.getElementById(canvasId + '_info');
+    let chart = null;
+    let shown = [];              // colonnes affichées (Top 10) : { label, type, value, idx }
+    let curSt = null;            // dernier état filtré (domaines cochés, base des pourcentages)
+    let mouseX = 0, mouseY = 0;  // dernière position de la souris sur le graphique (coordonnées de page)
+    let lastItem = null;         // colonne actuellement survolée (null si aucune)
+    let pinned = false;          // liste épinglée par un clic
+    let tipKey = '';
+    let hideTimer = null, showTimer = null;
+    const TIP_DWELL = 350;       // ms de pause du curseur sur une colonne avant d'afficher la liste
+    const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la colonne
+    const MAX = 30;              // nombre maximum d'offres listées
+    let tip = document.getElementById(canvasId + '_tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = canvasId + '_tip';
+      tip.className = 'lieu-tip';
+      document.body.appendChild(tip);
+    }
+    function stopHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function stopShow() { if (showTimer) { clearTimeout(showTimer); showTimer = null; } }
+    function hideTip() {
+      stopHide();
+      stopShow();
+      pinned = false;
+      tip.style.display = 'none';
+      tipKey = '';
+    }
+    // La liste reste affichée tant que la souris est dessus (pour cliquer les liens)
+    tip.addEventListener('mouseenter', () => { stopHide(); stopShow(); });
+    tip.addEventListener('mouseleave', () => { if (!pinned) hideTip(); });
+    ctx.addEventListener('mousemove', e => {
+      mouseX = e.pageX;
+      mouseY = e.pageY;
+      // le délai d'affichage ne court que si le curseur est à l'arrêt
+      if (showTimer && lastItem) {
+        clearTimeout(showTimer);
+        const it = lastItem;
+        showTimer = setTimeout(() => showTipFor(it, false), TIP_DWELL);
+      }
+    });
+    // Clic sur une colonne : épingle la liste (jusqu'à un clic ailleurs, Échap ou la croix)
+    ctx.addEventListener('click', () => {
+      if (lastItem) showTipFor(lastItem, true);
+      else if (pinned) hideTip();
+    });
+    document.addEventListener('mousedown', e => {
+      if (pinned && !tip.contains(e.target) && e.target !== ctx) hideTip();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
+    // Offres Score >= 70 du lieu (indice idx) pour les domaines cochés, triées par score décroissant
+    function offresDuLieu(idx) {
+      const seen = new Set();
+      const out = [];
+      ((curSt && curSt.doms) || []).forEach(di => {
+        (lieux.domaines[di].liens || []).forEach(pair => {
+          if (pair[0] !== idx) return;
+          pair[1].forEach(oi => {
+            const o = lieux.offres[oi];
+            if (!seen.has(oi) && o.s !== null && o.s >= 70) { seen.add(oi); out.push(o); }
+          });
+        });
+      });
+      out.sort((a, b) => b.s - a.s);
+      return out;
+    }
+    function showTipFor(it, pin) {
+      stopHide();
+      stopShow();
+      const key = it.idx + '|' + ((curSt && curSt.doms) || []).join(',');
+      if (!pin && key === tipKey && tip.style.display === 'block') return;
+      tipKey = key;
+      pinned = pin;
+      tip.textContent = '';
+      const h = document.createElement('div');
+      h.style.fontWeight = 'bold';
+      h.style.display = 'flex';
+      h.style.justifyContent = 'space-between';
+      h.style.gap = '10px';
+      const ttl = document.createElement('span');
+      ttl.textContent = it.label + ' (' + (LIEU_TYPE_LABELS[it.type] || '') + ')';
+      h.appendChild(ttl);
+      if (pin) {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'Fermer';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', hideTip);
+        h.appendChild(x);
+      }
+      const base = curSt ? curSt.offres70 : 0;
+      const pct = base ? (100 * it.value / base).toFixed(1).replace('.', ',') : '0';
+      const c = document.createElement('div');
+      c.textContent = it.value + ' ' + unitLabel + ' (' + pct + ' % ' + baseLabel + ')';
+      tip.appendChild(h);
+      tip.appendChild(c);
+      const list = offresDuLieu(it.idx);
+      if (list.length) {
+        const hint = document.createElement('div');
+        hint.className = 'note';
+        hint.textContent = pin
+          ? 'Liste épinglée : cliquez ailleurs, appuyez sur Échap ou sur × pour fermer.'
+          : 'Cliquez sur la colonne pour épingler cette liste.';
+        tip.appendChild(hint);
+        const ul = document.createElement('ul');
+        list.slice(0, MAX).forEach(o => {
+          const li = document.createElement('li');
+          const txt = o.p + ' — ' + o.e;
+          li.appendChild(document.createTextNode((o.d || 'N/C') + ' — '));
+          if (o.u && o.u.toLowerCase().indexOf('http') === 0) {
+            const a = document.createElement('a');
+            a.href = o.u;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = txt;
+            li.appendChild(a);
+          } else {
+            li.appendChild(document.createTextNode(txt));
+          }
+          ul.appendChild(li);
+        });
+        tip.appendChild(ul);
+        if (list.length > MAX) {
+          const more = document.createElement('div');
+          more.className = 'note';
+          more.textContent = '… et ' + (list.length - MAX) + ' autre(s) offre(s) non affichée(s)';
+          tip.appendChild(more);
+        }
+      }
+      tip.scrollTop = 0;
+      tip.style.display = 'block';
+      let left = mouseX + 6;
+      let topPos = mouseY + 6;
+      const maxLeft = window.pageXOffset + document.documentElement.clientWidth - tip.offsetWidth - 10;
+      if (left > maxLeft) left = Math.max(window.pageXOffset, maxLeft);
+      const maxTop = window.pageYOffset + window.innerHeight - tip.offsetHeight - 10;
+      if (topPos > maxTop) topPos = Math.max(window.pageYOffset, maxTop);
+      tip.style.left = left + 'px';
+      tip.style.top = topPos + 'px';
+    }
+    // Appelé par Chart.js à chaque changement de colonne survolée (tooltip externe)
+    function barTooltip(context) {
+      const t = context.tooltip;
+      const act = t && t.getActiveElements ? t.getActiveElements() : [];
+      if (!act.length || !t.dataPoints || !t.dataPoints.length) {
+        lastItem = null;
+        stopShow();
+        if (!pinned && tip.style.display === 'block' && !hideTimer) hideTimer = setTimeout(hideTip, TIP_HIDE);
+        return;
+      }
+      const it = shown[t.dataPoints[0].dataIndex];
+      if (!it) return;
+      lastItem = it;
+      if (pinned) return;
+      stopHide();
+      const key = it.idx + '|' + ((curSt && curSt.doms) || []).join(',');
+      if (key === tipKey && tip.style.display === 'block') { stopShow(); return; }
+      stopShow();
+      showTimer = setTimeout(() => showTipFor(it, false), TIP_DWELL);
+    }
+    function update(st) {
+      curSt = st;
+      hideTip();
+      lastItem = null;
+      const items = [];
+      lieux.labels.forEach((l, i) => {
+        if (st.sums70[i] > 0 && (!st.locOn || st.locOn.has(i))) {
+          items.push({ label: l, type: lieux.types[i], value: st.sums70[i], idx: i });
+        }
+      });
+      items.sort((a, b) => b.value - a.value);
+      const top = items.slice(0, 10);
+      shown = top;
+      if (chart) { chart.destroy(); chart = null; }
+      if (info) {
+        info.textContent = items.length
+          ? 'Top ' + top.length + ' sur ' + items.length + ' lieu(x) distinct(s) correspondant aux cases cochées, à partir de ' + st.offres70 + ' offre(s) Score ≥ 70 des domaines cochés.'
+          : 'Aucun lieu à afficher : aucune offre Score ≥ 70 pour les cases cochées.';
+      }
+      if (!top.length) return;
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: top.map(x => x.label),
+          datasets: [{
+            label: unitLabel,
+            data: top.map(x => x.value),
+            backgroundColor: top.map(x => LIEU_TYPE_COLORS[x.type] || '#6b7280')
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: false,
+              external: context => barTooltip(context)
+            }
+          }
+        }
+      });
+    }
+    _lieuListeners[tmId] = update;
+    if (_lieuState[tmId]) update(_lieuState[tmId]);
+  }
+  if (dashboardData.lieux_ge70) {
+    Object.keys(dashboardData.lieux_ge70).forEach(profile => {
+      const slug = profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const tm = dashboardData.lieux_profil ? dashboardData.lieux_profil[profile] : null;
+      if (tm) {
+        buildLieuxHistogram('lieu_ge70_chart_' + slug, 'lieu_chart_' + slug, tm, 'offre(s) Score ≥ 70',
+                            'des offres Score ≥ 70 (domaines cochés) avec au moins un lieu identifié');
+      } else {
+        buildLieuxHistogramStatic('lieu_ge70_chart_' + slug, dashboardData.lieux_ge70[profile],
+                                  'offre(s) Score ≥ 70', 'des offres Score ≥ 70 avec au moins un lieu identifié');
+      }
+    });
+  }
+</script>
+
+<!-- Scripts d'interactivité des tableaux -->
+<script>
+(function() {
+  var tables = document.querySelectorAll('table.tbl');
+  tables.forEach(function(tbl) {
+    var thead = tbl.querySelector('thead');
+    if (!thead) return;
+    var headers = thead.querySelectorAll('th');
+    var tbody = tbl.querySelector('tbody');
+    if (!tbody) return;
+
+    var toolbar = document.createElement('div');
+    toolbar.className = 'tbl-toolbar';
+
+    var search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'tbl-search';
+    search.placeholder = '🔍 Rechercher dans le tableau...';
+
+    var counter = document.createElement('div');
+    counter.className = 'tbl-counter';
+
+    toolbar.appendChild(search);
+    toolbar.appendChild(counter);
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'tbl-wrap' + (tbl.classList.contains('tbl-scroll') ? ' tbl-wrap-scroll' : '');
+    
+    tbl.parentNode.insertBefore(wrapper, tbl);
+    wrapper.appendChild(tbl);
+    wrapper.parentNode.insertBefore(toolbar, wrapper);
+
+    var allRows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+    var sortDir = {};
+
+    function getCellText(row, idx) {
+      var td = row.children[idx];
+      if (!td) return '';
+      return td.textContent.trim();
+    }
+
+    function parseVal(text) {
+      var dm = text.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (dm) {
+        return parseInt(dm[3], 10) * 10000 + parseInt(dm[2], 10) * 100 + parseInt(dm[1], 10);
+      }
+      if (text.trim().toUpperCase() === 'N/C') {
+        return -1;
+      }
+      var clean = text.replace(/[^\d.,-]/g, '').replace(/\s/g, '').replace(',', '.');
+      var num = parseFloat(clean);
+      return isNaN(num) ? text.toLowerCase() : num;
+    }
+
+    function updateCounter(visibleCount, totalCount) {
+      counter.textContent = "Affichage de " + visibleCount + " sur " + totalCount + " ligne(s)";
+    }
+
+    function filterRows() {
+      var q = search.value.trim().toLowerCase();
+      var visible = 0;
+      allRows.forEach(function(r) {
+        if (r.classList.contains('tbl-total')) {
+          r.style.display = '';
+          return;
+        }
+        var text = r.textContent.toLowerCase();
+        var match = (q === '' || text.indexOf(q) !== -1) && !r._pf;   // _pf : masquée par les filtres du profil
+        r.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      updateCounter(visible, allRows.length);
+    }
+
+    function sortRows(idx) {
+      var dir = sortDir[idx] = !sortDir[idx];
+      headers.forEach(function(h) { h.classList.remove('sorted-asc', 'sorted-desc'); });
+      headers[idx].classList.add(dir ? 'sorted-asc' : 'sorted-desc');
+      
+      var nonTotalRows = allRows.filter(function(r) { return !r.classList.contains('tbl-total'); });
+      var totalRows = allRows.filter(function(r) { return r.classList.contains('tbl-total'); });
+
+      nonTotalRows.sort(function(a, b) {
+        var va = parseVal(getCellText(a, idx));
+        var vb = parseVal(getCellText(b, idx));
+        if (va < vb) return dir ? -1 : 1;
+        if (va > vb) return dir ? 1 : -1;
+        return 0;
+      });
+
+      var currentFrag = document.createDocumentFragment();
+      nonTotalRows.forEach(function(r) { currentFrag.appendChild(r); });
+      totalRows.forEach(function(r) { currentFrag.appendChild(r); });
+      tbody.appendChild(currentFrag);
+      
+      filterRows();
+    }
+
+    headers.forEach(function(h, i) {
+      h.addEventListener('click', function() { sortRows(i); });
+    });
+    search.addEventListener('input', filterRows);
+
+    tbl._refilter = filterRows;   // appelé par applyOffresFilter quand les filtres du profil changent
+    filterRows();
+  });
+})();
+</script>
+
+<!-- Script de gestion des onglets (Global + par profil) -->
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.tab-btn');
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = btn.getAttribute('data-target');
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById(target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+</script>
+</body>
+</html>
