@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Radar — Tableau de bord</title>
+<!-- Inclusion de Chart.js pour des graphiques interactifs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Plugin treemap pour Chart.js (v3.1.0 : compatible Chart.js 4) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@3.1.0/dist/chartjs-chart-treemap.min.js"></script>
+<style>
+  :root {
+    --navy: #0f2942;
+    --navy-light: #16385a;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg-main: #eef1f6;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
+  }
+  header.top-bar {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: #ffffff;
+    padding: 28px 20px;
+    margin-bottom: 0;
+  }
+  header.top-bar .top-bar-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  h2 {
+    font-size: 17px;
+    color: #0f172a;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 14px;
+    color: #334155;
+    margin: 20px 0 10px 0;
+    font-weight: 600;
+  }
+  .meta {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--border-color);
+  }
+
+  /* Onglets */
+  nav.tabs-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 20px;
+  }
+  nav.tabs-nav .tabs-nav-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+  }
+  .tab-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 14px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover {
+    color: var(--navy);
+  }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .tab-panel {
+    display: none;
+    padding-top: 24px;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-dark { background: #f1f5f9; color: #475569; }
+
+  /* Contrôles de tableau interactifs */
+  .tbl-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tbl-search {
+    padding: 8px 14px;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 260px;
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .tbl-search:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  .tbl-counter {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .tbl-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+  /* Tableau à défilement vertical (en-tête figé) : ~10 lignes visibles, le reste se fait défiler */
+  .tbl-wrap.tbl-wrap-scroll {
+    max-height: 440px;
+    overflow-y: auto;
+  }
+  .tbl-wrap-scroll table.tbl {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .tbl-wrap-scroll table.tbl th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  table.tbl {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    background: #fff;
+    text-align: left;
+  }
+  table.tbl th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  table.tbl th:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  table.tbl th.sorted-asc::after { content: " ▲"; font-size: 10px; color: var(--primary); }
+  table.tbl th.sorted-desc::after { content: " ▼"; font-size: 10px; color: var(--primary); }
+  table.tbl td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    color: #334155;
+  }
+  table.tbl tr:last-child td {
+    border-bottom: none;
+  }
+  table.tbl tr:hover td {
+    background: #f8fafc;
+  }
+  table.tbl tr.tbl-total td {
+    background: #f8fafc;
+    border-top: 2px solid var(--border-color);
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* Conteneurs pour les graphiques interactifs Chart.js */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    height: 350px;
+  }
+  .pie-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    margin: 20px auto;
+    height: 400px;
+  }
+  /* Deux camemberts d'entreprises côte à côte (passent l'un sous l'autre si l'écran est étroit) */
+  .pie-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .pie-col {
+    flex: 1 1 420px;
+    min-width: 0;
+  }
+  .pie-col .pie-container {
+    max-width: 100%;
+  }
+  .profile-filters {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2px 14px 12px 14px;
+    margin-bottom: 18px;
+  }
+  .lieu-dom-box {
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  .lieu-dom-box button { margin-left: 6px; font-size: 12px; cursor: pointer; }
+  .lieu-dom-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 8px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .lieu-dom-item { font-size: 13px; white-space: nowrap; cursor: pointer; }
+  .lieu-loc-group { margin-top: 10px; }
+  .lieu-geo-scroll { max-height: 340px; overflow-y: auto; margin-top: 6px; border-top: 1px solid var(--border-color, #e5e7eb); }
+  .lieu-grp { margin: 2px 0; }
+  .lieu-grp-head { display: flex; align-items: center; gap: 4px; }
+  .lieu-grp-toggle { width: 22px; border: none; background: none; cursor: pointer; padding: 0; }
+  .lieu-grp-spacer { display: inline-block; width: 22px; }
+  .lieu-grp-body { margin-left: 26px; max-height: 160px; }
+  .lieu-loc-group button { margin-left: 6px; font-size: 12px; cursor: pointer; }
+  .lieu-tip {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    padding: 8px 10px;
+    font-size: 12px;
+    max-width: 380px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .lieu-tip ul { margin: 6px 0 0 0; padding-left: 16px; }
+  .lieu-tip li { margin-bottom: 3px; }
+  .treemap-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    height: 380px;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+  .callout {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 13px;
+    color: #78350f;
+  }
+  .callout strong {
+    color: #92400e;
+  }
+  .callout ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+  }
+  .callout li {
+    margin-bottom: 2px;
+  }
+  .profile-block {
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border-color);
+  }
+  .profile-block:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  footer.foot {
+    max-width: 1140px;
+    margin: 24px auto 0 auto;
+    padding: 16px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <h1>Job Radar — Tableau de bord</h1>
+    <div class="meta">Généré le 10/10/2026 14:42 — Profils inclus : Fabi</div>
+  </div>
+</header>
+
+<nav class="tabs-nav">
+  <div class="tabs-nav-inner">
+    <button class="tab-btn active" data-target="panel-Fabi">Fabi</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="tab-panel active" id="panel-Fabi"><div class="card"><h2>Fabi — Statistiques au 10/10/2026</h2><div class="profile-filters"><h3>Filtres du profil Fabi</h3><p class="note">Cochez les domaines et les régions / départements / villes à conserver. Ces filtres s'appliquent à tous les tableaux et graphiques de ce profil. Tout est coché par défaut.</p><div class="lieu-dom-box"><strong>Domaines</strong> <span class="note">(nombre d'offres avec un lieu identifié)</span> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_Fabi" data-check="1">Tout cocher</button> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_Fabi" data-check="0">Tout décocher</button><div class="lieu-dom-list"><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="0" checked> Transformation Business <span class="note">(30)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="1" checked> Performance Commercial <span class="note">(24)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="2" checked> RevOps <span class="note">(20)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="3" checked> Revenue Operations <span class="note">(18)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="4" checked> Sales Enablement <span class="note">(15)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="5" checked> GenAI Transformation <span class="note">(10)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="6" checked> Business Architect <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="7" checked> Business Transformation <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="8" checked> Directeur Transformation <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="9" checked> Transformation Leader <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="10" checked> Business Performance <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="11" checked> Business Strategy <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="12" checked> Adoption GenAI <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="13" checked> Business Support <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="14" checked> Head of transformation <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="15" checked> Performance Commerciale <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Fabi" value="16" checked> Solutions Business <span class="note">(1)</span></label></div></div><div class="lieu-dom-box"><div class="lieu-loc-group"><strong>Départements et villes</strong> <span class="note">(4 département(s), 21 ville(s) ; cliquez sur ▸ pour afficher les villes d'un département)</span> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_Fabi" data-section="geo" data-check="1">Tout cocher</button> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_Fabi" data-section="geo" data-check="0">Tout décocher</button><div class="lieu-geo-scroll"><div class="lieu-grp" data-canvas="lieu_chart_Fabi"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Fabi" data-section="geo" data-idx="" checked> <strong>Paris</strong> <span class="note">(1 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="0" checked> Paris <span class="note">(88)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Fabi"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Fabi" data-section="geo" data-idx="8" checked> <strong>Hauts-de-Seine</strong> <span class="note">(5 ville(s) ; 4 offre(s) citant seulement le département)</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="1" checked> Nanterre <span class="note">(17)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="3" checked> Courbevoie <span class="note">(10)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="6" checked> Puteaux <span class="note">(6)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="10" checked> Meudon <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="18" checked> Asnières-sur-Seine <span class="note">(1)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Fabi"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Fabi" data-section="geo" data-idx="" checked> <strong>Gironde</strong> <span class="note">(1 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="2" checked> Bordeaux <span class="note">(14)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Fabi"><div class="lieu-grp-head"><span class="lieu-grp-spacer"></span><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="15" checked> Yvelines <span class="note">(2)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Fabi"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Fabi" data-section="geo" data-idx="" checked> <strong>Villes sans département identifié</strong> <span class="note">(14 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="4" checked> La Défense <span class="note">(7)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="5" checked> Boulogne-Billancourt <span class="note">(6)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="7" checked> Talence <span class="note">(6)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="9" checked> Levallois-Perret <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="11" checked> Neuilly-sur-Seine <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="12" checked> Issy-les-Moulineaux <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="13" checked> Mérignac <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="14" checked> Saint-Cloud <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="16" checked> Rueil-Malmaison <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="17" checked> Bois-Colombes <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="19" checked> Montrouge <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="20" checked> Antony <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="21" checked> Pessac <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Fabi" data-section="geo" value="22" checked> Colombes <span class="note">(1)</span></label></div></div></div></div></div></div><h3><span id="nb_offres_Fabi">56</span> Offres en adéquation avec le CV - depuis le lancement du Radar</h3><table class='tbl tbl-scroll' id=tbl_offres_Fabi><thead><tr><th>#</th><th>Poste</th><th>Entreprise</th><th>Lieu</th><th>Score</th><th>Mot-clé Domaine</th><th>Mot-clé Fonction</th><th>Date Publication</th><th>Lien</th></tr></thead><tbody><tr data-dom="Transformation Business" data-locs="[&quot;ville|Paris&quot;]"><td>1</td><td>Head of Business Transformation - EMEA</td><td>Infillion</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>90</span></td><td>Transformation Business</td><td>N/C</td><td>29/08/2026</td><td><a href="https://www.adzuna.fr/details/5861231651?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Enablement" data-locs="[&quot;ville|Paris&quot;]"><td>2</td><td>Head of Sales Enablement, EMEA</td><td>Mistral Ai</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>85</span></td><td>Sales Enablement</td><td>N/C</td><td>05/09/2026</td><td><a href="https://www.adzuna.fr/details/5872143676?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;departement|Hauts-de-Seine&quot;]"><td>3</td><td>Business Tech Consultant Senior – IA & Transformation Digitale F/H</td><td>Deloitte</td><td>Hauts-de-Seine, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>Transformation Business</td><td>N/C</td><td>01/07/2026</td><td><a href="https://www.adzuna.fr/details/5784303588?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Talence&quot;, &quot;ville|Bordeaux&quot;]"><td>4</td><td>Directeur Système Revops - Salesforce H/F</td><td>Team.is</td><td>Talence, Bordeaux</td><td><span class='badge badge-green'>80</span></td><td>RevOps</td><td>N/C</td><td>25/07/2026</td><td><a href="https://www.adzuna.fr/details/5815205052?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Strategy" data-locs="[&quot;ville|Paris&quot;]"><td>5</td><td>Head of Enterprise – Market Launch</td><td>Robert Half</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>Business Strategy</td><td>Head</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/land/ad/5744473550?se=Xj0ys6Fd8RGbveXkJv7inA&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=1D02054B442E726C86DDA553B4355019F208E781" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Enablement" data-locs="[&quot;ville|Paris&quot;]"><td>6</td><td>Sales Enablement Lead & GTM Onboarding</td><td>Riot Security</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>78</span></td><td>Sales Enablement</td><td>N/C</td><td>03/09/2026</td><td><a href="https://www.adzuna.fr/details/5869415195?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>7</td><td>RevOps Lead</td><td>Bigblue</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>77</span></td><td>RevOps</td><td>lead</td><td>19/09/2026</td><td><a href="https://www.adzuna.fr/details/5890772499?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>8</td><td>Manager - Senior Manager Cloud Business Transformation - Paris - Sophia-Antipolis - Toulouse H/F</td><td>PwC France et Maghreb</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>75</span></td><td>Transformation Business</td><td>N/C</td><td>12/07/2026</td><td><a href="https://www.adzuna.fr/details/5797977642?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Performance Commercial" data-locs="[&quot;departement|Yvelines&quot;]"><td>9</td><td>Coordinateur Performance Commerciale & GPM - CDI (F/H)</td><td>BMW France</td><td>Yvelines, Ile-de-France</td><td><span class='badge badge-green'>75</span></td><td>Performance Commercial</td><td>N/C</td><td>04/09/2026</td><td><a href="https://www.adzuna.fr/details/5870224419?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;departement|Hauts-de-Seine&quot;]"><td>10</td><td>Architecte IA & Business Transformation F/H</td><td>Deloitte</td><td>Hauts-de-Seine, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>01/07/2026</td><td><a href="https://www.adzuna.fr/details/5784387498?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;departement|Hauts-de-Seine&quot;]"><td>11</td><td>Manager IA & Business Transformation F/H</td><td>Deloitte</td><td>Hauts-de-Seine, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>01/07/2026</td><td><a href="https://www.adzuna.fr/details/5784349253?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="GenAI Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>12</td><td>Consultant(e) Senior — Transformation IA (GenAI)</td><td>Equancy | Groupe EDG</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>GenAI Transformation</td><td>N/C</td><td>02/07/2026</td><td><a href="https://www.adzuna.fr/land/ad/5785297449?se=tg8UeSB28RG3pMU5hHHxnA&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=6DD9A3BE0A479DF74CD616193DCE64C9951A6A14" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;ville|Paris&quot;]"><td>13</td><td>Forward Deployed Engineer (AI & Business Transformation) (Paris) – Technology & Creative Network</td><td>Truelogic</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>03/07/2026</td><td><a href="https://www.adzuna.fr/details/5787204607?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Performance Commercial" data-locs="[&quot;ville|Paris&quot;]"><td>14</td><td>Responsable Performance Commerciale H/F</td><td>Galileo Global Education</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Performance Commercial</td><td>N/C</td><td>02/07/2026</td><td><a href="https://www.adzuna.fr/details/5784518570?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Enablement" data-locs="[&quot;ville|Paris&quot;]"><td>15</td><td>Présales & Enablement Specialist</td><td>Pennylane SAS</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Enablement</td><td>N/C</td><td>12/07/2026</td><td><a href="https://www.adzuna.fr/details/5798264054?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Performance Commercial" data-locs="[&quot;ville|Paris&quot;]"><td>16</td><td>Responsable Performance Commerciale - Services B2b H/F</td><td>UPTOO</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Performance Commercial</td><td>N/C</td><td>11/07/2026</td><td><a href="https://www.adzuna.fr/details/5796778458?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Talence&quot;, &quot;ville|Bordeaux&quot;]"><td>17</td><td>Directeur Système Revops - Salesforce H/F</td><td>Team.is</td><td>Talence, Bordeaux</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>N/C</td><td>11/07/2026</td><td><a href="https://www.adzuna.fr/details/5796826592?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Bordeaux&quot;]"><td>18</td><td>Directeur Système REVOPS - Salesforce H/F</td><td>Teamis</td><td>Bordeaux, Gironde</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>N/C</td><td>21/07/2026</td><td><a href="https://www.adzuna.fr/details/5809010205?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>19</td><td>Directeur / Directrice Sales Performance & RevOps (H/F) - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>N/C</td><td>23/07/2026</td><td><a href="https://www.adzuna.fr/details/5811739611?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Puteaux&quot;, &quot;ville|Nanterre&quot;]"><td>20</td><td>Revops - Salesops - Scaleup IA H/F</td><td>Bureau des Talents</td><td>Puteaux, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>N/C</td><td>23/07/2026</td><td><a href="https://www.adzuna.fr/details/5812047171?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operations" data-locs="[&quot;ville|Paris&quot;]"><td>21</td><td>Revenue Operations Manager Specialist - 2026 - Dolead H/F</td><td>Dolead</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operations</td><td>N/C</td><td>18/07/2026</td><td><a href="https://www.adzuna.fr/details/5805981621?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="GenAI Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>22</td><td>Manager - Transformation & Adoption GenAI (Gemini / Google AI)</td><td>Talent-R</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>GenAI Transformation</td><td>N/C</td><td>18/07/2026</td><td><a href="https://www.adzuna.fr/details/5806045551?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;ville|Paris&quot;]"><td>23</td><td>Manager Business Transformation H/F (Paris)</td><td>EY</td><td>75 - Paris</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>24/07/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/5395547" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;ville|Paris&quot;]"><td>24</td><td>Business Manager Consulting – IA & Transformation Agentique H/F</td><td>Hardis Group</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>26/07/2026</td><td><a href="https://www.adzuna.fr/details/5816829587?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="GenAI Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>25</td><td>Manager - Transformation & Adoption GenAI (Gemini / Google AI)</td><td>Talent-R</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>GenAI Transformation</td><td>N/C</td><td>27/07/2026</td><td><a href="https://www.adzuna.fr/details/5817345794?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Architect" data-locs="[&quot;ville|Paris&quot;]"><td>26</td><td>Architecte Data / Avant-Vente (F/H)</td><td>Exakis Nelite</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Architect</td><td>N/C</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745491989?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Architect" data-locs="[&quot;ville|Paris&quot;]"><td>27</td><td>Architecte Sécurité / Avant-Vente (H/F)</td><td>Exakis Nelite</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Architect</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/details/5744240020?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Architect" data-locs="[&quot;ville|Levallois-Perret&quot;, &quot;ville|Nanterre&quot;]"><td>28</td><td>Rise Enterprise Architect - Driving Adoption And Business Outcomes H/F</td><td>SAP</td><td>Levallois-Perret, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Business Architect</td><td>N/C</td><td>31/05/2026</td><td><a href="https://www.adzuna.fr/details/5746182461?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Architect" data-locs="[&quot;ville|Levallois-Perret&quot;, &quot;ville|Nanterre&quot;]"><td>29</td><td>Architect Concepteur Modélisateur - Keyrus France H/F</td><td>Keyrus</td><td>Levallois-Perret, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Business Architect</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/details/5744221048?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Performance" data-locs="[&quot;ville|Paris&quot;]"><td>30</td><td>Business Intelligence (BI) Analyst</td><td>THE UGANDA INSTITUTE OF BANKING & FINANCIAL SERVICES</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Performance</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/land/ad/5744474706?se=qL5nraFd8RGUoulDIPpANw&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=A8DB80BB560B22ED4F55B5F593D6EDC3637BFEEE" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Performance" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>31</td><td>Consultant Performance Commerciale H/F</td><td>Cegos</td><td>Issy-les-Moulineaux, Boulogne-Billancourt</td><td><span class='badge badge-green'>70</span></td><td>Business Performance</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/details/5744181151?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Performance" data-locs="[&quot;ville|Neuilly-sur-Seine&quot;, &quot;ville|Nanterre&quot;]"><td>32</td><td>IT Sales Business Process Owner</td><td>JCDecaux</td><td>Neuilly-sur-Seine, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Business Performance</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/land/ad/5744473239?se=rPjSrqFd8RGa4fPW7N0JoA&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=951D2B6CAAE0300C1F89E4A3132E5C0E9C7061BC" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Strategy" data-locs="[&quot;ville|Paris&quot;]"><td>33</td><td>AI Customer Success Manager</td><td>Cominty AI</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Strategy</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/land/ad/5744474929?se=Xj0ys6Fd8RGbveXkJv7inA&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=03EEBFB21C49321218D495BBF4D7FEFB5012E207" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Strategy" data-locs="[&quot;ville|Paris&quot;]"><td>34</td><td>Marketing Director - Global High Tech Europe</td><td>Ecolab</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Strategy</td><td>N/C</td><td>31/05/2026</td><td><a href="https://www.adzuna.fr/details/5746656271?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Support" data-locs="[&quot;ville|Levallois-Perret&quot;, &quot;ville|Nanterre&quot;]"><td>35</td><td>Business Analyst Data / AMOA Senior - Freelance</td><td>Collective.work</td><td>Levallois-Perret, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Business Support</td><td>N/C</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745083767?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>36</td><td>Business Analyst Transformation - SaaS / Startup - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Business Transformation</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/details/5744088461?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>37</td><td>PMO transformation (H/F)</td><td>MIGSO-PCUBED</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Business Transformation</td><td>N/C</td><td>01/06/2026</td><td><a href="https://www.adzuna.fr/land/ad/5747421479?se=Vvozu6Fd8RGbveXkJv7inA&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=B11EBFA68CD1DAF553CC415FC9FFFC9E8C571890" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>38</td><td>Manager Transformation Organisationnelle & Change (H/F)</td><td>Advents Consulting</td><td>9ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Business Transformation</td><td>N/C</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745208197?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Business Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>39</td><td>Manager Transformation Organisationnelle & Change (H/F)</td><td>Advents Consulting</td><td>9ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Business Transformation</td><td>N/C</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745848812?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Directeur Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>40</td><td>Directeur Général H/F</td><td>Keyman</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Directeur Transformation</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/details/5744175645?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Directeur Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>41</td><td>Directeur de Programme Si H/F</td><td>Michael Page</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Directeur Transformation</td><td>N/C</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745206231?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Directeur Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>42</td><td>Directeur Territorial - Association Médico-Sociale H/F</td><td>Michael Page</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Directeur Transformation</td><td>N/C</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745206390?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Directeur Transformation" data-locs="[&quot;ville|Bordeaux&quot;]"><td>43</td><td>Architecte Système Salesforce H/F</td><td>Teamis</td><td>Bordeaux, Gironde</td><td><span class='badge badge-green'>70</span></td><td>Directeur Transformation</td><td>N/C</td><td>01/06/2026</td><td><a href="https://www.adzuna.fr/land/ad/5747292434?se=lD1LzaFd8RGFJZKjF7noVg&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=0A82349C5553847855E86068917BC4D44C04461A" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Head of transformation" data-locs="[&quot;ville|Issy-les-Moulineaux&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>44</td><td>Head of AI & Innovation Lab</td><td>ALTHEA</td><td>Issy-les-Moulineaux, Boulogne-Billancourt</td><td><span class='badge badge-green'>70</span></td><td>Head of transformation</td><td>N/C</td><td>01/06/2026</td><td><a href="https://www.adzuna.fr/land/ad/5747423331?se=9NMj0aFd8RG0YZzrY4SrCQ&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=74E532971B704ADDBA2BADBC80267E3D7372C062" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Performance Commerciale" data-locs="[&quot;ville|Mérignac&quot;, &quot;ville|Bordeaux&quot;]"><td>45</td><td>Chef d'agence - H/F</td><td>Chausson Materiaux</td><td>Mérignac, Bordeaux</td><td><span class='badge badge-green'>70</span></td><td>Performance Commerciale</td><td>N/C</td><td>01/06/2026</td><td><a href="https://www.adzuna.fr/land/ad/5747113711?se=bAQr4KFd8RG0YZzrY4SrCQ&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=58F7EF8E02D5FB078D569BE0CBB56D9113405A85" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Solutions Business" data-locs="[&quot;ville|Paris&quot;]"><td>46</td><td>Directeur Customer Solution H/F</td><td>Kuehne+Nagel.</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Solutions Business</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/details/5744174092?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Leader" data-locs="[&quot;ville|Paris&quot;]"><td>47</td><td>Marketing & Data Strategy - Associate Manager</td><td>JAKALA</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Transformation Leader</td><td>N/C</td><td>01/06/2026</td><td><a href="https://www.adzuna.fr/land/ad/5747426181?se=tDxLCKJd8RGFJZKjF7noVg&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=79FEE9FF20A27922C9E77D309E8EF31C16EA2437" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Leader" data-locs="[&quot;ville|Puteaux&quot;, &quot;ville|Nanterre&quot;]"><td>48</td><td>RUN Leader / Responsable Exploitation Applicative - PARIS LA DEFENSE - Freelance</td><td>Collective.work</td><td>Puteaux, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Transformation Leader</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/details/5744088382?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Leader" data-locs="[&quot;ville|Levallois-Perret&quot;, &quot;ville|Nanterre&quot;]"><td>49</td><td>Tech Lead Data - Paris - Keyrus France H/F</td><td>Keyrus</td><td>Levallois-Perret, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Transformation Leader</td><td>N/C</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745200545?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Leader" data-locs="[&quot;ville|Pessac&quot;, &quot;ville|Bordeaux&quot;]"><td>50</td><td>Développeur .NET - BORDEAUX (F/H)</td><td>SQLI</td><td>Pessac, Bordeaux</td><td><span class='badge badge-green'>70</span></td><td>Transformation Leader</td><td>N/C</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/land/ad/5744471860?se=fs2nCqJd8RGJocpWJC1YoQ&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=8B06A5A5ECB75AC7E28DC5AC06FB500CFF59517C" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="GenAI Transformation" data-locs="[&quot;ville|Paris&quot;]"><td>51</td><td>Leader - Transformation & Adoption GenAI (Gemini / Google AI)</td><td>Talent-R</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>GenAI Transformation</td><td>N/C</td><td>03/09/2026</td><td><a href="https://www.adzuna.fr/details/5868772896?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Adoption GenAI" data-locs="[&quot;ville|Saint-Cloud&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>52</td><td>Adoption & Change Manager Genai H/F</td><td>VISEO</td><td>Saint-Cloud, Boulogne-Billancourt</td><td><span class='badge badge-green'>70</span></td><td>Adoption GenAI</td><td>N/C</td><td>04/09/2026</td><td><a href="https://www.adzuna.fr/details/5869775579?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;ville|Paris&quot;]"><td>53</td><td>Business Analyst CLM & Process Expert — Transformation IA F/H</td><td>NEXTON</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>04/09/2026</td><td><a href="https://www.adzuna.fr/details/5870491523?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Performance Commercial" data-locs="[&quot;ville|Paris&quot;]"><td>54</td><td>Responsable Performance Commerciale H/F</td><td>Galileo Global Education</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Performance Commercial</td><td>N/C</td><td>22/08/2026</td><td><a href="https://www.adzuna.fr/details/5851804682?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;ville|La Défense&quot;, &quot;ville|Courbevoie&quot;]"><td>55</td><td>Business Consultant Transformation Digitale H/F</td><td>Assystem</td><td>La Défense, Courbevoie</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>22/08/2026</td><td><a href="https://www.adzuna.fr/details/5851809866?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Transformation Business" data-locs="[&quot;ville|La Défense&quot;, &quot;ville|Courbevoie&quot;]"><td>56</td><td>Business Consultant Transformation Digitale H/F</td><td>Assystem</td><td>La Défense, Courbevoie</td><td><span class='badge badge-green'>70</span></td><td>Transformation Business</td><td>N/C</td><td>23/08/2026</td><td><a href="https://www.adzuna.fr/details/5853126938?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr></tbody></table><div class="pie-row"><div class="pie-col"><h3>Top 10 des entreprises qui recrutent le plus pour ce profil - depuis le lancement du Radar</h3><div class="pie-container"><canvas id="ent_chart_Fabi"></canvas></div></div><div class="pie-col"><h3>Top 10 des entreprises qui proposent un poste qui match avec le CV (Score ≥ 70)</h3><div class="pie-container"><canvas id="ent_ge70_chart_Fabi"></canvas></div></div></div><h3>Toutes les villes/départements où les entreprises recrutent pour ce profil - depuis le lancement du Radar</h3><p class="note" id="lieu_chart_Fabi_info"></p><div class="treemap-container"><canvas id="lieu_chart_Fabi"></canvas></div><p class="note"><strong>Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong><br>Couleurs : bleu = ville, vert = département, orange = région.<br>Règle : si le lieu cite au moins une ville, seules les villes sont comptées;sinon, s'il cite un département, seuls les départements sont comptés; sinon la région.<br></p><h3>Top 10 des villes/départements où les entreprises proposent un poste qui match avec le CV (Score ≥ 70)</h3><p class="note" id="lieu_ge70_chart_Fabi_info"></p><div class="chart-container"><canvas id="lieu_ge70_chart_Fabi"></canvas></div><p class="note"><strong> Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong></p><h3>Évolution hebdomadaire des offres filtrées par Job Radar</h3><div class="chart-container"><canvas id="evo_chart_Fabi"></canvas></div><p class="note">Découpage par semaine calendaire (lundi-dimanche).</p><h3>Pertinence des mots-clé Domaine pour filtrer des offres</h3><div class="chart-container" style="height: 600px;"><canvas id="kw_dom_chart_Fabi"></canvas></div><h3>Pertinence des mots-clé Fonction pour filtrer des offres</h3><div class="chart-container"><canvas id="kw_fct_chart_Fabi"></canvas></div><div class="callout"><strong>⚠️ Mots-clés Domaine configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>Avant-Vente</li></ul></div><div class="callout"><strong>⚠️ Mots-clés Fonction configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>Directrice</li><li>Leader</li></ul></div></div></div>
+  <footer class="foot">Job Radar — document généré automatiquement le 10/10/2026 14:42.</footer>
+</div>
+
+<!-- Injection des données JSON pour Chart.js -->
+<script>
+  const dashboardData = {"evolution": {"Fabi": {"labels": ["25-31/05", "01-07/06", "08-14/06", "15-21/06", "22-28/06", "29/06-05/07", "06-12/07", "13-19/07", "20-26/07", "27/07-02/08", "03-09/08", "10-16/08", "17-23/08", "24-30/08", "31/08-06/09", "07-13/09", "14-20/09", "21-27/09", "28/09-04/10", "05-11/10"], "ge70": [21, 5, 0, 0, 0, 6, 4, 2, 6, 1, 0, 0, 3, 1, 6, 0, 1, 0, 0, 0], "lt70": [0, 0, 0, 0, 0, 9, 5, 3, 6, 3, 1, 1, 6, 21, 10, 3, 2, 1, 3, 3], "manuel": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 1, 1, 0]}}, "keywords": {"Fabi": {"domaine": {"labels": ["Business Support", "Head of transformation", "Performance Commerciale", "Solutions Business", "Adoption GenAI", "Business Strategy", "Business Performance", "Business Architect", "Business Transformation", "Directeur Transformation", "Transformation Leader", "GenAI Transformation", "Sales Enablement", "Revenue Operations", "RevOps", "Performance Commercial", "Transformation Business"], "ge70": [1, 1, 1, 1, 1, 3, 3, 4, 4, 4, 4, 4, 3, 1, 6, 4, 11], "lt70": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 10, 16, 13, 19, 17], "manuel": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, 0, 1]}, "fonction": {"labels": ["head", "Head", "Directeur", "lead"], "ge70": [0, 1, 0, 1], "lt70": [0, 0, 4, 3], "manuel": [1, 0, 0, 2]}}}, "entreprises_profil": {"Fabi": {"labels": ["Collective.work", "Talent-R", "Team.is", "Assystem", "Teamis", "Galileo Global Education", "Deloitte", "Mirakl", "Bureau des Talents", "Free-Work"], "values": [11, 7, 6, 5, 4, 4, 3, 3, 3, 3]}}, "entreprises_ge70": {"Fabi": {"labels": ["Collective.work", "Deloitte", "Talent-R", "Galileo Global Education", "Team.is", "Teamis", "Exakis Nelite", "Keyrus", "Advents Consulting", "Michael Page"], "values": [4, 3, 3, 2, 2, 2, 2, 2, 2, 2]}}, "lieux_profil": {"Fabi": {"labels": ["Paris", "Nanterre", "Bordeaux", "Courbevoie", "La Défense", "Boulogne-Billancourt", "Puteaux", "Talence", "Hauts-de-Seine", "Levallois-Perret", "Meudon", "Neuilly-sur-Seine", "Issy-les-Moulineaux", "Mérignac", "Saint-Cloud", "Yvelines", "Rueil-Malmaison", "Bois-Colombes", "Asnières-sur-Seine", "Montrouge", "Antony", "Pessac", "Colombes"], "types": ["ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "departement", "ville", "ville", "ville", "ville", "ville", "ville", "departement", "ville", "ville", "ville", "ville", "ville", "ville", "ville"], "values": [88, 17, 14, 10, 7, 6, 6, 6, 4, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1], "total": 144, "offres": [{"p": "Business Tech Consultant Senior – IA & Transformation Digitale F/H", "e": "Deloitte", "u": "https://www.adzuna.fr/details/5784303588?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "01/07/2026"}, {"p": "Architecte IA & Business Transformation F/H", "e": "Deloitte", "u": "https://www.adzuna.fr/details/5784387498?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "01/07/2026"}, {"p": "Manager IA & Business Transformation F/H", "e": "Deloitte", "u": "https://www.adzuna.fr/details/5784349253?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "01/07/2026"}, {"p": "Consultant(e) Senior — Transformation IA (GenAI)", "e": "Equancy | Groupe EDG", "u": "https://www.adzuna.fr/land/ad/5785297449?se=tg8UeSB28RG3pMU5hHHxnA&utm_medium=api&utm_source=90a8d42a&v=6DD9A3BE0A479DF74CD616193DCE64C9951A6A14", "s": 70, "d": "02/07/2026"}, {"p": "Directeur Système REVOPS - Salesforce H/F", "e": "Teamis", "u": "https://www.adzuna.fr/details/5782986068?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "01/07/2026"}, {"p": "Transformation & Business Analyst", "e": "Euronext", "u": "https://www.adzuna.fr/details/5784288718?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "01/07/2026"}, {"p": "GenAI Engineer - Transformation Digitale (H/F)", "e": "INFORMATIS TECHNOLOGY SYSTM", "u": "https://candidat.francetravail.fr/offres/recherche/detail/210PBWM", "s": 45, "d": "01/07/2026"}, {"p": "Sales Enablement Manager (H/F)", "e": "Thales", "u": "https://www.adzuna.fr/details/5783064861?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "01/07/2026"}, {"p": "Forward Deployed Engineer (AI & Business Transformation) (Paris) – Technology & Creative Network", "e": "Truelogic", "u": "https://www.adzuna.fr/details/5787204607?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "03/07/2026"}, {"p": "Senior Revenue Operations Business Partner, EMEA", "e": "Aircall", "u": "https://www.adzuna.fr/details/5788487813?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "05/07/2026"}, {"p": "Senior Revenue Operations Business Partner EMEA H/F", "e": "Aircall", "u": "https://www.adzuna.fr/details/5787805140?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "04/07/2026"}, {"p": "Chargé(e) de pilotage de la performance commerciale", "e": "Swiss Life France", "u": "https://www.adzuna.fr/details/5788480131?utm_medium=api&utm_source=90a8d42a", "s": 55, "d": "05/07/2026"}, {"p": "Business Analyst Senior - Transformation Documentaire F/H", "e": "AXA FRANCE IARD", "u": "https://www.adzuna.fr/details/5786676074?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "03/07/2026"}, {"p": "Consultant BA Pricing & Performance Commerciale - Retail (H/F) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5787455995?utm_medium=api&utm_source=90a8d42a", "s": 30, "d": "04/07/2026"}, {"p": "Manager - Transformation & Adoption GenAI (Gemini / Google AI)", "e": "Talent-R", "u": "https://www.adzuna.fr/land/ad/5789826506?se=TinxV1p58RGE29fH3ScMfg&utm_medium=api&utm_source=90a8d42a&v=F275616DEC15F9299A9BE9835383F13FFA5AB4D7", "s": null, "d": "06/07/2026"}, {"p": "Responsable Performance Commerciale H/F", "e": "Galileo Global Education", "u": "https://www.adzuna.fr/details/5784518570?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "02/07/2026"}, {"p": "Analyste performance commerciale (H/F)", "e": "ELIS", "u": "https://candidat.francetravail.fr/offres/recherche/detail/4717281", "s": 60, "d": "09/07/2026"}, {"p": "Revenue Operations Expert - Account Deployment H/F", "e": "Malt", "u": "https://www.adzuna.fr/details/5794026799?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "09/07/2026"}, {"p": "Manager - Senior Manager Cloud Business Transformation - Paris - Sophia-Antipolis - Toulouse H/F", "e": "PwC France et Maghreb", "u": "https://www.adzuna.fr/details/5797977642?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "12/07/2026"}, {"p": "Présales & Enablement Specialist", "e": "Pennylane SAS", "u": "https://www.adzuna.fr/details/5798264054?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "12/07/2026"}, {"p": "Responsable Performance Commerciale - Services B2b H/F", "e": "UPTOO", "u": "https://www.adzuna.fr/details/5796778458?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "11/07/2026"}, {"p": "Directeur Système Revops - Salesforce H/F", "e": "Team.is", "u": "https://www.adzuna.fr/details/5796826592?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "11/07/2026"}, {"p": "Revenue Operations Expert - Account Deployment", "e": "Malt", "u": "https://www.adzuna.fr/details/5794759248?utm_medium=api&utm_source=90a8d42a", "s": 55, "d": "10/07/2026"}, {"p": "Enablement Manager, Sales & AI transformation", "e": "Mirakl", "u": "https://www.adzuna.fr/details/5797382946?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "12/07/2026"}, {"p": "Directeur de la Performance Commerciale - Crèches H/F", "e": "UPTOO", "u": "https://www.adzuna.fr/details/5799641351?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "14/07/2026"}, {"p": "Revenue Operations", "e": "Dust", "u": "https://www.adzuna.fr/details/5801804452?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "16/07/2026"}, {"p": "Business Analyst Senior – Transformation Data & Capital Markets F/H", "e": "LIPTON FIT", "u": "https://www.adzuna.fr/details/5795431831?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "10/07/2026"}, {"p": "Sales Enablement Manager (H/F)", "e": "THALES", "u": "https://www.adzuna.fr/land/ad/5799736344?se=HjQu5bGB8RGtkPw-jY9-8Q&utm_medium=api&utm_source=90a8d42a&v=4BDB07E6603AE49C4859A067AD7B677A6E1498AC", "s": null, "d": "14/07/2026"}, {"p": "Directeur Système REVOPS - Salesforce H/F", "e": "Teamis", "u": "https://www.adzuna.fr/land/ad/5799749793?se=FNZK77GB8RGtkPw-jY9-8Q&utm_medium=api&utm_source=90a8d42a&v=E85053CDA90EF5C1E9C876E0317717F8A10FB941", "s": null, "d": "14/07/2026"}, {"p": "Directeur Système REVOPS - Salesforce H/F", "e": "Teamis", "u": "https://www.adzuna.fr/details/5809010205?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "21/07/2026"}, {"p": "Directeur / Directrice Sales Performance & RevOps (H/F) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5811739611?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "23/07/2026"}, {"p": "Revops - Salesops - Scaleup IA H/F", "e": "Bureau des Talents", "u": "https://www.adzuna.fr/details/5812047171?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "23/07/2026"}, {"p": "Revenue Operations Manager Specialist - 2026 - Dolead H/F", "e": "Dolead", "u": "https://www.adzuna.fr/details/5805981621?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "18/07/2026"}, {"p": "Manager - Transformation & Adoption GenAI (Gemini / Google AI)", "e": "Talent-R", "u": "https://www.adzuna.fr/details/5806045551?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "18/07/2026"}, {"p": "Responsable Performance Commerciale H/F/X", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5076159", "s": 30, "d": "17/07/2026"}, {"p": "Directeur Système Revops - Salesforce H/F", "e": "Team.is", "u": "https://www.adzuna.fr/details/5815205052?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "25/07/2026"}, {"p": "Manager Business Transformation H/F (Paris)", "e": "EY", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5395547", "s": 70, "d": "24/07/2026"}, {"p": "Business Manager Consulting – IA & Transformation Agentique H/F", "e": "Hardis Group", "u": "https://www.adzuna.fr/details/5816829587?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "26/07/2026"}, {"p": "Analyste performance commerciale (H/F)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5436879", "s": 60, "d": "25/07/2026"}, {"p": "RevOps / SalesOps - Scaleup IA", "e": "Bureau des Talents", "u": "https://www.adzuna.fr/details/5814456610?utm_medium=api&utm_source=90a8d42a", "s": 55, "d": "24/07/2026"}, {"p": "Business Analytics & Data transformation", "e": "Wavestone", "u": "https://www.adzuna.fr/details/5813820902?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "24/07/2026"}, {"p": "COORDINATEUR PERFORMANCE COMMERCIALE F/H", "e": "ASCENTIEL GROUPE", "u": "https://www.adzuna.fr/details/5815285352?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "25/07/2026"}, {"p": "Revops / salesops - scaleup ia h/f (CDI)", "e": "Bureau des Talents", "u": "https://www.adzuna.fr/details/5813049332?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "24/07/2026"}, {"p": "CDD - Chargé de Revenue Operations H/F", "e": "Pluxee", "u": "https://www.adzuna.fr/details/5813134424?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "24/07/2026"}, {"p": "Manager - Transformation & Adoption GenAI (Gemini / Google AI)", "e": "Talent-R", "u": "https://www.adzuna.fr/details/5817345794?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "27/07/2026"}, {"p": "Responsable Performance Commerciale H/F/X", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5489431", "s": 30, "d": "27/07/2026"}, {"p": "Sales enablement manager (h/f)", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5506393", "s": 0, "d": "28/07/2026"}, {"p": "Directeur Pricing et Performance Commerciale F/H", "e": "TERACT", "u": "https://www.adzuna.fr/details/5909925161?utm_medium=api&utm_source=90a8d42a", "s": 30, "d": "03/10/2026"}, {"p": "Directeur Système Revops - Salesforce H/F", "e": "Team.is", "u": "https://www.adzuna.fr/details/5912043601?utm_medium=api&utm_source=90a8d42a", "s": 19, "d": "05/10/2026"}, {"p": "Senior Revenue Operations Lead", "e": "DealHub Ltd.", "u": "https://www.adzuna.fr/details/5909925074?utm_medium=api&utm_source=90a8d42a", "s": 19, "d": "03/10/2026"}, {"p": "Directeur(trice) Systèmes Revenue Operations H/F", "e": "Lectra", "u": "https://www.adzuna.fr/details/5909920916?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "03/10/2026"}, {"p": "Head of Revenue Operations", "e": "DealHub Ltd.", "u": "https://www.adzuna.fr/details/5909924703?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "03/10/2026"}, {"p": "Sales Enablement Manager - France", "e": "Lexroom", "u": "https://www.adzuna.fr/details/5917339299?utm_medium=api&utm_source=90a8d42a", "s": 25, "d": "07/10/2026"}, {"p": "Sales Enablement & Capability Trainer H/F", "e": "2025 Becton Dickinson Europe Holdings", "u": "https://www.adzuna.fr/details/5919999147?utm_medium=api&utm_source=90a8d42a", "s": 34, "d": "09/10/2026"}, {"p": "Head of Enterprise – Market Launch", "e": "Robert Half", "u": "https://www.adzuna.fr/land/ad/5744473550?se=Xj0ys6Fd8RGbveXkJv7inA&utm_medium=api&utm_source=90a8d42a&v=1D02054B442E726C86DDA553B4355019F208E781", "s": 80, "d": "29/05/2026"}, {"p": "Architecte Data / Avant-Vente (F/H)", "e": "Exakis Nelite", "u": "https://www.adzuna.fr/details/5745491989?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Architecte Sécurité / Avant-Vente (H/F)", "e": "Exakis Nelite", "u": "https://www.adzuna.fr/details/5744240020?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "29/05/2026"}, {"p": "Rise Enterprise Architect - Driving Adoption And Business Outcomes H/F", "e": "SAP", "u": "https://www.adzuna.fr/details/5746182461?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "31/05/2026"}, {"p": "Architect Concepteur Modélisateur - Keyrus France H/F", "e": "Keyrus", "u": "https://www.adzuna.fr/details/5744221048?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "29/05/2026"}, {"p": "Business Intelligence (BI) Analyst", "e": "THE UGANDA INSTITUTE OF BANKING & FINANCIAL SERVICES", "u": "https://www.adzuna.fr/land/ad/5744474706?se=qL5nraFd8RGUoulDIPpANw&utm_medium=api&utm_source=90a8d42a&v=A8DB80BB560B22ED4F55B5F593D6EDC3637BFEEE", "s": 70, "d": "29/05/2026"}, {"p": "Consultant Performance Commerciale H/F", "e": "Cegos", "u": "https://www.adzuna.fr/details/5744181151?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "29/05/2026"}, {"p": "IT Sales Business Process Owner", "e": "JCDecaux", "u": "https://www.adzuna.fr/land/ad/5744473239?se=rPjSrqFd8RGa4fPW7N0JoA&utm_medium=api&utm_source=90a8d42a&v=951D2B6CAAE0300C1F89E4A3132E5C0E9C7061BC", "s": 70, "d": "29/05/2026"}, {"p": "AI Customer Success Manager", "e": "Cominty AI", "u": "https://www.adzuna.fr/land/ad/5744474929?se=Xj0ys6Fd8RGbveXkJv7inA&utm_medium=api&utm_source=90a8d42a&v=03EEBFB21C49321218D495BBF4D7FEFB5012E207", "s": 70, "d": "29/05/2026"}, {"p": "Marketing Director - Global High Tech Europe", "e": "Ecolab", "u": "https://www.adzuna.fr/details/5746656271?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "31/05/2026"}, {"p": "Business Analyst Data / AMOA Senior - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5745083767?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Business Analyst Transformation - SaaS / Startup - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5744088461?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "29/05/2026"}, {"p": "PMO transformation (H/F)", "e": "MIGSO-PCUBED", "u": "https://www.adzuna.fr/land/ad/5747421479?se=Vvozu6Fd8RGbveXkJv7inA&utm_medium=api&utm_source=90a8d42a&v=B11EBFA68CD1DAF553CC415FC9FFFC9E8C571890", "s": 70, "d": "01/06/2026"}, {"p": "Manager Transformation Organisationnelle & Change (H/F)", "e": "Advents Consulting", "u": "https://www.adzuna.fr/details/5745208197?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Manager Transformation Organisationnelle & Change (H/F)", "e": "Advents Consulting", "u": "https://www.adzuna.fr/details/5745848812?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Directeur Général H/F", "e": "Keyman", "u": "https://www.adzuna.fr/details/5744175645?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "29/05/2026"}, {"p": "Directeur de Programme Si H/F", "e": "Michael Page", "u": "https://www.adzuna.fr/details/5745206231?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Directeur Territorial - Association Médico-Sociale H/F", "e": "Michael Page", "u": "https://www.adzuna.fr/details/5745206390?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Architecte Système Salesforce H/F", "e": "Teamis", "u": "https://www.adzuna.fr/land/ad/5747292434?se=lD1LzaFd8RGFJZKjF7noVg&utm_medium=api&utm_source=90a8d42a&v=0A82349C5553847855E86068917BC4D44C04461A", "s": 70, "d": "01/06/2026"}, {"p": "Head of AI & Innovation Lab", "e": "ALTHEA", "u": "https://www.adzuna.fr/land/ad/5747423331?se=9NMj0aFd8RG0YZzrY4SrCQ&utm_medium=api&utm_source=90a8d42a&v=74E532971B704ADDBA2BADBC80267E3D7372C062", "s": 70, "d": "01/06/2026"}, {"p": "Chef d'agence - H/F", "e": "Chausson Materiaux", "u": "https://www.adzuna.fr/land/ad/5747113711?se=bAQr4KFd8RG0YZzrY4SrCQ&utm_medium=api&utm_source=90a8d42a&v=58F7EF8E02D5FB078D569BE0CBB56D9113405A85", "s": 70, "d": "01/06/2026"}, {"p": "Directeur Customer Solution H/F", "e": "Kuehne+Nagel.", "u": "https://www.adzuna.fr/details/5744174092?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "29/05/2026"}, {"p": "Marketing & Data Strategy - Associate Manager", "e": "JAKALA", "u": "https://www.adzuna.fr/land/ad/5747426181?se=tDxLCKJd8RGFJZKjF7noVg&utm_medium=api&utm_source=90a8d42a&v=79FEE9FF20A27922C9E77D309E8EF31C16EA2437", "s": 70, "d": "01/06/2026"}, {"p": "RUN Leader / Responsable Exploitation Applicative - PARIS LA DEFENSE - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5744088382?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "29/05/2026"}, {"p": "Tech Lead Data - Paris - Keyrus France H/F", "e": "Keyrus", "u": "https://www.adzuna.fr/details/5745200545?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Développeur .NET - BORDEAUX (F/H)", "e": "SQLI", "u": "https://www.adzuna.fr/land/ad/5744471860?se=fs2nCqJd8RGJocpWJC1YoQ&utm_medium=api&utm_source=90a8d42a&v=8B06A5A5ECB75AC7E28DC5AC06FB500CFF59517C", "s": 70, "d": "29/05/2026"}, {"p": "Responsable Pilotage IA de la Performance Commerciale - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5863701203?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "01/09/2026"}, {"p": "Revenue operations analyste informatique senior — Paris, freelance (5 mois) (IT)", "e": "Mon Consultant Indépendant", "u": "https://www.adzuna.fr/details/5863111581?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "31/08/2026"}, {"p": "Revenue operations analyst senior — Paris, freelance (5 mois) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5863701366?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "01/09/2026"}, {"p": "Sales Enablement Lead & GTM Onboarding", "e": "Riot Security", "u": "https://www.adzuna.fr/details/5869415195?utm_medium=api&utm_source=90a8d42a", "s": 78, "d": "03/09/2026"}, {"p": "Leader - Transformation & Adoption GenAI (Gemini / Google AI)", "e": "Talent-R", "u": "https://www.adzuna.fr/details/5868772896?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "03/09/2026"}, {"p": "Adoption & Change Manager Genai H/F", "e": "VISEO", "u": "https://www.adzuna.fr/details/5869775579?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "04/09/2026"}, {"p": "Revenue Operations Manager", "e": "Joko", "u": "https://www.adzuna.fr/details/5869189501?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "03/09/2026"}, {"p": "Business Consultant - Transformation Digitale & Secteur Nucléaire H/F", "e": "Assystem", "u": "https://www.adzuna.fr/details/5869756691?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "04/09/2026"}, {"p": "Business Transformation Consultant - IBM France - (H/F)", "e": "IBM", "u": "https://www.adzuna.fr/land/ad/5870110578?se=UJnfFDGo8RGDXZRVG-VeHA&utm_medium=api&utm_source=90a8d42a&v=194699CA7CDB9DBDC90D4DEA463E645523F9F0C8", "s": null, "d": "04/09/2026"}, {"p": "Genai Transformation Digital - Paris H/F", "e": "Informatis", "u": "https://www.adzuna.fr/land/ad/5869754851?se=wDSANjGo8RGKy5K4tUKoXw&utm_medium=api&utm_source=90a8d42a&v=86162BD1360C91D2AE4B2162375B7545055EC2E4", "s": null, "d": "04/09/2026"}, {"p": "Coordinateur Performance Commerciale & GPM - CDI (F/H)", "e": "BMW France", "u": "https://www.adzuna.fr/details/5870224419?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "04/09/2026"}, {"p": "Business Analyst CLM & Process Expert — Transformation IA F/H", "e": "NEXTON", "u": "https://www.adzuna.fr/details/5870491523?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "04/09/2026"}, {"p": "Chef(fe) de District Performance Commerciale Vente (Centre)", "e": "Kia France", "u": "https://www.adzuna.fr/details/5870110415?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "04/09/2026"}, {"p": "Responsable RH – Business Partner & Transformation H/F/X - CDI", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5871278048?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "05/09/2026"}, {"p": "Head of Sales Enablement, EMEA", "e": "Mistral Ai", "u": "https://www.adzuna.fr/details/5872143676?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "05/09/2026"}, {"p": "Learning Consultant.e Senior – Performance commerciale & Relation client (Hu002FF) à Paris", "e": "Very Up", "u": "https://www.adzuna.fr/details/5872137867?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "05/09/2026"}, {"p": "Directeur Système Revops - Salesforce H/F", "e": "Team.is", "u": "https://www.adzuna.fr/details/5873560078?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "07/09/2026"}, {"p": "Revenue Operations Analyst, Paris", "e": "Mirakl", "u": "https://www.adzuna.fr/details/5873186390?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "06/09/2026"}, {"p": "Responsable Performance Commerciale H/F/X", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6692812", "s": 50, "d": "07/09/2026"}, {"p": "Lead Revops - €60–80K  BSPCE", "e": "Vocca", "u": "https://www.adzuna.fr/details/5881155277?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "12/09/2026"}, {"p": "Leader - Transformation & Adoption GenAI (Gemini / Google AI)", "e": "Talent-R", "u": "https://www.adzuna.fr/land/ad/5880890336?se=IM93MMau8RGhe8--YZ_w9w&utm_medium=api&utm_source=90a8d42a&v=0E95EE1BB1190B5E88970693500CBC6F93BDAA6B", "s": null, "d": "12/09/2026"}, {"p": "Lead Revops - €60–80K  BSPCE", "e": "Vocca", "u": "https://www.adzuna.fr/details/5883716747?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "14/09/2026"}, {"p": "RevOps Lead", "e": "Bigblue", "u": "https://www.adzuna.fr/details/5890772499?utm_medium=api&utm_source=90a8d42a", "s": 77, "d": "19/09/2026"}, {"p": "Directeur Système Revops - Salesforce H/F", "e": "Team.is", "u": "https://www.adzuna.fr/details/5891194280?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "20/09/2026"}, {"p": "Leader - Transformation & Adoption GenAI (Gemini / Google AI)", "e": "Talent-R", "u": "https://www.adzuna.fr/land/ad/5899613359?se=mn45JkO68RG4i6x_qFtAEA&utm_medium=api&utm_source=90a8d42a&v=5B151ECC6340A847D94C932EE997CB5BCA222A40", "s": null, "d": "26/09/2026"}, {"p": "Account Executive Senior - Founding Sales  / Éditeur SaaS IA & Sales Enablement - H/F", "e": "Dream Catcher Sales", "u": "https://www.adzuna.fr/details/5900744710?utm_medium=api&utm_source=90a8d42a", "s": 10, "d": "27/09/2026"}, {"p": "Directeur(trice) Systèmes Revenue Operations H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5665676", "s": 30, "d": "01/08/2026"}, {"p": "Responsable Performance Commerciale H/F/X", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6204940", "s": 60, "d": "22/08/2026"}, {"p": "Business Consultant Transformation Digitale H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6206090", "s": 60, "d": "22/08/2026"}, {"p": "Business Consultant - Transformation Digitale & Secteur Nucléaire H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6418399", "s": 0, "d": "29/08/2026"}, {"p": "IT Business analyste informatique | Client Lifecycle & Process Transformation (IT)", "e": "JCW Search Ltd", "u": "https://www.adzuna.fr/details/5825904038?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "02/08/2026"}, {"p": "Coordinateur Performance Commerciale & GPM - CDI (F/H)", "e": "BMW France", "u": "https://www.adzuna.fr/details/5826394952?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "03/08/2026"}, {"p": "Responsable Pilotage IA de la Performance Commerciale - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5827230718?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "04/08/2026"}, {"p": "Sales Enablement Manager", "e": "Mirakl", "u": "https://www.adzuna.fr/details/5841956130?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "14/08/2026"}, {"p": "Business analyste informatique - Squad Solutions et Transformation Digitale (IT)", "e": "KEONI CONSULTING", "u": "https://www.adzuna.fr/details/5847160217?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "18/08/2026"}, {"p": "Commercial Account Executive - Sales Performance Management (SPM)", "e": "Salesforce", "u": "https://www.adzuna.fr/details/5851139326?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "21/08/2026"}, {"p": "Responsable Performance Commerciale H/F", "e": "Galileo Global Education", "u": "https://www.adzuna.fr/details/5851804682?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "22/08/2026"}, {"p": "Business Consultant Transformation Digitale H/F", "e": "Assystem", "u": "https://www.adzuna.fr/details/5851809866?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "22/08/2026"}, {"p": "Responsable Performance Commerciale H/F/X", "e": "Galileo Global Education", "u": "https://www.adzuna.fr/details/5851831083?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "22/08/2026"}, {"p": "Responsable RH - Business Partner & Transformation H/F", "e": "Achil", "u": "https://www.adzuna.fr/details/5853107066?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "23/08/2026"}, {"p": "Business Consultant Transformation Digitale H/F", "e": "Assystem", "u": "https://www.adzuna.fr/details/5853126938?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "23/08/2026"}, {"p": "Directeur Système Revops - Salesforce H/F", "e": "Team.is", "u": "https://www.adzuna.fr/details/5854801647?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "25/08/2026"}, {"p": "Business Consultant Transformation Digitale F/H", "e": "ASSYSTEM", "u": "https://www.adzuna.fr/details/5855284170?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "25/08/2026"}, {"p": "Chef.fe de service Performance et Animation Commerciale H/F", "e": "Kia France", "u": "https://www.adzuna.fr/details/5855503369?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "25/08/2026"}, {"p": "Senior Revops - N H/F", "e": "Hublo", "u": "https://www.adzuna.fr/details/5856118844?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "26/08/2026"}, {"p": "Responsable Performance Commerciale H/F/X", "e": "Galileo Global Education", "u": "https://www.adzuna.fr/details/5856161719?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "26/08/2026"}, {"p": "Sales Enablement Associate (Charg(e) d'efficacit commerciale) - France", "e": "Huron Consulting Group", "u": "https://www.adzuna.fr/land/ad/5856423867?se=gA_hB1Kh8RG-uPqh5mi6kA&utm_medium=api&utm_source=90a8d42a&v=49D1CC477FE6AB34EF03BBADAFA10CD676E7B7B4", "s": null, "d": "26/08/2026"}, {"p": "Revenue Operations Manager", "e": "Morpho", "u": "https://www.adzuna.fr/details/5856965861?utm_medium=api&utm_source=90a8d42a", "s": 20, "d": "26/08/2026"}, {"p": "Sales Enablement Associate (Chargé(e) d'efficacité commerciale) - France", "e": "Huron Consulting Services", "u": "https://www.adzuna.fr/details/5856972062?utm_medium=api&utm_source=90a8d42a", "s": 20, "d": "26/08/2026"}, {"p": "Senior RevOps - CDI", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5857751248?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "27/08/2026"}, {"p": "Business Analyst - Squad Solutions et Transformation Digitale H/F (CDD)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858074840?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "27/08/2026"}, {"p": "Business Analyst IT Agile – Delivery & Transformation Digitale (H/F) (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858075648?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "27/08/2026"}, {"p": "IT Business Analyst | Client Lifecycle & Process Transformation (IT) / Freelance H/F (CDI)", "e": "Free-Work", "u": "https://www.adzuna.fr/details/5858075800?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Leader - Transformation & Adoption GenAI (Gemini / Google AI)", "e": "Talent-R", "u": "https://www.adzuna.fr/details/5858156616?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "27/08/2026"}, {"p": "Solution Operations Manager, Revenue Growth", "e": "Mistral Ai", "u": "https://www.adzuna.fr/details/5858358323?utm_medium=api&utm_source=90a8d42a", "s": 20, "d": "27/08/2026"}, {"p": "RevOps Manager", "e": "Stairling Technologies", "u": "https://www.adzuna.fr/details/5858372423?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "27/08/2026"}, {"p": "Sales Enablement Manager - Operations - Remote France (F/M/X)", "e": "N/C", "u": "https://www.adzuna.fr/details/5858529594?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Product Owner - Sales Enablement & IA H/F", "e": "IDEX", "u": "https://www.adzuna.fr/details/5860436384?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "29/08/2026"}, {"p": "Business Consultant – Transformation Digitale & Secteur Nucléaire H/F", "e": "Assystem", "u": "https://www.adzuna.fr/details/5860456049?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "29/08/2026"}, {"p": "Business Consultant - Transformation Digitale H/F", "e": "Assystem", "u": "https://www.adzuna.fr/details/5860456058?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "29/08/2026"}, {"p": "Head of Business Transformation - EMEA", "e": "Infillion", "u": "https://www.adzuna.fr/details/5861231651?utm_medium=api&utm_source=90a8d42a", "s": 90, "d": "29/08/2026"}, {"p": "Consultant Senior- Business Transformation - Bordeaux H/F", "e": "Sopra Steria", "u": "https://www.adzuna.fr/details/5861719807?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "30/08/2026"}, {"p": "Revenue Operations Analyst Senior — Freelance (Paris, 5 mois) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5861796473?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "30/08/2026"}, {"p": "RevOps Specialist - Sales Strategy", "e": "Mercor", "u": "https://www.adzuna.fr/details/5862802977?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "31/08/2026"}], "domaines": [{"nom": "Transformation Business", "offres": 30, "counts": [[0, 12], [1, 4], [2, 1], [3, 10], [4, 7], [8, 4], [11, 1], [13, 1], [22, 1]], "offres70": 11, "counts70": [[0, 5], [1, 1], [3, 2], [4, 2], [8, 3], [11, 1]], "liens": [[0, [5, 8, 26, 36, 37, 91, 110, 114, 130, 131, 132, 140]], [1, [12, 18, 88, 122]], [2, [141]], [3, [87, 93, 108, 109, 117, 119, 120, 122, 138, 139]], [4, [87, 93, 117, 119, 120, 138, 139]], [8, [0, 1, 2, 40]], [11, [18]], [13, [141]], [22, [88]]]}, {"nom": "Performance Commercial", "offres": 24, "counts": [[0, 14], [1, 4], [2, 1], [6, 2], [15, 2], [16, 2], [17, 1], [18, 1], [19, 1], [20, 1]], "offres70": 4, "counts70": [[0, 3], [15, 1]], "liens": [[0, [13, 15, 20, 34, 45, 80, 95, 98, 107, 112, 115, 116, 118, 125]], [1, [11, 24, 92, 123]], [2, [41]], [6, [11, 16]], [15, [90, 111]], [16, [92, 123]], [17, [24]], [18, [38]], [19, [47]], [20, [47]]]}, {"nom": "RevOps", "offres": 20, "counts": [[0, 8], [1, 3], [2, 9], [6, 3], [7, 6]], "offres70": 6, "counts70": [[0, 2], [1, 1], [2, 3], [6, 1], [7, 2]], "liens": [[0, [30, 99, 101, 102, 124, 129, 135, 143]], [1, [31, 39, 42]], [2, [4, 21, 28, 29, 35, 48, 96, 103, 121]], [6, [31, 39, 42]], [7, [21, 35, 48, 96, 103, 121]]]}, {"nom": "Revenue Operations", "offres": 18, "counts": [[0, 18]], "offres70": 1, "counts70": [[0, 1]], "liens": [[0, [9, 10, 17, 22, 25, 32, 43, 49, 50, 51, 81, 82, 86, 97, 106, 127, 134, 142]]]}, {"nom": "Sales Enablement", "offres": 15, "counts": [[0, 11], [5, 3], [10, 3], [14, 1]], "offres70": 3, "counts70": [[0, 3]], "liens": [[0, [19, 23, 52, 53, 83, 94, 105, 113, 126, 128, 136]], [5, [7, 27, 137]], [10, [7, 27, 46]], [14, [137]]]}, {"nom": "GenAI Transformation", "offres": 10, "counts": [[0, 10]], "offres70": 4, "counts70": [[0, 4]], "liens": [[0, [3, 6, 14, 33, 44, 84, 89, 100, 104, 133]]]}, {"nom": "Business Architect", "offres": 4, "counts": [[0, 2], [1, 2], [9, 2]], "offres70": 4, "counts70": [[0, 2], [1, 2], [9, 2]], "liens": [[0, [55, 56]], [1, [57, 58]], [9, [57, 58]]]}, {"nom": "Business Transformation", "offres": 4, "counts": [[0, 4]], "offres70": 4, "counts70": [[0, 4]], "liens": [[0, [65, 66, 67, 68]]]}, {"nom": "Directeur Transformation", "offres": 4, "counts": [[0, 3], [2, 1]], "offres70": 4, "counts70": [[0, 3], [2, 1]], "liens": [[0, [69, 70, 71]], [2, [72]]]}, {"nom": "Transformation Leader", "offres": 4, "counts": [[0, 1], [1, 2], [2, 1], [6, 1], [9, 1], [21, 1]], "offres70": 4, "counts70": [[0, 1], [1, 2], [2, 1], [6, 1], [9, 1], [21, 1]], "liens": [[0, [76]], [1, [77, 78]], [2, [79]], [6, [77]], [9, [78]], [21, [79]]]}, {"nom": "Business Performance", "offres": 3, "counts": [[0, 1], [1, 1], [5, 1], [11, 1], [12, 1]], "offres70": 3, "counts70": [[0, 1], [1, 1], [5, 1], [11, 1], [12, 1]], "liens": [[0, [59]], [1, [61]], [5, [60]], [11, [61]], [12, [60]]]}, {"nom": "Business Strategy", "offres": 3, "counts": [[0, 3]], "offres70": 3, "counts70": [[0, 3]], "liens": [[0, [54, 62, 63]]]}, {"nom": "Adoption GenAI", "offres": 1, "counts": [[5, 1], [14, 1]], "offres70": 1, "counts70": [[5, 1], [14, 1]], "liens": [[5, [85]], [14, [85]]]}, {"nom": "Business Support", "offres": 1, "counts": [[1, 1], [9, 1]], "offres70": 1, "counts70": [[1, 1], [9, 1]], "liens": [[1, [64]], [9, [64]]]}, {"nom": "Head of transformation", "offres": 1, "counts": [[5, 1], [12, 1]], "offres70": 1, "counts70": [[5, 1], [12, 1]], "liens": [[5, [73]], [12, [73]]]}, {"nom": "Performance Commerciale", "offres": 1, "counts": [[2, 1], [13, 1]], "offres70": 1, "counts70": [[2, 1], [13, 1]], "liens": [[2, [74]], [13, [74]]]}, {"nom": "Solutions Business", "offres": 1, "counts": [[0, 1]], "offres70": 1, "counts70": [[0, 1]], "liens": [[0, [75]]]}]}}, "lieux_ge70": {"Fabi": {"labels": ["Paris", "Nanterre", "Bordeaux", "Levallois-Perret", "Hauts-de-Seine", "Boulogne-Billancourt", "Neuilly-sur-Seine", "Talence", "Puteaux", "Issy-les-Moulineaux"], "types": ["ville", "ville", "ville", "ville", "departement", "ville", "ville", "ville", "ville", "ville"], "values": [33, 8, 6, 4, 3, 3, 2, 2, 2, 2], "total": 56}}, "offres_filtre": {"Fabi": {"lieux": ["departement|Hauts-de-Seine", "ville|Paris", "ville|Bordeaux", "ville|Meudon", "ville|Boulogne-Billancourt", "ville|Puteaux", "ville|Nanterre", "ville|Neuilly-sur-Seine", "ville|Talence", "ville|Bois-Colombes", "ville|Asnières-sur-Seine", "ville|Montrouge", "ville|Antony", "ville|Levallois-Perret", "ville|Issy-les-Moulineaux", "ville|Mérignac", "ville|Pessac", "ville|Saint-Cloud", "ville|La Défense", "ville|Courbevoie", "ville|Colombes", "departement|Yvelines", "ville|Rueil-Malmaison"], "nweeks": 20, "recs": [{"d": "Transformation Business", "l": [0], "c": "g", "e": "Deloitte", "kd": "Transformation Business", "kf": "", "w": 5}, {"d": "Transformation Business", "l": [0], "c": "g", "e": "Deloitte", "kd": "Transformation Business", "kf": "", "w": 5}, {"d": "Transformation Business", "l": [0], "c": "g", "e": "Deloitte", "kd": "Transformation Business", "kf": "", "w": 5}, {"d": "GenAI Transformation", "l": [1], "c": "g", "e": "Equancy | Groupe EDG", "kd": "GenAI Transformation", "kf": "", "w": 5}, {"d": "RevOps", "l": [2], "c": "l", "e": "Teamis", "kd": "RevOps", "kf": "", "w": 5}, {"d": "Transformation Business", "l": [1], "c": "l", "e": "Euronext", "kd": "Transformation Business", "kf": "", "w": 5}, {"d": "GenAI Transformation", "l": [1], "c": "l", "e": "INFORMATIS TECHNOLOGY SYSTM", "kd": "GenAI Transformation", "kf": "", "w": 5}, {"d": "Sales Enablement", "l": [3, 4], "c": "l", "e": "Thales", "kd": "Sales Enablement", "kf": "", "w": 5}, {"d": "Transformation Business", "l": [1], "c": "g", "e": "Truelogic", "kd": "Transformation Business", "kf": "", "w": 5}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Aircall", "kd": "Revenue Operations", "kf": "", "w": 5}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Aircall", "kd": "Revenue Operations", "kf": "", "w": 5}, {"d": "Performance Commercial", "l": [5, 6], "c": "l", "e": "Swiss Life France", "kd": "Performance Commercial", "kf": "", "w": 5}, {"d": "Transformation Business", "l": [6], "c": "l", "e": "AXA FRANCE IARD", "kd": "Transformation Business", "kf": "", "w": 5}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "Collective.work", "kd": "Performance Commercial", "kf": "", "w": 5}, {"d": "GenAI Transformation", "l": [1], "c": null, "e": "Talent-R", "kd": "", "kf": "", "w": 6}, {"d": "Performance Commercial", "l": [1], "c": "g", "e": "Galileo Global Education", "kd": "Performance Commercial", "kf": "", "w": 5}, {"d": "Performance Commercial", "l": [5], "c": "l", "e": "ELIS", "kd": "Performance Commercial", "kf": "", "w": 6}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Malt", "kd": "Revenue Operations", "kf": "", "w": 6}, {"d": "Transformation Business", "l": [7, 6], "c": "g", "e": "PwC France et Maghreb", "kd": "Transformation Business", "kf": "", "w": 6}, {"d": "Sales Enablement", "l": [1], "c": "g", "e": "Pennylane SAS", "kd": "Sales Enablement", "kf": "", "w": 6}, {"d": "Performance Commercial", "l": [1], "c": "g", "e": "UPTOO", "kd": "Performance Commercial", "kf": "", "w": 6}, {"d": "RevOps", "l": [8, 2], "c": "g", "e": "Team.is", "kd": "RevOps", "kf": "", "w": 6}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Malt", "kd": "Revenue Operations", "kf": "", "w": 6}, {"d": "Sales Enablement", "l": [1], "c": "l", "e": "Mirakl", "kd": "Sales Enablement", "kf": "", "w": 6}, {"d": "Performance Commercial", "l": [9, 6], "c": "l", "e": "UPTOO", "kd": "Performance Commercial", "kf": "", "w": 7}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Dust", "kd": "Revenue Operations", "kf": "", "w": 7}, {"d": "Transformation Business", "l": [1], "c": "l", "e": "LIPTON FIT", "kd": "Transformation Business", "kf": "", "w": 6}, {"d": "Sales Enablement", "l": [3, 4], "c": null, "e": "THALES", "kd": "", "kf": "", "w": 7}, {"d": "RevOps", "l": [2], "c": null, "e": "Teamis", "kd": "", "kf": "", "w": 7}, {"d": "RevOps", "l": [2], "c": "g", "e": "Teamis", "kd": "RevOps", "kf": "", "w": 8}, {"d": "RevOps", "l": [1], "c": "g", "e": "Collective.work", "kd": "RevOps", "kf": "", "w": 8}, {"d": "RevOps", "l": [5, 6], "c": "g", "e": "Bureau des Talents", "kd": "RevOps", "kf": "", "w": 8}, {"d": "Revenue Operations", "l": [1], "c": "g", "e": "Dolead", "kd": "Revenue Operations", "kf": "", "w": 7}, {"d": "GenAI Transformation", "l": [1], "c": "g", "e": "Talent-R", "kd": "GenAI Transformation", "kf": "", "w": 7}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "", "kd": "Performance Commercial", "kf": "", "w": 7}, {"d": "RevOps", "l": [8, 2], "c": "g", "e": "Team.is", "kd": "RevOps", "kf": "", "w": 8}, {"d": "Transformation Business", "l": [1], "c": "g", "e": "EY", "kd": "Transformation Business", "kf": "", "w": 8}, {"d": "Transformation Business", "l": [1], "c": "g", "e": "Hardis Group", "kd": "Transformation Business", "kf": "", "w": 8}, {"d": "Performance Commercial", "l": [10], "c": "l", "e": "", "kd": "Performance Commercial", "kf": "", "w": 8}, {"d": "RevOps", "l": [5, 6], "c": "l", "e": "Bureau des Talents", "kd": "RevOps", "kf": "", "w": 8}, {"d": "Transformation Business", "l": [0], "c": "l", "e": "Wavestone", "kd": "Transformation Business", "kf": "", "w": 8}, {"d": "Performance Commercial", "l": [2], "c": "l", "e": "ASCENTIEL GROUPE", "kd": "Performance Commercial", "kf": "", "w": 8}, {"d": "RevOps", "l": [5, 6], "c": "l", "e": "Bureau des Talents", "kd": "RevOps", "kf": "", "w": 8}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Pluxee", "kd": "Revenue Operations", "kf": "", "w": 8}, {"d": "GenAI Transformation", "l": [1], "c": "g", "e": "Talent-R", "kd": "GenAI Transformation", "kf": "", "w": 9}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "", "kd": "Performance Commercial", "kf": "", "w": 9}, {"d": "Sales Enablement", "l": [3], "c": "l", "e": "", "kd": "Sales Enablement", "kf": "", "w": 9}, {"d": "Performance Commercial", "l": [11, 12], "c": "l", "e": "TERACT", "kd": "Performance Commercial", "kf": "Directeur", "w": 18}, {"d": "RevOps", "l": [8, 2], "c": "l", "e": "Team.is", "kd": "RevOps", "kf": "Directeur", "w": 19}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "DealHub Ltd.", "kd": "Revenue Operations", "kf": "lead", "w": 18}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Lectra", "kd": "Revenue Operations", "kf": "Directeur", "w": 18}, {"d": "Revenue Operations", "l": [1], "c": "m", "e": "DealHub Ltd.", "kd": "Revenue Operations", "kf": "head", "w": 18}, {"d": "Sales Enablement", "l": [1], "c": "l", "e": "Lexroom", "kd": "Sales Enablement", "kf": "", "w": 19}, {"d": "Sales Enablement", "l": [1], "c": "l", "e": "2025 Becton Dickinson Europe Holdings", "kd": "Sales Enablement", "kf": "", "w": 19}, {"d": "Business Strategy", "l": [1], "c": "g", "e": "Robert Half", "kd": "Business Strategy", "kf": "Head", "w": 0}, {"d": "Business Architect", "l": [1], "c": "g", "e": "Exakis Nelite", "kd": "Business Architect", "kf": "", "w": 0}, {"d": "Business Architect", "l": [1], "c": "g", "e": "Exakis Nelite", "kd": "Business Architect", "kf": "", "w": 0}, {"d": "Business Architect", "l": [13, 6], "c": "g", "e": "SAP", "kd": "Business Architect", "kf": "", "w": 0}, {"d": "Business Architect", "l": [13, 6], "c": "g", "e": "Keyrus", "kd": "Business Architect", "kf": "", "w": 0}, {"d": "Business Performance", "l": [1], "c": "g", "e": "THE UGANDA INSTITUTE OF BANKING & FINANCIAL SERVICES", "kd": "Business Performance", "kf": "", "w": 0}, {"d": "Business Performance", "l": [14, 4], "c": "g", "e": "Cegos", "kd": "Business Performance", "kf": "", "w": 0}, {"d": "Business Performance", "l": [7, 6], "c": "g", "e": "JCDecaux", "kd": "Business Performance", "kf": "", "w": 0}, {"d": "Business Strategy", "l": [1], "c": "g", "e": "Cominty AI", "kd": "Business Strategy", "kf": "", "w": 0}, {"d": "Business Strategy", "l": [1], "c": "g", "e": "Ecolab", "kd": "Business Strategy", "kf": "", "w": 0}, {"d": "Business Support", "l": [13, 6], "c": "g", "e": "Collective.work", "kd": "Business Support", "kf": "", "w": 0}, {"d": "Business Transformation", "l": [1], "c": "g", "e": "Collective.work", "kd": "Business Transformation", "kf": "", "w": 0}, {"d": "Business Transformation", "l": [1], "c": "g", "e": "MIGSO-PCUBED", "kd": "Business Transformation", "kf": "", "w": 1}, {"d": "Business Transformation", "l": [1], "c": "g", "e": "Advents Consulting", "kd": "Business Transformation", "kf": "", "w": 0}, {"d": "Business Transformation", "l": [1], "c": "g", "e": "Advents Consulting", "kd": "Business Transformation", "kf": "", "w": 0}, {"d": "Directeur Transformation", "l": [1], "c": "g", "e": "Keyman", "kd": "Directeur Transformation", "kf": "", "w": 0}, {"d": "Directeur Transformation", "l": [1], "c": "g", "e": "Michael Page", "kd": "Directeur Transformation", "kf": "", "w": 0}, {"d": "Directeur Transformation", "l": [1], "c": "g", "e": "Michael Page", "kd": "Directeur Transformation", "kf": "", "w": 0}, {"d": "Directeur Transformation", "l": [2], "c": "g", "e": "Teamis", "kd": "Directeur Transformation", "kf": "", "w": 1}, {"d": "Head of transformation", "l": [14, 4], "c": "g", "e": "ALTHEA", "kd": "Head of transformation", "kf": "", "w": 1}, {"d": "Performance Commerciale", "l": [15, 2], "c": "g", "e": "Chausson Materiaux", "kd": "Performance Commerciale", "kf": "", "w": 1}, {"d": "Solutions Business", "l": [1], "c": "g", "e": "Kuehne+Nagel.", "kd": "Solutions Business", "kf": "", "w": 0}, {"d": "Transformation Leader", "l": [1], "c": "g", "e": "JAKALA", "kd": "Transformation Leader", "kf": "", "w": 1}, {"d": "Transformation Leader", "l": [5, 6], "c": "g", "e": "Collective.work", "kd": "Transformation Leader", "kf": "", "w": 0}, {"d": "Transformation Leader", "l": [13, 6], "c": "g", "e": "Keyrus", "kd": "Transformation Leader", "kf": "", "w": 0}, {"d": "Transformation Leader", "l": [16, 2], "c": "g", "e": "SQLI", "kd": "Transformation Leader", "kf": "", "w": 0}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "Collective.work", "kd": "Performance Commercial", "kf": "", "w": 14}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Mon Consultant Indépendant", "kd": "Revenue Operations", "kf": "", "w": 14}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Collective.work", "kd": "Revenue Operations", "kf": "", "w": 14}, {"d": "Sales Enablement", "l": [1], "c": "g", "e": "Riot Security", "kd": "Sales Enablement", "kf": "", "w": 14}, {"d": "GenAI Transformation", "l": [1], "c": "g", "e": "Talent-R", "kd": "GenAI Transformation", "kf": "", "w": 14}, {"d": "Adoption GenAI", "l": [17, 4], "c": "g", "e": "VISEO", "kd": "Adoption GenAI", "kf": "", "w": 14}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Joko", "kd": "Revenue Operations", "kf": "", "w": 14}, {"d": "Transformation Business", "l": [18, 19], "c": "l", "e": "Assystem", "kd": "Transformation Business", "kf": "", "w": 14}, {"d": "Transformation Business", "l": [20, 6], "c": "m", "e": "IBM", "kd": "Transformation Business", "kf": "", "w": 14}, {"d": "GenAI Transformation", "l": [1], "c": "m", "e": "Informatis", "kd": "GenAI Transformation", "kf": "", "w": 14}, {"d": "Performance Commercial", "l": [21], "c": "g", "e": "BMW France", "kd": "Performance Commercial", "kf": "", "w": 14}, {"d": "Transformation Business", "l": [1], "c": "g", "e": "NEXTON", "kd": "Transformation Business", "kf": "", "w": 14}, {"d": "Performance Commercial", "l": [22, 6], "c": "l", "e": "Kia France", "kd": "Performance Commercial", "kf": "", "w": 14}, {"d": "Transformation Business", "l": [18, 19], "c": "l", "e": "Collective.work", "kd": "Transformation Business", "kf": "", "w": 14}, {"d": "Sales Enablement", "l": [1], "c": "g", "e": "Mistral Ai", "kd": "Sales Enablement", "kf": "", "w": 14}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "Very Up", "kd": "Performance Commercial", "kf": "", "w": 14}, {"d": "RevOps", "l": [8, 2], "c": "l", "e": "Team.is", "kd": "RevOps", "kf": "", "w": 15}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Mirakl", "kd": "Revenue Operations", "kf": "", "w": 14}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "", "kd": "Performance Commercial", "kf": "", "w": 15}, {"d": "RevOps", "l": [1], "c": "l", "e": "Vocca", "kd": "RevOps", "kf": "lead", "w": 15}, {"d": "GenAI Transformation", "l": [1], "c": "m", "e": "Talent-R", "kd": "GenAI Transformation", "kf": "lead", "w": 15}, {"d": "RevOps", "l": [1], "c": "l", "e": "Vocca", "kd": "RevOps", "kf": "lead", "w": 16}, {"d": "RevOps", "l": [1], "c": "g", "e": "Bigblue", "kd": "RevOps", "kf": "lead", "w": 16}, {"d": "RevOps", "l": [8, 2], "c": "l", "e": "Team.is", "kd": "RevOps", "kf": "Directeur", "w": 16}, {"d": "GenAI Transformation", "l": [1], "c": "m", "e": "Talent-R", "kd": "GenAI Transformation", "kf": "lead", "w": 17}, {"d": "Sales Enablement", "l": [1], "c": "l", "e": "Dream Catcher Sales", "kd": "Sales Enablement", "kf": "", "w": 17}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "", "kd": "Revenue Operations", "kf": "", "w": 9}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "", "kd": "Performance Commercial", "kf": "", "w": 12}, {"d": "Transformation Business", "l": [19], "c": "l", "e": "", "kd": "Transformation Business", "kf": "", "w": 12}, {"d": "Transformation Business", "l": [19], "c": "l", "e": "", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [1], "c": null, "e": "JCW Search Ltd", "kd": "", "kf": "", "w": 9}, {"d": "Performance Commercial", "l": [21], "c": "l", "e": "BMW France", "kd": "Performance Commercial", "kf": "", "w": 10}, {"d": "Performance Commercial", "l": [1], "c": null, "e": "Collective.work", "kd": "", "kf": "", "w": 10}, {"d": "Sales Enablement", "l": [1], "c": "l", "e": "Mirakl", "kd": "Sales Enablement", "kf": "", "w": 11}, {"d": "Transformation Business", "l": [1], "c": "l", "e": "KEONI CONSULTING", "kd": "Transformation Business", "kf": "", "w": 12}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "Salesforce", "kd": "Performance Commercial", "kf": "", "w": 12}, {"d": "Performance Commercial", "l": [1], "c": "g", "e": "Galileo Global Education", "kd": "Performance Commercial", "kf": "", "w": 12}, {"d": "Transformation Business", "l": [18, 19], "c": "g", "e": "Assystem", "kd": "Transformation Business", "kf": "", "w": 12}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "Galileo Global Education", "kd": "Performance Commercial", "kf": "", "w": 12}, {"d": "Transformation Business", "l": [18, 19], "c": "l", "e": "Achil", "kd": "Transformation Business", "kf": "", "w": 12}, {"d": "Transformation Business", "l": [18, 19], "c": "g", "e": "Assystem", "kd": "Transformation Business", "kf": "", "w": 12}, {"d": "RevOps", "l": [8, 2], "c": "l", "e": "Team.is", "kd": "RevOps", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [19, 6], "c": "l", "e": "ASSYSTEM", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Performance Commercial", "l": [22, 6], "c": "l", "e": "Kia France", "kd": "Performance Commercial", "kf": "", "w": 13}, {"d": "RevOps", "l": [1], "c": "l", "e": "Hublo", "kd": "RevOps", "kf": "", "w": 13}, {"d": "Performance Commercial", "l": [1], "c": "l", "e": "Galileo Global Education", "kd": "Performance Commercial", "kf": "", "w": 13}, {"d": "Sales Enablement", "l": [1], "c": null, "e": "Huron Consulting Group", "kd": "", "kf": "", "w": 13}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Morpho", "kd": "Revenue Operations", "kf": "", "w": 13}, {"d": "Sales Enablement", "l": [1], "c": "l", "e": "Huron Consulting Services", "kd": "Sales Enablement", "kf": "", "w": 13}, {"d": "RevOps", "l": [1], "c": "l", "e": "Collective.work", "kd": "RevOps", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [1], "c": "l", "e": "Free-Work", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [1], "c": "l", "e": "Free-Work", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [1], "c": "l", "e": "Free-Work", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "GenAI Transformation", "l": [1], "c": "l", "e": "Talent-R", "kd": "GenAI Transformation", "kf": "", "w": 13}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Mistral Ai", "kd": "Revenue Operations", "kf": "", "w": 13}, {"d": "RevOps", "l": [1], "c": "l", "e": "Stairling Technologies", "kd": "RevOps", "kf": "", "w": 13}, {"d": "Sales Enablement", "l": [1], "c": "l", "e": "", "kd": "Sales Enablement", "kf": "", "w": 13}, {"d": "Sales Enablement", "l": [17, 4], "c": "l", "e": "IDEX", "kd": "Sales Enablement", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [18, 19], "c": "l", "e": "Assystem", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [18, 19], "c": "l", "e": "Assystem", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [1], "c": "g", "e": "Infillion", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Transformation Business", "l": [15, 2], "c": "l", "e": "Sopra Steria", "kd": "Transformation Business", "kf": "", "w": 13}, {"d": "Revenue Operations", "l": [1], "c": "l", "e": "Collective.work", "kd": "Revenue Operations", "kf": "", "w": 13}, {"d": "RevOps", "l": [1], "c": "l", "e": "Mercor", "kd": "RevOps", "kf": "", "w": 14}]}}};
+
+  // Initialisation du graphique des Tokens
+  if (dashboardData.tokens && dashboardData.tokens.labels.length > 0) {
+    new Chart(document.getElementById('tokensChart'), {
+      type: 'bar',
+      data: {
+        labels: dashboardData.tokens.labels,
+        datasets: [
+          { label: 'Tokens Input', data: dashboardData.tokens.inputs, backgroundColor: '#3b82f6' },
+          { label: 'Tokens Output', data: dashboardData.tokens.outputs, backgroundColor: '#10b981' },
+          { label: 'Tokens Total', data: dashboardData.tokens.totals, backgroundColor: '#6366f1' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // Initialisation du camembert "Tous Profils"
+  if (dashboardData.entreprises_all && dashboardData.entreprises_all.labels.length > 0) {
+    new Chart(document.getElementById('entreprisesAllChart'), {
+      type: 'pie',
+      data: {
+        labels: dashboardData.entreprises_all.labels,
+        datasets: [{
+          data: dashboardData.entreprises_all.values,
+          backgroundColor: [
+            '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+            '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right' } }
+      }
+    });
+  }
+
+  // Initialisation dynamique des graphiques d'évolution par profil
+  if (dashboardData.evolution) {
+    Object.keys(dashboardData.evolution).forEach(profile => {
+      const canvasId = 'evo_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const evo = dashboardData.evolution[profile];
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: evo.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: evo.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: evo.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: evo.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: false },
+              y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des graphiques de mots-clés par profil (Domaine et Fonction)
+  if (dashboardData.keywords) {
+    Object.keys(dashboardData.keywords).forEach(profile => {
+      // Domaine
+      const domCanvasId = 'kw_dom_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctxDom = document.getElementById(domCanvasId);
+      if (ctxDom && dashboardData.keywords[profile].domaine) {
+        const kwDom = dashboardData.keywords[profile].domaine;
+        new Chart(ctxDom, {
+          type: 'bar',
+          data: {
+            labels: kwDom.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: kwDom.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: kwDom.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: kwDom.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1 } },
+              y: { ticks: { autoSkip: false } }
+            }
+          }
+        });
+      }
+
+      // Fonction
+      const fctCanvasId = 'kw_fct_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctxFct = document.getElementById(fctCanvasId);
+      if (ctxFct && dashboardData.keywords[profile].fonction) {
+        const kwFct = dashboardData.keywords[profile].fonction;
+        new Chart(ctxFct, {
+          type: 'bar',
+          data: {
+            labels: kwFct.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: kwFct.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: kwFct.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: kwFct.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des camemberts d'entreprises par profil
+  if (dashboardData.entreprises_profil) {
+    Object.keys(dashboardData.entreprises_profil).forEach(profile => {
+      const canvasId = 'ent_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const ent = dashboardData.entreprises_profil[profile];
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ent.labels,
+            datasets: [{
+              data: ent.values,
+              backgroundColor: [
+                '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des camemberts d'entreprises (Score >= 70) par profil
+  if (dashboardData.entreprises_ge70) {
+    Object.keys(dashboardData.entreprises_ge70).forEach(profile => {
+      const canvasId = 'ent_ge70_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const ent = dashboardData.entreprises_ge70[profile];
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ent.labels,
+            datasets: [{
+              data: ent.values,
+              backgroundColor: [
+                '#10b981', '#2563eb', '#f59e0b', '#8b5cf6', '#ec4899',
+                '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#ef4444'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+    });
+  }
+
+  // Treemap (depuis le lancement) et histogramme (Score >= 70) des lieux par profil
+  const TREEMAP_COLORS = [
+    '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+    '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+  ];
+  // Retour à la ligne des titres du treemap : découpe le texte selon la largeur réelle du
+  // rectangle (mesurée en pixels), coupe aux espaces et après les traits d'union, et
+  // n'abrège avec "…" que si la hauteur du rectangle ne permet pas d'afficher toutes les lignes.
+  const TM_FONT_SIZE = 12;
+  const TM_LINE_H = TM_FONT_SIZE * 1.2;
+  let _tmCtx = null;
+  function tmMeasure(text) {
+    if (!_tmCtx) _tmCtx = document.createElement('canvas').getContext('2d');
+    _tmCtx.font = 'bold ' + TM_FONT_SIZE + 'px ' + Chart.defaults.font.family;
+    return _tmCtx.measureText(text).width;
+  }
+  function tmWrap(text, maxW, maxLines) {
+    const pieces = [];
+    String(text).trim().split(/\s+/).forEach((word, wi) => {
+      (word.match(/[^-]+-?|-/g) || [word]).forEach((part, pi) => pieces.push({ s: part, sp: wi > 0 && pi === 0 }));
+    });
+    let lines = [];
+    let cur = '';
+    pieces.forEach(pc => {
+      const cand = cur ? cur + (pc.sp ? ' ' : '') + pc.s : pc.s;
+      if (!cur || tmMeasure(cand) <= maxW) { cur = cand; } else { lines.push(cur); cur = pc.s; }
+    });
+    if (cur) lines.push(cur);
+    // Mot plus large que le rectangle : coupure caractère par caractère
+    const broken = [];
+    lines.forEach(line => {
+      while (tmMeasure(line) > maxW && line.length > 1) {
+        let k = line.length - 1;
+        while (k > 1 && tmMeasure(line.slice(0, k)) > maxW) k--;
+        broken.push(line.slice(0, k));
+        line = line.slice(k);
+      }
+      broken.push(line);
+    });
+    lines = broken;
+    if (lines.length > maxLines) {
+      lines = lines.slice(0, maxLines);
+      let last = lines[maxLines - 1];
+      while (last.length > 1 && tmMeasure(last + '…') > maxW) last = last.slice(0, -1);
+      lines[maxLines - 1] = last + '…';
+    }
+    return lines;
+  }
+  function tmFormatter(c) {
+    if (c.type !== 'data') return '';
+    const w = c.raw.w, h = c.raw.h;
+    const maxW = Math.max(w - 12, 10);                       // marge intérieure gauche/droite
+    const maxLines = Math.max(1, Math.floor((h - 12) / TM_LINE_H) - 1);  // 1 ligne réservée au nombre
+    return tmWrap(c.raw._data.label, maxW, maxLines).concat(String(c.raw.v));
+  }
+  const LIEU_TYPE_COLORS = { ville: '#2563eb', departement: '#10b981', region: '#f59e0b' };
+  const LIEU_TYPE_LABELS = { ville: 'ville', departement: 'département', region: 'région' };
+  function lieuPct(v, lieux, baseLabel) {
+    const pct = lieux.total ? (100 * v / lieux.total).toFixed(1).replace('.', ',') : '0';
+    return ' (' + pct + ' % ' + baseLabel + ')';
+  }
+  // Filtre du tableau des offres en adéquation (id tbl_offres_<slug>) : lignes masquées si leur domaine
+  // n'est pas coché, ou si aucun de leurs lieux n'est coché (quand la liste des lieux est restreinte).
+  const _offresState = {};   // slug -> { doms: Set des domaines cochés, keys: Set 'type|libellé' cochés ou null (= tout) }
+  function applyOffresFilter(slug) {
+    const st = _offresState[slug];
+    const tbl = document.getElementById('tbl_offres_' + slug);
+    if (!st || !tbl) return;
+    let shown = 0, total = 0;
+    tbl.querySelectorAll('tbody tr').forEach(r => {
+      if (r._locs === undefined) {
+        try { r._locs = JSON.parse(r.getAttribute('data-locs') || '[]'); } catch (e) { r._locs = []; }
+      }
+      const okDom = st.doms.has(r.getAttribute('data-dom'));
+      const okLoc = !st.keys || r._locs.some(k => st.keys.has(k));
+      r._pf = !(okDom && okLoc);
+      total++;
+      if (!r._pf) shown++;
+    });
+    const nb = document.getElementById('nb_offres_' + slug);
+    if (nb) nb.textContent = shown;
+    if (tbl._refilter) tbl._refilter();
+  }
+  // Fiches des offres par profil (slug -> { lieux, nweeks, recs }) : servent à recalculer les graphiques filtrés
+  const _offresBySlug = {};
+  if (dashboardData.offres_filtre) {
+    Object.keys(dashboardData.offres_filtre).forEach(p => {
+      _offresBySlug[p.replace(/[^a-zA-Z0-9]/g, '_')] = dashboardData.offres_filtre[p];
+    });
+  }
+  // Recalcule, avec les domaines et lieux cochés, les graphiques d'un profil : top 10 des entreprises (tous
+  // scores, puis Score >= 70), évolution hebdomadaire et mots-clés Domaine / Fonction. Mêmes règles de
+  // comptage que le script Python (voir categorize), appliquées aux offres retenues par les filtres.
+  function updateProfileCharts(slug) {
+    const of = _offresBySlug[slug], st = _offresState[slug];
+    if (!of || !st) return;
+    const recs = of.recs.filter(r => st.doms.has(r.d) && (!st.keys || r.l.some(i => st.keys.has(of.lieux[i]))));
+    const ent = new Map(), ent70 = new Map(), kd = new Map(), kf = new Map();
+    const g = new Array(of.nweeks).fill(0), l = new Array(of.nweeks).fill(0), m = new Array(of.nweeks).fill(0);
+    function bump(map, k, c) {
+      let o = map.get(k);
+      if (!o) { o = { g: 0, l: 0, m: 0, t: 0 }; map.set(k, o); }
+      o[c]++; o.t++;
+    }
+    recs.forEach(r => {
+      if (r.e) {
+        ent.set(r.e, (ent.get(r.e) || 0) + 1);
+        if (r.c === 'g') ent70.set(r.e, (ent70.get(r.e) || 0) + 1);
+      }
+      if (r.c) {
+        if (r.w >= 0) { (r.c === 'g' ? g : r.c === 'l' ? l : m)[r.w]++; }
+        if (r.kd) bump(kd, r.kd, r.c);
+        if (r.kf) bump(kf, r.kf, r.c);
+      }
+    });
+    function setPie(id, map) {
+      const ch = Chart.getChart(id);
+      if (!ch) return;
+      const items = Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      ch.data.labels = items.map(x => x[0]);
+      ch.data.datasets[0].data = items.map(x => x[1]);
+      ch.update();
+    }
+    function setKw(id, map) {
+      const ch = Chart.getChart(id);
+      if (!ch) return;
+      const items = Array.from(map.entries()).sort((a, b) => a[1].t - b[1].t);
+      ch.data.labels = items.map(x => x[0]);
+      ch.data.datasets[0].data = items.map(x => x[1].g);
+      ch.data.datasets[1].data = items.map(x => x[1].l);
+      ch.data.datasets[2].data = items.map(x => x[1].m);
+      ch.update();
+    }
+    setPie('ent_chart_' + slug, ent);
+    setPie('ent_ge70_chart_' + slug, ent70);
+    setKw('kw_dom_chart_' + slug, kd);
+    setKw('kw_fct_chart_' + slug, kf);
+    const evo = Chart.getChart('evo_chart_' + slug);
+    if (evo) {
+      evo.data.datasets[0].data = g;
+      evo.data.datasets[1].data = l;
+      evo.data.datasets[2].data = m;
+      evo.update();
+    }
+  }
+  const _lieuCharts = {};
+  const _lieuState = {};       // canvas du treemap -> { sums70, offres70, locOn, doms } (dernier état filtré)
+  const _lieuListeners = {};   // canvas du treemap -> fonction de mise à jour de l'histogramme Score >= 70
+  function buildLieuxTreemap(canvasId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    const boxes = Array.from(document.querySelectorAll('input.lieu-dom[data-canvas="' + canvasId + '"]'));
+    const locBoxes = Array.from(document.querySelectorAll('input.lieu-loc[data-canvas="' + canvasId + '"]'));
+    const parents = Array.from(document.querySelectorAll('input.lieu-parent[data-canvas="' + canvasId + '"]'));
+    // Lieux cochés (indices dans lieux.labels). Un département qui a des villes est pris en compte
+    // (offres citant seulement le département) tant qu'au moins une de ses cases est cochée.
+    function currentLocOn() {
+      if (!locBoxes.length && !parents.length) return null;
+      const on = new Set();
+      locBoxes.forEach(cb => { if (cb.checked) on.add(parseInt(cb.value, 10)); });
+      parents.forEach(pb => {
+        if (pb.dataset.idx !== '' && (pb.checked || pb.indeterminate)) on.add(parseInt(pb.dataset.idx, 10));
+      });
+      return on;
+    }
+    function groupChildren(pb) {
+      return Array.from(pb.closest('.lieu-grp').querySelectorAll('input.lieu-loc'));
+    }
+    function syncParent(pb) {
+      const ch = groupChildren(pb);
+      const n = ch.filter(c => c.checked).length;
+      pb.checked = ch.length > 0 && n === ch.length;
+      pb.indeterminate = n > 0 && n < ch.length;
+    }
+    const info = document.getElementById(canvasId + '_info');
+    let curDoms = [];            // indices des domaines cochés (mis à jour à chaque render)
+    let curOffres = 0;           // base des pourcentages (offres des domaines cochés)
+    let mouseX = 0, mouseY = 0;  // dernière position de la souris sur le graphique (coordonnées de page)
+    let tipKey = '';
+    let hideTimer = null;
+    let showTimer = null;
+    let lastRaw = null;          // case actuellement survolée (null si aucune)
+    let pinned = false;          // liste épinglée par un clic
+    const TIP_DWELL = 350;       // ms de pause du curseur sur une case avant d'afficher la liste
+    const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la case
+    let tip = document.getElementById(canvasId + '_tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = canvasId + '_tip';
+      tip.className = 'lieu-tip';
+      document.body.appendChild(tip);
+    }
+    function stopHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function stopShow() { if (showTimer) { clearTimeout(showTimer); showTimer = null; } }
+    function hideTip() {
+      stopHide();
+      stopShow();
+      pinned = false;
+      tip.style.display = 'none';
+      tipKey = '';
+    }
+    // La liste reste affichée tant que la souris est dessus (pour cliquer les liens)
+    tip.addEventListener('mouseenter', () => { stopHide(); stopShow(); });
+    tip.addEventListener('mouseleave', () => { if (!pinned) hideTip(); });
+    ctx.addEventListener('mousemove', e => {
+      mouseX = e.pageX;
+      mouseY = e.pageY;
+      // le délai d'affichage ne court que si le curseur est à l'arrêt
+      if (showTimer && lastRaw) {
+        clearTimeout(showTimer);
+        const r = lastRaw;
+        showTimer = setTimeout(() => showTipFor(r, false), TIP_DWELL);
+      }
+    });
+    // Clic sur une case : épingle la liste (reste affichée jusqu'à un clic ailleurs, Échap ou la croix)
+    ctx.addEventListener('click', () => {
+      if (lastRaw) showTipFor(lastRaw, true);
+      else if (pinned) hideTip();
+    });
+    document.addEventListener('mousedown', e => {
+      if (pinned && !tip.contains(e.target) && e.target !== ctx) hideTip();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
+    // Offres du lieu (indice idx) pour les domaines cochés, triées par score décroissant
+    function lieuOffres(idx) {
+      const seen = new Set();
+      const out = [];
+      curDoms.forEach(di => {
+        (lieux.domaines[di].liens || []).forEach(pair => {
+          if (pair[0] !== idx) return;
+          pair[1].forEach(oi => {
+            if (!seen.has(oi)) { seen.add(oi); out.push(lieux.offres[oi]); }
+          });
+        });
+      });
+      out.sort((a, b) => (b.s === null ? -1 : b.s) - (a.s === null ? -1 : a.s));
+      return out;
+    }
+    function showTipFor(raw, pin) {
+      stopHide();
+      stopShow();
+      const d = raw._data;
+      const key = d.idx + '|' + curDoms.join(',');
+      if (!pin && key === tipKey && tip.style.display === 'block') return;
+      tipKey = key;
+      pinned = pin;
+      tip.textContent = '';
+      const h = document.createElement('div');
+      h.style.fontWeight = 'bold';
+      h.style.display = 'flex';
+      h.style.justifyContent = 'space-between';
+      h.style.gap = '10px';
+      const ttl = document.createElement('span');
+      ttl.textContent = d.label + ' (' + (LIEU_TYPE_LABELS[d.type] || '') + ')';
+      h.appendChild(ttl);
+      if (pin) {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'Fermer';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', hideTip);
+        h.appendChild(x);
+      }
+      const pct = curOffres ? (100 * raw.v / curOffres).toFixed(1).replace('.', ',') : '0';
+      const c = document.createElement('div');
+      c.textContent = raw.v + ' ' + unitLabel + ' (' + pct + ' % ' + baseLabel + ')';
+      tip.appendChild(h);
+      tip.appendChild(c);
+      const list = lieuOffres(d.idx);
+      const MAX = 30;
+      if (list.length) {
+        const hint = document.createElement('div');
+        hint.className = 'note';
+        hint.textContent = pin
+          ? 'Liste épinglée : cliquez ailleurs, appuyez sur Échap ou sur × pour fermer.'
+          : 'Cliquez sur la case pour épingler cette liste.';
+        tip.appendChild(hint);
+        const ul = document.createElement('ul');
+        list.slice(0, MAX).forEach(o => {
+          const li = document.createElement('li');
+          const txt = o.p + ' — ' + o.e;
+          li.appendChild(document.createTextNode((o.d || 'N/C') + ' — '));
+          if (o.u && o.u.toLowerCase().indexOf('http') === 0) {
+            const a = document.createElement('a');
+            a.href = o.u;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = txt;
+            li.appendChild(a);
+          } else {
+            li.appendChild(document.createTextNode(txt));
+          }
+          ul.appendChild(li);
+        });
+        tip.appendChild(ul);
+        if (list.length > MAX) {
+          const more = document.createElement('div');
+          more.className = 'note';
+          more.textContent = '… et ' + (list.length - MAX) + ' autre(s) offre(s) non affichée(s)';
+          tip.appendChild(more);
+        }
+      }
+      tip.scrollTop = 0;
+      tip.style.display = 'block';
+      let left = mouseX + 6;
+      let top = mouseY + 6;
+      const maxLeft = window.pageXOffset + document.documentElement.clientWidth - tip.offsetWidth - 10;
+      if (left > maxLeft) left = Math.max(window.pageXOffset, maxLeft);
+      const maxTop = window.pageYOffset + window.innerHeight - tip.offsetHeight - 10;
+      if (top > maxTop) top = Math.max(window.pageYOffset, maxTop);
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    }
+    // Appelé par Chart.js à chaque changement de case survolée (tooltip externe)
+    function lieuTooltip(context) {
+      const t = context.tooltip;
+      const act = t && t.getActiveElements ? t.getActiveElements() : [];
+      if (!act.length || !t.dataPoints || !t.dataPoints.length) {
+        lastRaw = null;
+        stopShow();
+        if (!pinned && tip.style.display === 'block' && !hideTimer) hideTimer = setTimeout(hideTip, TIP_HIDE);
+        return;
+      }
+      const raw = t.dataPoints[0].raw;
+      lastRaw = raw;
+      if (pinned) return;
+      stopHide();
+      const key = raw._data.idx + '|' + curDoms.join(',');
+      if (key === tipKey && tip.style.display === 'block') { stopShow(); return; }
+      stopShow();
+      showTimer = setTimeout(() => showTipFor(raw, false), TIP_DWELL);
+    }
+    function render() {
+      const sums = lieux.labels.map(() => 0);
+      const sums70 = lieux.labels.map(() => 0);
+      let offres70 = 0;
+      let offres = 0, nbDom = 0;
+      curDoms = [];
+      boxes.forEach(cb => {
+        if (!cb.checked) return;
+        const d = lieux.domaines[parseInt(cb.value, 10)];
+        nbDom++;
+        curDoms.push(parseInt(cb.value, 10));
+        offres += d.offres;
+        offres70 += (d.offres70 || 0);
+        (d.counts70 || []).forEach(p => { sums70[p[0]] += p[1]; });
+        d.counts.forEach(p => { sums[p[0]] += p[1]; });
+      });
+      // Lieux cochés (indice dans lieux.labels) ; sans liste de lieux dans la page, aucun filtre
+      const locOn = currentLocOn();
+      // Filtre du tableau des offres en adéquation (mêmes domaines et mêmes lieux cochés)
+      const slugTbl = canvasId.replace('lieu_chart_', '');
+      const locAll = locBoxes.every(cb => cb.checked);
+      _offresState[slugTbl] = {
+        doms: new Set(curDoms.map(di => lieux.domaines[di].nom)),
+        keys: (!locOn || locAll) ? null : new Set(Array.from(locOn).map(i => lieux.types[i] + '|' + lieux.labels[i]))
+      };
+      applyOffresFilter(slugTbl);
+      updateProfileCharts(slugTbl);
+      const tree = [];
+      lieux.labels.forEach((l, i) => {
+        if (sums[i] > 0 && (!locOn || locOn.has(i))) tree.push({ label: l, type: lieux.types[i], value: sums[i], idx: i });
+      });
+      tree.sort((a, b) => b.value - a.value);
+      hideTip();
+      lastRaw = null;
+      curOffres = offres;
+      // État transmis à l'histogramme Score >= 70 (mêmes domaines et mêmes lieux cochés)
+      _lieuState[canvasId] = { sums70: sums70, offres70: offres70, locOn: locOn, doms: curDoms.slice() };
+      if (_lieuListeners[canvasId]) _lieuListeners[canvasId](_lieuState[canvasId]);
+      if (_lieuCharts[canvasId]) { _lieuCharts[canvasId].destroy(); _lieuCharts[canvasId] = null; }
+      if (info) {
+        info.textContent = tree.length
+          ? tree.length + ' lieu(x) distinct(s) affiché(s) pour ' + nbDom + ' domaine(s) coché(s), à partir de ' + offres + ' offre(s) des domaines cochés.'
+          : 'Aucun lieu à afficher : cochez au moins un domaine et un lieu ayant des offres dans les domaines cochés.';
+      }
+      if (!tree.length) return;
+      _lieuCharts[canvasId] = new Chart(ctx, {
+        type: 'treemap',
+        data: {
+          datasets: [{
+            tree: tree,
+            key: 'value',
+            backgroundColor: c => c.type === 'data' ? (LIEU_TYPE_COLORS[c.raw._data.type] || '#6b7280') : 'transparent',
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            spacing: 0,
+            labels: {
+              display: true,
+              color: '#ffffff',
+              font: { size: TM_FONT_SIZE, weight: 'bold' },
+              formatter: tmFormatter
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: false,
+              external: context => lieuTooltip(context)
+            }
+          }
+        }
+      });
+    }
+    boxes.forEach(cb => cb.addEventListener('change', render));
+    // Case d'un département : coche/décoche toutes ses villes
+    parents.forEach(pb => {
+      pb.addEventListener('change', () => {
+        groupChildren(pb).forEach(cb => { cb.checked = pb.checked; });
+        pb.indeterminate = false;
+        render();
+      });
+    });
+    // Case d'une ville / région : met à jour l'état (coché, partiel, décoché) du département parent
+    locBoxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const g = cb.closest('.lieu-grp');
+        const pb = g ? g.querySelector('input.lieu-parent') : null;
+        if (pb) syncParent(pb);
+        render();
+      });
+    });
+    // Afficher / masquer les villes d'un département
+    document.querySelectorAll('.lieu-grp[data-canvas="' + canvasId + '"] .lieu-grp-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const g = btn.closest('.lieu-grp');
+        const body = g.querySelector('.lieu-grp-body');
+        const open = body.style.display === 'none';
+        body.style.display = open ? '' : 'none';
+        g.dataset.open = open ? '1' : '0';
+        btn.textContent = open ? '▾' : '▸';
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+    // Tout cocher / décocher une section (régions, ou départements et villes) : cases visibles seulement
+    document.querySelectorAll('button.lieu-loc-all[data-canvas="' + canvasId + '"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sec = btn.dataset.section;
+        const v = btn.dataset.check === '1';
+        locBoxes.forEach(cb => {
+          if (cb.dataset.section !== sec) return;
+          const g = cb.closest('.lieu-grp');
+          if (cb.closest('label').style.display === 'none' || (g && g.style.display === 'none')) return;
+          cb.checked = v;
+        });
+        parents.forEach(pb => {
+          if (pb.dataset.section === sec && pb.closest('.lieu-grp').style.display !== 'none') syncParent(pb);
+        });
+        render();
+      });
+    });
+    document.querySelectorAll('button.lieu-dom-all[data-canvas="' + canvasId + '"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        boxes.forEach(cb => { cb.checked = btn.dataset.check === '1'; });
+        render();
+      });
+    });
+    render();
+  }
+  function buildLieuxHistogramStatic(canvasId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: lieux.labels,
+        datasets: [{
+          label: unitLabel,
+          data: lieux.values,
+          backgroundColor: lieux.types.map(t => LIEU_TYPE_COLORS[t] || '#6b7280')
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: items => items[0].label + ' (' + (LIEU_TYPE_LABELS[lieux.types[items[0].dataIndex]] || '') + ')',
+              label: item => item.raw + ' ' + unitLabel + lieuPct(item.raw, lieux, baseLabel)
+            }
+          }
+        }
+      }
+    });
+  }
+  if (dashboardData.lieux_profil) {
+    Object.keys(dashboardData.lieux_profil).forEach(profile => {
+      buildLieuxTreemap('lieu_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_'),
+                        dashboardData.lieux_profil[profile], 'offre(s)',
+                        'des offres avec au moins un lieu identifié');
+    });
+  }
+  // Histogramme Score >= 70 : Top 10 recalculé avec les mêmes cases cochées que le treemap
+  // (domaines, régions, départements, villes)
+  function buildLieuxHistogram(canvasId, tmId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    const info = document.getElementById(canvasId + '_info');
+    let chart = null;
+    let shown = [];              // colonnes affichées (Top 10) : { label, type, value, idx }
+    let curSt = null;            // dernier état filtré (domaines cochés, base des pourcentages)
+    let mouseX = 0, mouseY = 0;  // dernière position de la souris sur le graphique (coordonnées de page)
+    let lastItem = null;         // colonne actuellement survolée (null si aucune)
+    let pinned = false;          // liste épinglée par un clic
+    let tipKey = '';
+    let hideTimer = null, showTimer = null;
+    const TIP_DWELL = 350;       // ms de pause du curseur sur une colonne avant d'afficher la liste
+    const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la colonne
+    const MAX = 30;              // nombre maximum d'offres listées
+    let tip = document.getElementById(canvasId + '_tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = canvasId + '_tip';
+      tip.className = 'lieu-tip';
+      document.body.appendChild(tip);
+    }
+    function stopHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function stopShow() { if (showTimer) { clearTimeout(showTimer); showTimer = null; } }
+    function hideTip() {
+      stopHide();
+      stopShow();
+      pinned = false;
+      tip.style.display = 'none';
+      tipKey = '';
+    }
+    // La liste reste affichée tant que la souris est dessus (pour cliquer les liens)
+    tip.addEventListener('mouseenter', () => { stopHide(); stopShow(); });
+    tip.addEventListener('mouseleave', () => { if (!pinned) hideTip(); });
+    ctx.addEventListener('mousemove', e => {
+      mouseX = e.pageX;
+      mouseY = e.pageY;
+      // le délai d'affichage ne court que si le curseur est à l'arrêt
+      if (showTimer && lastItem) {
+        clearTimeout(showTimer);
+        const it = lastItem;
+        showTimer = setTimeout(() => showTipFor(it, false), TIP_DWELL);
+      }
+    });
+    // Clic sur une colonne : épingle la liste (jusqu'à un clic ailleurs, Échap ou la croix)
+    ctx.addEventListener('click', () => {
+      if (lastItem) showTipFor(lastItem, true);
+      else if (pinned) hideTip();
+    });
+    document.addEventListener('mousedown', e => {
+      if (pinned && !tip.contains(e.target) && e.target !== ctx) hideTip();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
+    // Offres Score >= 70 du lieu (indice idx) pour les domaines cochés, triées par score décroissant
+    function offresDuLieu(idx) {
+      const seen = new Set();
+      const out = [];
+      ((curSt && curSt.doms) || []).forEach(di => {
+        (lieux.domaines[di].liens || []).forEach(pair => {
+          if (pair[0] !== idx) return;
+          pair[1].forEach(oi => {
+            const o = lieux.offres[oi];
+            if (!seen.has(oi) && o.s !== null && o.s >= 70) { seen.add(oi); out.push(o); }
+          });
+        });
+      });
+      out.sort((a, b) => b.s - a.s);
+      return out;
+    }
+    function showTipFor(it, pin) {
+      stopHide();
+      stopShow();
+      const key = it.idx + '|' + ((curSt && curSt.doms) || []).join(',');
+      if (!pin && key === tipKey && tip.style.display === 'block') return;
+      tipKey = key;
+      pinned = pin;
+      tip.textContent = '';
+      const h = document.createElement('div');
+      h.style.fontWeight = 'bold';
+      h.style.display = 'flex';
+      h.style.justifyContent = 'space-between';
+      h.style.gap = '10px';
+      const ttl = document.createElement('span');
+      ttl.textContent = it.label + ' (' + (LIEU_TYPE_LABELS[it.type] || '') + ')';
+      h.appendChild(ttl);
+      if (pin) {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'Fermer';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', hideTip);
+        h.appendChild(x);
+      }
+      const base = curSt ? curSt.offres70 : 0;
+      const pct = base ? (100 * it.value / base).toFixed(1).replace('.', ',') : '0';
+      const c = document.createElement('div');
+      c.textContent = it.value + ' ' + unitLabel + ' (' + pct + ' % ' + baseLabel + ')';
+      tip.appendChild(h);
+      tip.appendChild(c);
+      const list = offresDuLieu(it.idx);
+      if (list.length) {
+        const hint = document.createElement('div');
+        hint.className = 'note';
+        hint.textContent = pin
+          ? 'Liste épinglée : cliquez ailleurs, appuyez sur Échap ou sur × pour fermer.'
+          : 'Cliquez sur la colonne pour épingler cette liste.';
+        tip.appendChild(hint);
+        const ul = document.createElement('ul');
+        list.slice(0, MAX).forEach(o => {
+          const li = document.createElement('li');
+          const txt = o.p + ' — ' + o.e;
+          li.appendChild(document.createTextNode((o.d || 'N/C') + ' — '));
+          if (o.u && o.u.toLowerCase().indexOf('http') === 0) {
+            const a = document.createElement('a');
+            a.href = o.u;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = txt;
+            li.appendChild(a);
+          } else {
+            li.appendChild(document.createTextNode(txt));
+          }
+          ul.appendChild(li);
+        });
+        tip.appendChild(ul);
+        if (list.length > MAX) {
+          const more = document.createElement('div');
+          more.className = 'note';
+          more.textContent = '… et ' + (list.length - MAX) + ' autre(s) offre(s) non affichée(s)';
+          tip.appendChild(more);
+        }
+      }
+      tip.scrollTop = 0;
+      tip.style.display = 'block';
+      let left = mouseX + 6;
+      let topPos = mouseY + 6;
+      const maxLeft = window.pageXOffset + document.documentElement.clientWidth - tip.offsetWidth - 10;
+      if (left > maxLeft) left = Math.max(window.pageXOffset, maxLeft);
+      const maxTop = window.pageYOffset + window.innerHeight - tip.offsetHeight - 10;
+      if (topPos > maxTop) topPos = Math.max(window.pageYOffset, maxTop);
+      tip.style.left = left + 'px';
+      tip.style.top = topPos + 'px';
+    }
+    // Appelé par Chart.js à chaque changement de colonne survolée (tooltip externe)
+    function barTooltip(context) {
+      const t = context.tooltip;
+      const act = t && t.getActiveElements ? t.getActiveElements() : [];
+      if (!act.length || !t.dataPoints || !t.dataPoints.length) {
+        lastItem = null;
+        stopShow();
+        if (!pinned && tip.style.display === 'block' && !hideTimer) hideTimer = setTimeout(hideTip, TIP_HIDE);
+        return;
+      }
+      const it = shown[t.dataPoints[0].dataIndex];
+      if (!it) return;
+      lastItem = it;
+      if (pinned) return;
+      stopHide();
+      const key = it.idx + '|' + ((curSt && curSt.doms) || []).join(',');
+      if (key === tipKey && tip.style.display === 'block') { stopShow(); return; }
+      stopShow();
+      showTimer = setTimeout(() => showTipFor(it, false), TIP_DWELL);
+    }
+    function update(st) {
+      curSt = st;
+      hideTip();
+      lastItem = null;
+      const items = [];
+      lieux.labels.forEach((l, i) => {
+        if (st.sums70[i] > 0 && (!st.locOn || st.locOn.has(i))) {
+          items.push({ label: l, type: lieux.types[i], value: st.sums70[i], idx: i });
+        }
+      });
+      items.sort((a, b) => b.value - a.value);
+      const top = items.slice(0, 10);
+      shown = top;
+      if (chart) { chart.destroy(); chart = null; }
+      if (info) {
+        info.textContent = items.length
+          ? 'Top ' + top.length + ' sur ' + items.length + ' lieu(x) distinct(s) correspondant aux cases cochées, à partir de ' + st.offres70 + ' offre(s) Score ≥ 70 des domaines cochés.'
+          : 'Aucun lieu à afficher : aucune offre Score ≥ 70 pour les cases cochées.';
+      }
+      if (!top.length) return;
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: top.map(x => x.label),
+          datasets: [{
+            label: unitLabel,
+            data: top.map(x => x.value),
+            backgroundColor: top.map(x => LIEU_TYPE_COLORS[x.type] || '#6b7280')
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: false,
+              external: context => barTooltip(context)
+            }
+          }
+        }
+      });
+    }
+    _lieuListeners[tmId] = update;
+    if (_lieuState[tmId]) update(_lieuState[tmId]);
+  }
+  if (dashboardData.lieux_ge70) {
+    Object.keys(dashboardData.lieux_ge70).forEach(profile => {
+      const slug = profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const tm = dashboardData.lieux_profil ? dashboardData.lieux_profil[profile] : null;
+      if (tm) {
+        buildLieuxHistogram('lieu_ge70_chart_' + slug, 'lieu_chart_' + slug, tm, 'offre(s) Score ≥ 70',
+                            'des offres Score ≥ 70 (domaines cochés) avec au moins un lieu identifié');
+      } else {
+        buildLieuxHistogramStatic('lieu_ge70_chart_' + slug, dashboardData.lieux_ge70[profile],
+                                  'offre(s) Score ≥ 70', 'des offres Score ≥ 70 avec au moins un lieu identifié');
+      }
+    });
+  }
+</script>
+
+<!-- Scripts d'interactivité des tableaux -->
+<script>
+(function() {
+  var tables = document.querySelectorAll('table.tbl');
+  tables.forEach(function(tbl) {
+    var thead = tbl.querySelector('thead');
+    if (!thead) return;
+    var headers = thead.querySelectorAll('th');
+    var tbody = tbl.querySelector('tbody');
+    if (!tbody) return;
+
+    var toolbar = document.createElement('div');
+    toolbar.className = 'tbl-toolbar';
+
+    var search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'tbl-search';
+    search.placeholder = '🔍 Rechercher dans le tableau...';
+
+    var counter = document.createElement('div');
+    counter.className = 'tbl-counter';
+
+    toolbar.appendChild(search);
+    toolbar.appendChild(counter);
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'tbl-wrap' + (tbl.classList.contains('tbl-scroll') ? ' tbl-wrap-scroll' : '');
+    
+    tbl.parentNode.insertBefore(wrapper, tbl);
+    wrapper.appendChild(tbl);
+    wrapper.parentNode.insertBefore(toolbar, wrapper);
+
+    var allRows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+    var sortDir = {};
+
+    function getCellText(row, idx) {
+      var td = row.children[idx];
+      if (!td) return '';
+      return td.textContent.trim();
+    }
+
+    function parseVal(text) {
+      var dm = text.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (dm) {
+        return parseInt(dm[3], 10) * 10000 + parseInt(dm[2], 10) * 100 + parseInt(dm[1], 10);
+      }
+      if (text.trim().toUpperCase() === 'N/C') {
+        return -1;
+      }
+      var clean = text.replace(/[^\d.,-]/g, '').replace(/\s/g, '').replace(',', '.');
+      var num = parseFloat(clean);
+      return isNaN(num) ? text.toLowerCase() : num;
+    }
+
+    function updateCounter(visibleCount, totalCount) {
+      counter.textContent = "Affichage de " + visibleCount + " sur " + totalCount + " ligne(s)";
+    }
+
+    function filterRows() {
+      var q = search.value.trim().toLowerCase();
+      var visible = 0;
+      allRows.forEach(function(r) {
+        if (r.classList.contains('tbl-total')) {
+          r.style.display = '';
+          return;
+        }
+        var text = r.textContent.toLowerCase();
+        var match = (q === '' || text.indexOf(q) !== -1) && !r._pf;   // _pf : masquée par les filtres du profil
+        r.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      updateCounter(visible, allRows.length);
+    }
+
+    function sortRows(idx) {
+      var dir = sortDir[idx] = !sortDir[idx];
+      headers.forEach(function(h) { h.classList.remove('sorted-asc', 'sorted-desc'); });
+      headers[idx].classList.add(dir ? 'sorted-asc' : 'sorted-desc');
+      
+      var nonTotalRows = allRows.filter(function(r) { return !r.classList.contains('tbl-total'); });
+      var totalRows = allRows.filter(function(r) { return r.classList.contains('tbl-total'); });
+
+      nonTotalRows.sort(function(a, b) {
+        var va = parseVal(getCellText(a, idx));
+        var vb = parseVal(getCellText(b, idx));
+        if (va < vb) return dir ? -1 : 1;
+        if (va > vb) return dir ? 1 : -1;
+        return 0;
+      });
+
+      var currentFrag = document.createDocumentFragment();
+      nonTotalRows.forEach(function(r) { currentFrag.appendChild(r); });
+      totalRows.forEach(function(r) { currentFrag.appendChild(r); });
+      tbody.appendChild(currentFrag);
+      
+      filterRows();
+    }
+
+    headers.forEach(function(h, i) {
+      h.addEventListener('click', function() { sortRows(i); });
+    });
+    search.addEventListener('input', filterRows);
+
+    tbl._refilter = filterRows;   // appelé par applyOffresFilter quand les filtres du profil changent
+    filterRows();
+  });
+})();
+</script>
+
+<!-- Script de gestion des onglets (Global + par profil) -->
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.tab-btn');
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = btn.getAttribute('data-target');
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById(target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+</script>
+</body>
+</html>
