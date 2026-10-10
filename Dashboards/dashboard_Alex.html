@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Radar — Tableau de bord</title>
+<!-- Inclusion de Chart.js pour des graphiques interactifs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Plugin treemap pour Chart.js (v3.1.0 : compatible Chart.js 4) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@3.1.0/dist/chartjs-chart-treemap.min.js"></script>
+<style>
+  :root {
+    --navy: #0f2942;
+    --navy-light: #16385a;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg-main: #eef1f6;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
+  }
+  header.top-bar {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: #ffffff;
+    padding: 28px 20px;
+    margin-bottom: 0;
+  }
+  header.top-bar .top-bar-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  h2 {
+    font-size: 17px;
+    color: #0f172a;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 14px;
+    color: #334155;
+    margin: 20px 0 10px 0;
+    font-weight: 600;
+  }
+  .meta {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--border-color);
+  }
+
+  /* Onglets */
+  nav.tabs-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 20px;
+  }
+  nav.tabs-nav .tabs-nav-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+  }
+  .tab-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 14px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover {
+    color: var(--navy);
+  }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .tab-panel {
+    display: none;
+    padding-top: 24px;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-dark { background: #f1f5f9; color: #475569; }
+
+  /* Contrôles de tableau interactifs */
+  .tbl-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tbl-search {
+    padding: 8px 14px;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 260px;
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .tbl-search:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  .tbl-counter {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .tbl-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+  /* Tableau à défilement vertical (en-tête figé) : ~10 lignes visibles, le reste se fait défiler */
+  .tbl-wrap.tbl-wrap-scroll {
+    max-height: 440px;
+    overflow-y: auto;
+  }
+  .tbl-wrap-scroll table.tbl {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .tbl-wrap-scroll table.tbl th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  table.tbl {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    background: #fff;
+    text-align: left;
+  }
+  table.tbl th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  table.tbl th:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  table.tbl th.sorted-asc::after { content: " ▲"; font-size: 10px; color: var(--primary); }
+  table.tbl th.sorted-desc::after { content: " ▼"; font-size: 10px; color: var(--primary); }
+  table.tbl td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    color: #334155;
+  }
+  table.tbl tr:last-child td {
+    border-bottom: none;
+  }
+  table.tbl tr:hover td {
+    background: #f8fafc;
+  }
+  table.tbl tr.tbl-total td {
+    background: #f8fafc;
+    border-top: 2px solid var(--border-color);
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* Conteneurs pour les graphiques interactifs Chart.js */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    height: 350px;
+  }
+  .pie-container {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    margin: 20px auto;
+    height: 400px;
+  }
+  /* Deux camemberts d'entreprises côte à côte (passent l'un sous l'autre si l'écran est étroit) */
+  .pie-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .pie-col {
+    flex: 1 1 420px;
+    min-width: 0;
+  }
+  .pie-col .pie-container {
+    max-width: 100%;
+  }
+  .profile-filters {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2px 14px 12px 14px;
+    margin-bottom: 18px;
+  }
+  .lieu-dom-box {
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0;
+  }
+  .lieu-dom-box button { margin-left: 6px; font-size: 12px; cursor: pointer; }
+  .lieu-dom-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 8px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .lieu-dom-item { font-size: 13px; white-space: nowrap; cursor: pointer; }
+  .lieu-loc-group { margin-top: 10px; }
+  .lieu-geo-scroll { max-height: 340px; overflow-y: auto; margin-top: 6px; border-top: 1px solid var(--border-color, #e5e7eb); }
+  .lieu-grp { margin: 2px 0; }
+  .lieu-grp-head { display: flex; align-items: center; gap: 4px; }
+  .lieu-grp-toggle { width: 22px; border: none; background: none; cursor: pointer; padding: 0; }
+  .lieu-grp-spacer { display: inline-block; width: 22px; }
+  .lieu-grp-body { margin-left: 26px; max-height: 160px; }
+  .lieu-loc-group button { margin-left: 6px; font-size: 12px; cursor: pointer; }
+  .lieu-tip {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    padding: 8px 10px;
+    font-size: 12px;
+    max-width: 380px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .lieu-tip ul { margin: 6px 0 0 0; padding-left: 16px; }
+  .lieu-tip li { margin-bottom: 3px; }
+  .treemap-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    height: 380px;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+  .callout {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 13px;
+    color: #78350f;
+  }
+  .callout strong {
+    color: #92400e;
+  }
+  .callout ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+  }
+  .callout li {
+    margin-bottom: 2px;
+  }
+  .profile-block {
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border-color);
+  }
+  .profile-block:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  footer.foot {
+    max-width: 1140px;
+    margin: 24px auto 0 auto;
+    padding: 16px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <h1>Job Radar — Tableau de bord</h1>
+    <div class="meta">Généré le 10/10/2026 14:42 — Profils inclus : Alex</div>
+  </div>
+</header>
+
+<nav class="tabs-nav">
+  <div class="tabs-nav-inner">
+    <button class="tab-btn active" data-target="panel-Alex">Alex</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="tab-panel active" id="panel-Alex"><div class="card"><h2>Alex — Statistiques au 10/10/2026</h2><div class="profile-filters"><h3>Filtres du profil Alex</h3><p class="note">Cochez les domaines et les régions / départements / villes à conserver. Ces filtres s'appliquent à tous les tableaux et graphiques de ce profil. Tout est coché par défaut.</p><div class="lieu-dom-box"><strong>Domaines</strong> <span class="note">(nombre d'offres avec un lieu identifié)</span> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_Alex" data-check="1">Tout cocher</button> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_Alex" data-check="0">Tout décocher</button><div class="lieu-dom-list"><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="0" checked> Revenue Operation <span class="note">(46)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="1" checked> Sales Operation <span class="note">(38)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="2" checked> RevOps <span class="note">(24)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="3" checked> Revenue Ops <span class="note">(20)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="4" checked> Operations Commerciales <span class="note">(15)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="5" checked> Sales Ops <span class="note">(14)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="6" checked> Rev Ops <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_Alex" value="7" checked> SalesOps <span class="note">(1)</span></label></div></div><div class="lieu-dom-box"><div class="lieu-loc-group"><strong>Départements et villes</strong> <span class="note">(2 département(s), 14 ville(s) ; cliquez sur ▸ pour afficher les villes d'un département)</span> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_Alex" data-section="geo" data-check="1">Tout cocher</button> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_Alex" data-section="geo" data-check="0">Tout décocher</button><div class="lieu-geo-scroll"><div class="lieu-grp" data-canvas="lieu_chart_Alex"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Alex" data-section="geo" data-idx="" checked> <strong>Paris</strong> <span class="note">(1 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="0" checked> Paris <span class="note">(133)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Alex"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Alex" data-section="geo" data-idx="" checked> <strong>Hauts-de-Seine</strong> <span class="note">(2 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="1" checked> Antony <span class="note">(14)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="5" checked> Boulogne-Billancourt <span class="note">(4)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_Alex"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_Alex" data-section="geo" data-idx="" checked> <strong>Villes sans département identifié</strong> <span class="note">(11 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="2" checked> Nanterre <span class="note">(10)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="3" checked> Puteaux <span class="note">(7)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="4" checked> Sceaux <span class="note">(6)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="6" checked> Levallois-Perret <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="7" checked> Bois-Colombes <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="8" checked> Issy-les-Moulineaux <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="9" checked> Saint-Cloud <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="10" checked> Colombes <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="11" checked> Saint-Ouen <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="12" checked> Saint-Denis <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_Alex" data-section="geo" value="13" checked> Meudon <span class="note">(1)</span></label></div></div></div></div></div></div><h3><span id="nb_offres_Alex">53</span> Offres en adéquation avec le CV - depuis le lancement du Radar</h3><table class='tbl tbl-scroll' id=tbl_offres_Alex><thead><tr><th>#</th><th>Poste</th><th>Entreprise</th><th>Lieu</th><th>Score</th><th>Mot-clé Domaine</th><th>Mot-clé Fonction</th><th>Date Publication</th><th>Lien</th></tr></thead><tbody><tr data-dom="Sales Operation" data-locs="[&quot;ville|Saint-Ouen&quot;, &quot;ville|Saint-Denis&quot;]"><td>1</td><td>Sales Operations Analyst - Junior</td><td>Flatpay</td><td>Saint-Ouen, Saint-Denis</td><td><span class='badge badge-green'>85</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>11/06/2026</td><td><a href="https://www.adzuna.fr/details/5759169122?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>2</td><td>Revenue Operations Coordinator H/F (12-month fixed-term-contract)</td><td>Latham & Watkins LLP</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>82</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>19/09/2026</td><td><a href="https://www.adzuna.fr/details/5890490345?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Ops" data-locs="[&quot;ville|Paris&quot;]"><td>3</td><td>Senior Revenue Ops</td><td>Alan</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>82</span></td><td>Revenue Ops</td><td>NA</td><td>23/09/2026</td><td><a href="https://www.adzuna.fr/details/5895352902?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>4</td><td>Sales / Revenue / CS Operations Expert</td><td>RemoteJobsOne</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>82</span></td><td>Revenue Operation</td><td>NA</td><td>27/09/2026</td><td><a href="https://www.adzuna.fr/details/5900411063?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>5</td><td>Revenue Operations & CRM Systems Specialist</td><td>RemoteJobsOne</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>81</span></td><td>Revenue Operation</td><td>NA</td><td>27/09/2026</td><td><a href="https://www.adzuna.fr/details/5900411111?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>6</td><td>Sales Operations & GTM Engineer</td><td>Ekie</td><td>2ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>06/09/2026</td><td><a href="https://www.adzuna.fr/details/5873212067?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>7</td><td>Revenue Operations / Sales Ops Senior — Freelance (Paris, 5 mois) - Freelance</td><td>Collective.work</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>09/09/2026</td><td><a href="https://www.adzuna.fr/details/5876484133?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>8</td><td>Sales Operation Manager (H/F)</td><td>DIGITRIPS</td><td>75 - Paris 8e Arrondissement</td><td><span class='badge badge-green'>80</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>03/08/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/211ZSKJ" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>9</td><td>CDD - Chargé de Revenue Operations H/F</td><td>Pluxee</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>24/07/2026</td><td><a href="https://www.adzuna.fr/details/5813134424?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>10</td><td>European RevOps Specialist</td><td>Quadient</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>80</span></td><td>RevOps</td><td>Filtre désactivé</td><td>13/06/2026</td><td><a href="https://www.adzuna.fr/details/5762113178?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>11</td><td>Sales Operations & GTM Engineer</td><td>Ekie</td><td>2ème Arrondissement, Paris</td><td><span class='badge badge-green'>80</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>05/07/2026</td><td><a href="https://www.adzuna.fr/details/5788474952?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>12</td><td>Revenue Operations Manager</td><td>Joko</td><td>3ème Arrondissement, Paris</td><td><span class='badge badge-green'>78</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>03/09/2026</td><td><a href="https://www.adzuna.fr/details/5869189501?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Ops" data-locs="[&quot;ville|Paris&quot;]"><td>13</td><td>Revenue Operations / Sales Ops Senior - Freelance (Paris, 5 mois) - Freelance (H/F)</td><td>Collective.work</td><td>75 - Paris</td><td><span class='badge badge-green'>78</span></td><td>Revenue Ops</td><td>Filtre désactivé</td><td>11/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/6825638" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>14</td><td>Revenue Operations Expert - Remote</td><td>YO AI Labs</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>77</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>19/09/2026</td><td><a href="https://www.adzuna.fr/details/5890298991?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>15</td><td>Revenue Operations Analyst, Paris</td><td>Mirakl</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>75</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>06/09/2026</td><td><a href="https://www.adzuna.fr/details/5873186390?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>16</td><td>RevOps & AI Automation Analyst (Hu002FFu002FX)</td><td>Groupe Kyka</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>75</span></td><td>RevOps</td><td>Filtre désactivé</td><td>08/09/2026</td><td><a href="https://www.adzuna.fr/details/5875743852?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Rev Ops" data-locs="[&quot;ville|Paris&quot;]"><td>17</td><td>Lead Revops - €60–80K  BSPCE</td><td>Vocca</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>75</span></td><td>Rev Ops</td><td>Filtre désactivé</td><td>12/09/2026</td><td><a href="https://www.adzuna.fr/details/5881155277?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>18</td><td>Revenue Operations Manager</td><td>Evaneos</td><td>9ème Arrondissement, Paris</td><td><span class='badge badge-green'>75</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>11/06/2026</td><td><a href="https://www.adzuna.fr/details/5760488359?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>19</td><td>European Revops Specialist H/F</td><td>Quadient</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>75</span></td><td>RevOps</td><td>Filtre désactivé</td><td>13/06/2026</td><td><a href="https://www.adzuna.fr/details/5762279086?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>20</td><td>Revops & CRM Manager H/F</td><td>UPTOO</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>75</span></td><td>RevOps</td><td>Filtre désactivé</td><td>17/06/2026</td><td><a href="https://www.adzuna.fr/details/5766475530?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>21</td><td>Revenue Operations</td><td>Doctrine</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>71</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>20/09/2026</td><td><a href="https://www.adzuna.fr/details/5891905265?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>22</td><td>Revenue operations analyste informatique senior — Paris, freelance (5 mois) (IT)</td><td>Mon Consultant Indépendant</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>31/08/2026</td><td><a href="https://www.adzuna.fr/details/5863111581?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Puteaux&quot;, &quot;ville|Nanterre&quot;]"><td>23</td><td>Sales Operations Analyst H/F</td><td>Elis</td><td>Puteaux, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>07/09/2026</td><td><a href="https://www.adzuna.fr/details/5873518251?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>24</td><td>RevOps</td><td>Ecair</td><td>11ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>Filtre désactivé</td><td>08/09/2026</td><td><a href="https://www.adzuna.fr/details/5875741324?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Rev Ops" data-locs="[&quot;ville|Paris&quot;]"><td>25</td><td>Lead Revops - €60–80K  BSPCE</td><td>Vocca</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Rev Ops</td><td>Filtre désactivé</td><td>14/09/2026</td><td><a href="https://www.adzuna.fr/details/5883716747?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>26</td><td>RevOps Data & Strategy</td><td>Licorne Society</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>Filtre désactivé</td><td>27/05/2026</td><td><a href="https://www.adzuna.fr/details/5742614721?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>27</td><td>RevOps Lead, PMM Data & Stratégie Go-to-Market</td><td>Orah Talent</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>Filtre désactivé</td><td>29/05/2026</td><td><a href="https://www.adzuna.fr/land/ad/5744472693?se=rg8aVNhd8RGPOejJLnPHVg&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=430B87EB26AB81CD37B235B9880F285AAD90408E" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>28</td><td>Revenue Operations Manager</td><td>Joko</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745857780?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>29</td><td>Sales Operations Analyst CDD - Contract - 6 Months H/F</td><td>Brevo</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>30/05/2026</td><td><a href="https://www.adzuna.fr/details/5745175197?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Bois-Colombes&quot;, &quot;ville|Nanterre&quot;]"><td>30</td><td>Sales ops F/H</td><td>SVP</td><td>Bois-Colombes, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>09/06/2026</td><td><a href="https://www.adzuna.fr/details/5757028035?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>31</td><td>Freelance Revenue Operations Specialist M/F/Mx</td><td>Trustpair</td><td>10ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>07/08/2026</td><td><a href="https://www.adzuna.fr/details/5832407583?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>32</td><td>Senior Sales Operations Analyst</td><td>GitGuardian</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>21/08/2026</td><td><a href="https://www.adzuna.fr/details/5851152595?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>33</td><td>Senior Sales Operations Manager F/H</td><td>Walter Learning</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>22/08/2026</td><td><a href="https://www.adzuna.fr/details/5852201785?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>34</td><td>Revenue Operations Manager</td><td>Morpho</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>26/08/2026</td><td><a href="https://www.adzuna.fr/details/5856965861?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Paris&quot;]"><td>35</td><td>Senior Revops - N H/F</td><td>Hublo</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>Filtre désactivé</td><td>26/08/2026</td><td><a href="https://www.adzuna.fr/details/5856118844?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>36</td><td>Sales Operations Analyst (H/F)</td><td>Capsul'​in Pro</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>28/08/2026</td><td><a href="https://www.adzuna.fr/details/5859610851?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Paris&quot;]"><td>37</td><td>Responsable Sales Ops & CRM – Groupe Média International H/F</td><td>ALENTA</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>08/07/2026</td><td><a href="https://www.adzuna.fr/details/5792256532?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Paris&quot;]"><td>38</td><td>Responsable Sales Ops & CRM - Groupe Média International H/F</td><td>Alenta</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>09/07/2026</td><td><a href="https://www.adzuna.fr/details/5793886306?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>39</td><td>Revenue Operations Manager</td><td>Joko</td><td>3ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>10/07/2026</td><td><a href="https://www.adzuna.fr/details/5796183660?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Paris&quot;]"><td>40</td><td>Founding Sales Ops & GTM F/H</td><td>TEAM.IS</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>11/07/2026</td><td><a href="https://www.adzuna.fr/details/5796815934?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Paris&quot;]"><td>41</td><td>Founding Sales Ops & GTM H/F</td><td>Team.Is</td><td>1er Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>11/07/2026</td><td><a href="https://www.adzuna.fr/details/5796203016?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Paris&quot;]"><td>42</td><td>Founding Sales Ops & GTM H/F</td><td>Teamis</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>09/07/2026</td><td><a href="https://www.adzuna.fr/details/5794319788?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Paris&quot;]"><td>43</td><td>Responsable Sales Ops & CRM – Groupe Média International H/F</td><td>Alenta</td><td>8ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>11/07/2026</td><td><a href="https://www.adzuna.fr/details/5796794763?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Ops" data-locs="[&quot;ville|Paris&quot;]"><td>44</td><td>Responsable Sales Ops & CRM - Groupe Média International H/F</td><td>Alenta</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Ops</td><td>Filtre désactivé</td><td>12/07/2026</td><td><a href="https://www.adzuna.fr/details/5797963775?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>45</td><td>Revenue Operations</td><td>Dust</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>16/07/2026</td><td><a href="https://www.adzuna.fr/details/5801804452?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Operation" data-locs="[&quot;ville|Paris&quot;]"><td>46</td><td>Revenue Operations Manager Specialist - 2026 - Dolead H/F</td><td>Dolead</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Revenue Operation</td><td>Filtre désactivé</td><td>18/07/2026</td><td><a href="https://www.adzuna.fr/details/5805981621?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Puteaux&quot;, &quot;ville|Nanterre&quot;]"><td>47</td><td>Revops - Salesops - Scaleup IA H/F</td><td>Bureau des Talents</td><td>Puteaux, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>Filtre désactivé</td><td>23/07/2026</td><td><a href="https://www.adzuna.fr/details/5812047171?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Puteaux&quot;, &quot;ville|Nanterre&quot;]"><td>48</td><td>RevOps / SalesOps - Scaleup IA</td><td>Bureau des Talents</td><td>Puteaux, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>Filtre désactivé</td><td>24/07/2026</td><td><a href="https://www.adzuna.fr/details/5814456610?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="RevOps" data-locs="[&quot;ville|Puteaux&quot;, &quot;ville|Nanterre&quot;]"><td>49</td><td>Revops / salesops - scaleup ia h/f (CDI)</td><td>Bureau des Talents</td><td>Puteaux, Nanterre</td><td><span class='badge badge-green'>70</span></td><td>RevOps</td><td>Filtre désactivé</td><td>24/07/2026</td><td><a href="https://www.adzuna.fr/details/5813049332?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Rev Ops" data-locs="[&quot;ville|Paris&quot;]"><td>50</td><td>Rev Ops Business Analyst</td><td>Malt</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Rev Ops</td><td>Filtre désactivé</td><td>14/06/2026</td><td><a href="https://www.adzuna.fr/details/5763801708?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Meudon&quot;, &quot;ville|Boulogne-Billancourt&quot;]"><td>51</td><td>Sales Operations - Chargé d'Excellence Opérationnelle H/F</td><td>Dassault Systèmes</td><td>Meudon, Boulogne-Billancourt</td><td><span class='badge badge-green'>70</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>24/06/2026</td><td><a href="https://www.adzuna.fr/details/5774421757?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Sales Operation" data-locs="[&quot;ville|Paris&quot;]"><td>52</td><td>Responsable Sales Operations H/F</td><td>LECTRA</td><td>Paris, Ile-de-France</td><td><span class='badge badge-green'>70</span></td><td>Sales Operation</td><td>Filtre désactivé</td><td>25/06/2026</td><td><a href="https://www.adzuna.fr/details/5776218890?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Revenue Ops" data-locs="[&quot;ville|Paris&quot;]"><td>53</td><td>Revenue Ops / Sales Ops</td><td>Kano</td><td>9ème Arrondissement, Paris</td><td><span class='badge badge-green'>70</span></td><td>Revenue Ops</td><td>Filtre désactivé</td><td>28/06/2026</td><td><a href="https://www.adzuna.fr/details/5780543174?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr></tbody></table><p class='note'>Mot-Clé Fonction=NA : offre trouvée via un mot-clé Domaine seul (filtre Fonction non appliqué).</p><div class="pie-row"><div class="pie-col"><h3>Top 10 des entreprises qui recrutent le plus pour ce profil - depuis le lancement du Radar</h3><div class="pie-container"><canvas id="ent_chart_Alex"></canvas></div></div><div class="pie-col"><h3>Top 10 des entreprises qui proposent un poste qui match avec le CV (Score ≥ 70)</h3><div class="pie-container"><canvas id="ent_ge70_chart_Alex"></canvas></div></div></div><h3>Toutes les villes/départements où les entreprises recrutent pour ce profil - depuis le lancement du Radar</h3><p class="note" id="lieu_chart_Alex_info"></p><div class="treemap-container"><canvas id="lieu_chart_Alex"></canvas></div><p class="note"><strong>Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong><br>Couleurs : bleu = ville, vert = département, orange = région.<br>Règle : si le lieu cite au moins une ville, seules les villes sont comptées;sinon, s'il cite un département, seuls les départements sont comptés; sinon la région.<br></p><h3>Top 10 des villes/départements où les entreprises proposent un poste qui match avec le CV (Score ≥ 70)</h3><p class="note" id="lieu_ge70_chart_Alex_info"></p><div class="chart-container"><canvas id="lieu_ge70_chart_Alex"></canvas></div><p class="note"><strong> Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong></p><h3>Évolution hebdomadaire des offres filtrées par Job Radar</h3><div class="chart-container"><canvas id="evo_chart_Alex"></canvas></div><p class="note">Découpage par semaine calendaire (lundi-dimanche).</p><h3>Pertinence des mots-clé Domaine pour filtrer des offres</h3><div class="chart-container" style="height: 330px;"><canvas id="kw_dom_chart_Alex"></canvas></div><p>Aucune offre filtrée par mot-clé fonction sur ce mois (période : 27/05/2026 au 09/10/2026).</p></div></div>
+  <footer class="foot">Job Radar — document généré automatiquement le 10/10/2026 14:42.</footer>
+</div>
+
+<!-- Injection des données JSON pour Chart.js -->
+<script>
+  const dashboardData = {"evolution": {"Alex": {"labels": ["25-31/05", "01-07/06", "08-14/06", "15-21/06", "22-28/06", "29/06-05/07", "06-12/07", "13-19/07", "20-26/07", "27/07-02/08", "03-09/08", "10-16/08", "17-23/08", "24-30/08", "31/08-06/09", "07-13/09", "14-20/09", "21-27/09", "28/09-04/10", "05-11/10"], "ge70": [4, 0, 6, 1, 3, 1, 8, 2, 4, 0, 2, 0, 2, 3, 4, 6, 4, 3, 0, 0], "lt70": [0, 0, 0, 0, 0, 3, 15, 7, 7, 4, 6, 4, 2, 12, 7, 4, 4, 3, 5, 5], "manuel": [0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 1, 1, 4, 4, 3, 2]}}, "keywords": {"Alex": {"domaine": {"labels": ["SalesOps", "Rev Ops", "Sales Ops", "Operations Commerciales", "Revenue Ops", "RevOps", "Sales Operation", "Revenue Operation"], "ge70": [0, 3, 8, 0, 3, 11, 11, 17], "lt70": [0, 1, 4, 12, 13, 11, 26, 21], "manuel": [1, 0, 0, 3, 4, 2, 0, 8]}}}, "entreprises_profil": {"Alex": {"labels": ["Alan", "Collective.work", "Crit", "Licorne Society", "ALENTA", "Alenta", "Joko", "Mirakl", "Shine", "RemoteJobsOne"], "values": [13, 10, 8, 4, 4, 4, 3, 3, 3, 3]}}, "entreprises_ge70": {"Alex": {"labels": ["Joko", "Alenta", "Bureau des Talents", "Ekie", "Collective.work", "Vocca", "RemoteJobsOne", "Quadient", "Mon Consultant Indépendant", "Mirakl"], "values": [3, 3, 3, 2, 2, 2, 2, 2, 1, 1]}}, "lieux_profil": {"Alex": {"labels": ["Paris", "Antony", "Nanterre", "Puteaux", "Sceaux", "Boulogne-Billancourt", "Levallois-Perret", "Bois-Colombes", "Issy-les-Moulineaux", "Saint-Cloud", "Colombes", "Saint-Ouen", "Saint-Denis", "Meudon"], "types": ["ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville"], "values": [133, 14, 10, 7, 6, 4, 1, 1, 1, 1, 1, 1, 1, 1], "total": 162, "offres": [{"p": "Revenue operations analyste informatique senior — Paris, freelance (5 mois) (IT)", "e": "Mon Consultant Indépendant", "u": "https://www.adzuna.fr/details/5863111581?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "31/08/2026"}, {"p": "Revenue operations analyst senior — Paris, freelance (5 mois) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5863701366?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "01/09/2026"}, {"p": "Head of Revenue Ops", "e": "fabriq", "u": "https://www.adzuna.fr/details/5864832268?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "01/09/2026"}, {"p": "Sales Ops Manager - Customer Operations (F/H/X)", "e": "SeLoger", "u": "https://www.adzuna.fr/details/5867237599?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "02/09/2026"}, {"p": "Revenue Operations Manager", "e": "Joko", "u": "https://www.adzuna.fr/details/5869189501?utm_medium=api&utm_source=90a8d42a", "s": 78, "d": "03/09/2026"}, {"p": "Salesops Team Manager H/F", "e": "Swanio", "u": "https://www.adzuna.fr/land/ad/5872472391?se=erEAt8Cp8RGogquEo3zAlQ&utm_medium=api&utm_source=90a8d42a&v=BBA109CD0253CABA82F4BD846BF644D9E18B422B", "s": null, "d": "06/09/2026"}, {"p": "Sales Operations & GTM Engineer", "e": "Ekie", "u": "https://www.adzuna.fr/details/5873212067?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "06/09/2026"}, {"p": "Revenue Operations Analyst, Paris", "e": "Mirakl", "u": "https://www.adzuna.fr/details/5873186390?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "06/09/2026"}, {"p": "Sales Operations Analyst H/F", "e": "Elis", "u": "https://www.adzuna.fr/details/5873518251?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "07/09/2026"}, {"p": "Senior Sales Operations Manager", "e": "CarCutter", "u": "https://www.adzuna.fr/details/5873190305?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "06/09/2026"}, {"p": "Rev Ops (F/H)", "e": "ILLUIN Technology", "u": "https://www.adzuna.fr/details/5873186966?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "06/09/2026"}, {"p": "Senior Revenue Ops", "e": "Alan", "u": "https://www.adzuna.fr/details/5873203378?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "06/09/2026"}, {"p": "Revenue Operations / Sales Ops Senior — Freelance (Paris, 5 mois) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5876484133?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "09/09/2026"}, {"p": "RevOps & AI Automation Analyst (Hu002FFu002FX)", "e": "Groupe Kyka", "u": "https://www.adzuna.fr/details/5875743852?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "08/09/2026"}, {"p": "RevOps", "e": "Ecair", "u": "https://www.adzuna.fr/details/5875741324?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "08/09/2026"}, {"p": "Revenue operations / sales ops senior — Paris, freelance (5 mois) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5876484902?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "09/09/2026"}, {"p": "Senior Revenue Operations Manager", "e": "Shine", "u": "https://www.adzuna.fr/details/5878921499?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "11/09/2026"}, {"p": "Revenue Operations / Sales Ops Senior - Freelance (Paris, 5 mois) - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6825638", "s": 78, "d": "11/09/2026"}, {"p": "Revenue operations / sales ops senior - Paris, freelance (5 mois) - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6825571", "s": 62, "d": "11/09/2026"}, {"p": "Lead Revops - €60–80K  BSPCE", "e": "Vocca", "u": "https://www.adzuna.fr/details/5881155277?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "12/09/2026"}, {"p": "Consultant(e) RevOps Senior", "e": "DigitaWeb", "u": "https://www.adzuna.fr/land/ad/5880888545?se=nLWkL0Gv8RGhe8--YZ_w9w&utm_medium=api&utm_source=90a8d42a&v=632EE437CED2A558A046BE599C2B8AFC7AF2C1FF", "s": null, "d": "12/09/2026"}, {"p": "Revenue Operations Analyst (Contract 3months), Paris", "e": "Mirakl", "u": "https://www.adzuna.fr/details/5882783515?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "13/09/2026"}, {"p": "Lead Revops - €60–80K  BSPCE", "e": "Vocca", "u": "https://www.adzuna.fr/details/5883716747?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "14/09/2026"}, {"p": "Salesforce RevOPS - Freelance (H/F)", "e": "Collective.work", "u": "https://candidat.francetravail.fr/offres/recherche/detail/6895236", "s": 50, "d": "15/09/2026"}, {"p": "Consultant Salesforce – Revenue Operations / Finance (Freelance) Entreprise Tech - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5887003173?utm_medium=api&utm_source=90a8d42a", "s": 41, "d": "17/09/2026"}, {"p": "Senior Revenue Ops", "e": "Alan", "u": "https://www.adzuna.fr/details/5887915685?utm_medium=api&utm_source=90a8d42a", "s": 67, "d": "17/09/2026"}, {"p": "Freelance Revenue Operations Specialist M - F - Mx H/F", "e": "Trustpair", "u": "https://www.adzuna.fr/land/ad/5888478797?se=NOLTPTGz8RG-HvXocs6iYQ&utm_medium=api&utm_source=90a8d42a&v=887F5731FCBB7C43C474DA8AC69B4F25E81C118A", "s": null, "d": "18/09/2026"}, {"p": "Revenue Ops H/F", "e": "Vroomly", "u": "https://www.adzuna.fr/land/ad/5888478779?se=FK3xQjGz8RGv64qE4zjWDA&utm_medium=api&utm_source=90a8d42a&v=BEEAD68F8945638C859F237D43FDB527A2B1607E", "s": null, "d": "18/09/2026"}, {"p": "Senior Revenue Ops H/F", "e": "Alan", "u": "https://www.adzuna.fr/land/ad/5888478830?se=FK3xQjGz8RGv64qE4zjWDA&utm_medium=api&utm_source=90a8d42a&v=B3588B3260583287A34C0BBD1F573D50C67463C1", "s": null, "d": "18/09/2026"}, {"p": "Revops Growth Manager - N H/F", "e": "Hublo", "u": "https://www.adzuna.fr/land/ad/5888478972?se=4q_MSzGz8RGu99GVuXcWEA&utm_medium=api&utm_source=90a8d42a&v=6E383FBB4A0A812E6908DB1B682313F27D104148", "s": null, "d": "18/09/2026"}, {"p": "Revenue Operations Coordinator H/F (12-month fixed-term-contract)", "e": "Latham & Watkins LLP", "u": "https://www.adzuna.fr/details/5890490345?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "19/09/2026"}, {"p": "Revenue Operations Expert - Remote", "e": "YO AI Labs", "u": "https://www.adzuna.fr/details/5890298991?utm_medium=api&utm_source=90a8d42a", "s": 77, "d": "19/09/2026"}, {"p": "RevOps Lead", "e": "Bigblue", "u": "https://www.adzuna.fr/details/5890772499?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "19/09/2026"}, {"p": "Revenue Operations", "e": "Doctrine", "u": "https://www.adzuna.fr/details/5891905265?utm_medium=api&utm_source=90a8d42a", "s": 71, "d": "20/09/2026"}, {"p": "Senior Revenue Ops", "e": "Alan", "u": "https://www.adzuna.fr/details/5895352902?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "23/09/2026"}, {"p": "Senior Revenue Ops H/F", "e": "Alan", "u": "https://www.adzuna.fr/land/ad/5897666540?se=ftHWxK648RG4_YfMr3lO9w&utm_medium=api&utm_source=90a8d42a&v=BAF7BEC57040ADD9DD7CC19735229877CC31EFD8", "s": null, "d": "25/09/2026"}, {"p": "Revenue Operations H/F", "e": "Doctrine", "u": "https://www.adzuna.fr/land/ad/5897666541?se=isd9-K648RGqC7TykLI5hA&utm_medium=api&utm_source=90a8d42a&v=8F8756A0DAA94A058A87D6563E51D9C58699A44B", "s": null, "d": "25/09/2026"}, {"p": "Revenue Strategy & Operations Manager H/F", "e": "360Learning", "u": "https://www.adzuna.fr/details/5896025437?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "24/09/2026"}, {"p": "Senior Revenue Operations Manager H/F", "e": "Shine", "u": "https://www.adzuna.fr/land/ad/5899001585?se=JJqj7He58RGKP7n_FNRXMw&utm_medium=api&utm_source=90a8d42a&v=2C59087229AAFED47532CCD63742418142E783CD", "s": null, "d": "26/09/2026"}, {"p": "Sales / Revenue / CS Operations Expert", "e": "RemoteJobsOne", "u": "https://www.adzuna.fr/details/5900411063?utm_medium=api&utm_source=90a8d42a", "s": 82, "d": "27/09/2026"}, {"p": "Revenue Operations & CRM Systems Specialist", "e": "RemoteJobsOne", "u": "https://www.adzuna.fr/details/5900411111?utm_medium=api&utm_source=90a8d42a", "s": 81, "d": "27/09/2026"}, {"p": "RevOps Manager", "e": "Stairling Technologies", "u": "https://www.adzuna.fr/details/5900731544?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "27/09/2026"}, {"p": "RevOps Manager – AI, Data & Automation", "e": "Mayday", "u": "https://www.adzuna.fr/details/5900751088?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "27/09/2026"}, {"p": "Revenue Operations Specialist", "e": "RemoteJobsOne", "u": "https://www.adzuna.fr/details/5900411066?utm_medium=api&utm_source=90a8d42a", "s": 31, "d": "27/09/2026"}, {"p": "RevOps (H/F)", "e": "Webedia", "u": "https://www.adzuna.fr/details/5901696126?utm_medium=api&utm_source=90a8d42a", "s": 66, "d": "28/09/2026"}, {"p": "RevOps Data & Strategy", "e": "Licorne Society", "u": "https://www.adzuna.fr/details/5742614721?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "27/05/2026"}, {"p": "RevOps Lead, PMM Data & Stratégie Go-to-Market", "e": "Orah Talent", "u": "https://www.adzuna.fr/land/ad/5744472693?se=rg8aVNhd8RGPOejJLnPHVg&utm_medium=api&utm_source=90a8d42a&v=430B87EB26AB81CD37B235B9880F285AAD90408E", "s": 70, "d": "29/05/2026"}, {"p": "Revenue Operations Manager", "e": "Joko", "u": "https://www.adzuna.fr/details/5745857780?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Sales Operations Analyst CDD - Contract - 6 Months H/F", "e": "Brevo", "u": "https://www.adzuna.fr/details/5745175197?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "30/05/2026"}, {"p": "Sales ops F/H", "e": "SVP", "u": "https://www.adzuna.fr/details/5757028035?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "09/06/2026"}, {"p": "Senior Sales Operations Manager", "e": "Brevo", "u": "https://www.adzuna.fr/details/5822431845?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "31/07/2026"}, {"p": "Responsable Sales Operations H/F", "e": "N/C", "u": "https://candidat.francetravail.fr/offres/recherche/detail/5665321", "s": 0, "d": "01/08/2026"}, {"p": "Global Sales Operations Leader F/H", "e": "GE Vernova", "u": "https://www.adzuna.fr/land/ad/5823348783?se=nLwIyMON8RGGgO_n0rmdiQ&utm_medium=api&utm_source=90a8d42a&v=B80E5EC4734F07342B70E7976BDC835EF77CA67D", "s": null, "d": "01/08/2026"}, {"p": "Revenue Ops H/F", "e": "Alan", "u": "https://www.adzuna.fr/details/5825439812?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "02/08/2026"}, {"p": "Sales Operation Manager (H/F)", "e": "DIGITRIPS", "u": "https://candidat.francetravail.fr/offres/recherche/detail/211ZSKJ", "s": 80, "d": "03/08/2026"}, {"p": "Sales Planning & Operations Manager - France (M/F)", "e": "GAC Motor Europe B.V.", "u": "https://www.adzuna.fr/details/5829465490?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "05/08/2026"}, {"p": "Sales Operations Analyst H/F", "e": "Elis", "u": "https://www.adzuna.fr/details/5829756746?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "06/08/2026"}, {"p": "Sales Operations Analyst H/F", "e": "ELIS", "u": "https://www.adzuna.fr/details/5830335047?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "06/08/2026"}, {"p": "Junior Sales Operations Analyst H/F", "e": "Didomi", "u": "https://www.adzuna.fr/details/5832714089?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "08/08/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "Crit", "u": "https://www.adzuna.fr/details/5831769673?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "07/08/2026"}, {"p": "Freelance Revenue Operations Specialist M/F/Mx", "e": "Trustpair", "u": "https://www.adzuna.fr/details/5832407583?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "07/08/2026"}, {"p": "Solution Operations Manager, Revenue Growth", "e": "Mistral", "u": "https://www.adzuna.fr/details/5833583888?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "08/08/2026"}, {"p": "Senior Sales Operations Manager H/F", "e": "Brevo", "u": "https://www.adzuna.fr/details/5837492997?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "12/08/2026"}, {"p": "Senior Revenue Operations Business Partner, EMEA", "e": "Aircall.io", "u": "https://www.adzuna.fr/details/5835770581?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "10/08/2026"}, {"p": "Revenue Ops", "e": "Alan", "u": "https://www.adzuna.fr/details/5838469864?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "12/08/2026"}, {"p": "Sales Excellence - Sales Operations Manager H/F", "e": "Accenture France", "u": "https://www.adzuna.fr/details/5839100994?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "13/08/2026"}, {"p": "Assistant Direction des Operations Commerciales H/F", "e": "Laboratoires Expanscience", "u": "https://www.adzuna.fr/details/5847544156?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "19/08/2026"}, {"p": "Senior Sales Operations Analyst", "e": "GitGuardian", "u": "https://www.adzuna.fr/details/5851152595?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "21/08/2026"}, {"p": "Senior Sales Operations Manager F/H", "e": "Walter Learning", "u": "https://www.adzuna.fr/details/5852201785?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "22/08/2026"}, {"p": "Junior Sales Operations Analyst", "e": "Didomi", "u": "https://www.adzuna.fr/details/5852562630?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "22/08/2026"}, {"p": "Revenue Operations Manager", "e": "Morpho", "u": "https://www.adzuna.fr/details/5856965861?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "26/08/2026"}, {"p": "Senior Revops - N H/F", "e": "Hublo", "u": "https://www.adzuna.fr/details/5856118844?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "26/08/2026"}, {"p": "Revenue Ops H/F", "e": "Alan", "u": "https://www.adzuna.fr/details/5856118850?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "26/08/2026"}, {"p": "Senior RevOps - CDI", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5857751248?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Sales Ops Manager - Customer Operations H/F", "e": "AVIVGroup", "u": "https://www.adzuna.fr/details/5857600512?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Aftersales Operations Coordinator", "e": "SharkNinja", "u": "https://www.adzuna.fr/details/5856957788?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "26/08/2026"}, {"p": "Sales Operations Analyst H/F", "e": "ELIS", "u": "https://www.adzuna.fr/details/5858143519?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "27/08/2026"}, {"p": "Solution Operations Manager, Revenue Growth", "e": "Mistral Ai", "u": "https://www.adzuna.fr/details/5858358323?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Revenue Ops / Sales Ops", "e": "Kano", "u": "https://www.adzuna.fr/details/5858395301?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "RevOps Manager", "e": "Stairling Technologies", "u": "https://www.adzuna.fr/details/5858372423?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Sales Enablement Manager - Operations - Remote France (F/M/X)", "e": "N/C", "u": "https://www.adzuna.fr/details/5858529594?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Early Team Members Wanted – Build a Startup from Scratch (Sales, Ops, Product, Tech)", "e": "OSS Ventures", "u": "https://www.adzuna.fr/details/5858363374?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "27/08/2026"}, {"p": "Sales Operations Analyst (H/F)", "e": "Capsul'​in Pro", "u": "https://www.adzuna.fr/details/5859610851?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "28/08/2026"}, {"p": "Revenue Operations Analyst Senior — Freelance (Paris, 5 mois) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5861796473?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "30/08/2026"}, {"p": "Sales Operations Specialist H/F", "e": "Cegedim", "u": "https://www.adzuna.fr/details/5861721563?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "30/08/2026"}, {"p": "RevOps Specialist - Sales Strategy", "e": "Mercor", "u": "https://www.adzuna.fr/details/5862802977?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "31/08/2026"}, {"p": "Responsable Sales Ops & CRM – Groupe Média International H/F", "e": "ALENTA", "u": "https://www.adzuna.fr/details/5792256532?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "08/07/2026"}, {"p": "Responsable Sales Ops & CRM - Groupe Média International H/F", "e": "ALENTA", "u": "https://www.adzuna.fr/details/5792206158?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "08/07/2026"}, {"p": "Responsable Sales Ops & CRM - Groupe Média International H/F", "e": "Alenta", "u": "https://www.adzuna.fr/details/5793886306?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "09/07/2026"}, {"p": "Responsable Sales Ops & CRM - Groupe Média International (H/F)", "e": "ALENTA", "u": "https://candidat.francetravail.fr/offres/recherche/detail/4754785", "s": 60, "d": "09/07/2026"}, {"p": "Revenue Operations Expert - Account Deployment H/F", "e": "Malt", "u": "https://www.adzuna.fr/details/5794026799?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "09/07/2026"}, {"p": "Revenue Ops H/F", "e": "Alan", "u": "https://www.adzuna.fr/details/5794026796?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "09/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "CRIT INTERIM", "u": "https://candidat.francetravail.fr/offres/recherche/detail/210YXPT", "s": 0, "d": "09/07/2026"}, {"p": "Revenue Operations Expert - Account Deployment", "e": "Malt", "u": "https://www.adzuna.fr/details/5794759248?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "10/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "CRIT INTERIM", "u": "https://candidat.francetravail.fr/offres/recherche/detail/210ZYCM", "s": 0, "d": "09/07/2026"}, {"p": "Chef de Projet Qualite Operations Commerciales H/F", "e": "Crit", "u": "https://www.adzuna.fr/details/5795236242?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "10/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "CRIT ANTONY", "u": "https://www.adzuna.fr/details/5795441428?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "10/07/2026"}, {"p": "Revenue Operations Manager", "e": "Joko", "u": "https://www.adzuna.fr/details/5796183660?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "10/07/2026"}, {"p": "Founding Sales Ops & GTM F/H", "e": "TEAM.IS", "u": "https://www.adzuna.fr/details/5796815934?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "11/07/2026"}, {"p": "Founding Sales Ops & GTM H/F", "e": "Team.Is", "u": "https://www.adzuna.fr/details/5796203016?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "11/07/2026"}, {"p": "Founding Sales Ops & GTM H/F", "e": "Teamis", "u": "https://www.adzuna.fr/details/5794319788?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "09/07/2026"}, {"p": "Senior Sales Operations Manager H/F", "e": "Walter Learning RH", "u": "https://www.adzuna.fr/details/5796751924?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "11/07/2026"}, {"p": "Senior Sales Operations Manager F/H (CDI)", "e": "WALTER LEARNING", "u": "https://www.adzuna.fr/details/5797067609?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "11/07/2026"}, {"p": "Chef de Projet Qualite Operations Commerciales H/F", "e": "Crit", "u": "https://www.adzuna.fr/details/5796665285?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "11/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "CRIT ANTONY", "u": "https://www.adzuna.fr/details/5795438384?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "10/07/2026"}, {"p": "Responsable Sales Ops & CRM – Groupe Média International H/F", "e": "Alenta", "u": "https://www.adzuna.fr/details/5796794763?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "11/07/2026"}, {"p": "Responsable Sales Ops & CRM - Groupe Média International H/F", "e": "Alenta", "u": "https://www.adzuna.fr/details/5797963775?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "12/07/2026"}, {"p": "Senior Sales Operations Manager F/H", "e": "Paris", "u": "https://www.adzuna.fr/details/5798289756?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "13/07/2026"}, {"p": "Revenue Operations Intern", "e": "Beamy", "u": "https://www.adzuna.fr/details/5797317242?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "11/07/2026"}, {"p": "Revenue Ops", "e": "Alan", "u": "https://www.adzuna.fr/details/5793286928?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "08/07/2026"}, {"p": "Founding Sales Ops & Gtm H/F", "e": "Team.is", "u": "https://www.adzuna.fr/details/5796863615?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "11/07/2026"}, {"p": "Responsable Sales Ops & CRM - Groupe Média International H/F", "e": "Alenta", "u": "https://www.adzuna.fr/details/5797810071?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "12/07/2026"}, {"p": "Revenue Operations", "e": "Dust", "u": "https://www.adzuna.fr/details/5801804452?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "16/07/2026"}, {"p": "Senior Strategy Associate – Sales & Customer Operations – Paris (x/f/m)", "e": "Doctolib", "u": "https://www.adzuna.fr/details/5801670395?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "15/07/2026"}, {"p": "Regional Revenue Ops Manager", "e": "NetApp", "u": "https://www.adzuna.fr/details/5799516027?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "14/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "Crit", "u": "https://www.adzuna.fr/land/ad/5801553627?se=bEFOWK-B8RGe_97KfxWKyA&utm_medium=api&utm_source=90a8d42a&v=6A03C981EB3AF0B311FC61A3E65833774B93D643", "s": null, "d": "15/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "Crit", "u": "https://www.adzuna.fr/land/ad/5801552358?se=bEFOWK-B8RGe_97KfxWKyA&utm_medium=api&utm_source=90a8d42a&v=6A7F1BA20B63EB39B0AF3ED3D854E4809345152A", "s": null, "d": "15/07/2026"}, {"p": "Revenue Operations Manager Specialist - 2026 - Dolead H/F", "e": "Dolead", "u": "https://www.adzuna.fr/details/5805981621?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "18/07/2026"}, {"p": "Revops - Salesops - Scaleup IA H/F", "e": "Bureau des Talents", "u": "https://www.adzuna.fr/details/5812047171?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "23/07/2026"}, {"p": "Directeur / Directrice Sales Performance & RevOps (H/F) - Freelance", "e": "Collective.work", "u": "https://www.adzuna.fr/details/5811739611?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "23/07/2026"}, {"p": "Consultant Sales Operations Photovoltaïque & Energy Storage (F/H/X)", "e": "Amaris Consulting", "u": "https://www.adzuna.fr/details/5805702915?utm_medium=api&utm_source=90a8d42a", "s": 60, "d": "18/07/2026"}, {"p": "Sales & Operations Planning Specialist", "e": "GAC Motor Europe B.V.", "u": "https://www.adzuna.fr/details/5805236005?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "17/07/2026"}, {"p": "Revenue Ops", "e": "Alan", "u": "https://www.adzuna.fr/details/5807576552?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "20/07/2026"}, {"p": "Senior Sales Operations Manager - Electra H/F", "e": "Electra", "u": "https://www.adzuna.fr/details/5805981642?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "18/07/2026"}, {"p": "CDD 6Mois After-Sales IT Operations Officer Mode Chanel H/F", "e": "Chanel", "u": "https://www.adzuna.fr/details/5807131948?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "19/07/2026"}, {"p": "Responsable Sales Ops & CRM – Groupe Média International H/F", "e": "ALENTA", "u": "https://www.adzuna.fr/details/5810734620?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "22/07/2026"}, {"p": "CDD - Chargé de Revenue Operations H/F", "e": "Pluxee", "u": "https://www.adzuna.fr/details/5813134424?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "24/07/2026"}, {"p": "RevOps / SalesOps - Scaleup IA", "e": "Bureau des Talents", "u": "https://www.adzuna.fr/details/5814456610?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "24/07/2026"}, {"p": "Revops / salesops - scaleup ia h/f (CDI)", "e": "Bureau des Talents", "u": "https://www.adzuna.fr/details/5813049332?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "24/07/2026"}, {"p": "Apprenti.e - Business Dveloppement & Sales Operations - IBM France - H/F", "e": "IBM", "u": "https://www.adzuna.fr/details/5814985828?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "25/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "CRIT INTERIM", "u": "https://candidat.francetravail.fr/offres/recherche/detail/211RHTY", "s": 0, "d": "24/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "CRIT ANTONY", "u": "https://www.adzuna.fr/details/5816449100?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "26/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "Crit", "u": "https://www.adzuna.fr/land/ad/5815178215?se=ICVRjJeJ8RGNk9kNzTyYcg&utm_medium=api&utm_source=90a8d42a&v=A25F6124872DA432DED992AEEC7F0D08B5CEF310", "s": null, "d": "25/07/2026"}, {"p": "Chef de Projet Qualite Operations Commerciales H/F", "e": "Crit", "u": "https://www.adzuna.fr/details/5816465528?utm_medium=api&utm_source=90a8d42a", "s": 50, "d": "26/07/2026"}, {"p": "CHEF DE PROJET QUALITE OPERATIONS COMMERCIALES H/F", "e": "Crit", "u": "https://www.adzuna.fr/details/5818186034?utm_medium=api&utm_source=90a8d42a", "s": 45, "d": "28/07/2026"}, {"p": "Sales Operations Analyst - Junior", "e": "Flatpay", "u": "https://www.adzuna.fr/details/5759169122?utm_medium=api&utm_source=90a8d42a", "s": 85, "d": "11/06/2026"}, {"p": "Revenue Operations Manager", "e": "Evaneos", "u": "https://www.adzuna.fr/details/5760488359?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "11/06/2026"}, {"p": "European RevOps Specialist", "e": "Quadient", "u": "https://www.adzuna.fr/details/5762113178?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "13/06/2026"}, {"p": "European Revops Specialist H/F", "e": "Quadient", "u": "https://www.adzuna.fr/details/5762279086?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "13/06/2026"}, {"p": "Rev Ops Business Analyst", "e": "Malt", "u": "https://www.adzuna.fr/details/5763801708?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "14/06/2026"}, {"p": "Revops & CRM Manager H/F", "e": "UPTOO", "u": "https://www.adzuna.fr/details/5766475530?utm_medium=api&utm_source=90a8d42a", "s": 75, "d": "17/06/2026"}, {"p": "Sales Operations - Chargé d'Excellence Opérationnelle H/F", "e": "Dassault Systèmes", "u": "https://www.adzuna.fr/details/5774421757?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "24/06/2026"}, {"p": "Responsable Sales Operations H/F", "e": "LECTRA", "u": "https://www.adzuna.fr/details/5776218890?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "25/06/2026"}, {"p": "Revenue Ops / Sales Ops", "e": "Kano", "u": "https://www.adzuna.fr/details/5780543174?utm_medium=api&utm_source=90a8d42a", "s": 70, "d": "28/06/2026"}, {"p": "Junior Sales Operations Analyst", "e": "Didomi", "u": "https://www.adzuna.fr/details/5782451310?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "30/06/2026"}, {"p": "Sales Operations & GTM Engineer", "e": "Ekie", "u": "https://www.adzuna.fr/details/5788474952?utm_medium=api&utm_source=90a8d42a", "s": 80, "d": "05/07/2026"}, {"p": "Senior Revenue Operations Business Partner, EMEA", "e": "Aircall", "u": "https://www.adzuna.fr/details/5788487813?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "05/07/2026"}, {"p": "Senior Revenue Operations Business Partner EMEA H/F", "e": "Aircall", "u": "https://www.adzuna.fr/details/5787805140?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "04/07/2026"}, {"p": "Late-Founder / COO – Revenue & Operations Europe", "e": "Licorne Society", "u": "https://www.adzuna.fr/details/5904048201?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "30/09/2026"}, {"p": "Late-Founder / COO – Revenue & Operations Europe", "e": "Licorne Society", "u": "https://www.adzuna.fr/details/5904048149?utm_medium=api&utm_source=90a8d42a", "s": 62, "d": "30/09/2026"}, {"p": "Revenue Operations Business Partner H/F", "e": "Lectra", "u": "https://www.adzuna.fr/land/ad/5904385802?se=uoQv82W98RGwgaviw0YlUg&utm_medium=api&utm_source=90a8d42a&v=18EAB49F60E7771E32B2EEF9F316A3EF6878199C", "s": null, "d": "01/10/2026"}, {"p": "Revenue Operations Analyst Paris H/F", "e": "Mirakl", "u": "https://www.adzuna.fr/land/ad/5904385827?se=uoQv82W98RGwgaviw0YlUg&utm_medium=api&utm_source=90a8d42a&v=4D1E49F82BF1BB20BD2613D0CCB4EBE380C342BE", "s": null, "d": "01/10/2026"}, {"p": "Senior Revenue Operations Lead", "e": "DealHub Ltd.", "u": "https://www.adzuna.fr/details/5909925074?utm_medium=api&utm_source=90a8d42a", "s": 40, "d": "03/10/2026"}, {"p": "Directeur(trice) Systèmes Revenue Operations H/F", "e": "Lectra", "u": "https://www.adzuna.fr/details/5909920916?utm_medium=api&utm_source=90a8d42a", "s": 40, "d": "03/10/2026"}, {"p": "RevOps with Salesforce experience - France (all genders)", "e": "DealHub Ltd.", "u": "https://www.adzuna.fr/details/5912159262?utm_medium=api&utm_source=90a8d42a", "s": 0, "d": "05/10/2026"}, {"p": "Head of Revenue Operations", "e": "DealHub Ltd.", "u": "https://www.adzuna.fr/details/5909924703?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "03/10/2026"}, {"p": "Late-Founder / COO – Revenue & Operations Europe", "e": "Licorne Society", "u": "https://www.adzuna.fr/details/5917385033?utm_medium=api&utm_source=90a8d42a", "s": 13, "d": "07/10/2026"}, {"p": "Senior Revenue Ops H/F", "e": "Alan", "u": "https://www.adzuna.fr/land/ad/5918206624?se=SrgDJubC8RG_PYTtY09nDQ&utm_medium=api&utm_source=90a8d42a&v=27B27F0196EBA1A801FBA2C7BB3C9E161ED5C541", "s": null, "d": "08/10/2026"}, {"p": "Senior Revenue Ops", "e": "Alan", "u": "https://www.adzuna.fr/details/5919345316?utm_medium=api&utm_source=90a8d42a", "s": 30, "d": "08/10/2026"}, {"p": "Revops Engineer H/F", "e": "sunday", "u": "https://www.adzuna.fr/details/5920011849?utm_medium=api&utm_source=90a8d42a", "s": 30, "d": "09/10/2026"}, {"p": "Revenue Operations Manager EMEA & AMERICAS (H/F)", "e": "A2MAC1", "u": "https://www.adzuna.fr/details/5920554957?utm_medium=api&utm_source=90a8d42a", "s": 59, "d": "09/10/2026"}, {"p": "Senior Customer Operations Manager Revenue ·", "e": "Shine", "u": "https://www.adzuna.fr/details/5921073462?utm_medium=api&utm_source=90a8d42a", "s": null, "d": "09/10/2026"}], "domaines": [{"nom": "Revenue Operation", "offres": 46, "counts": [[0, 45], [5, 1]], "offres70": 17, "counts70": [[0, 17]], "liens": [[0, [0, 1, 4, 7, 12, 15, 16, 21, 24, 26, 30, 31, 33, 36, 37, 38, 39, 40, 43, 47, 60, 61, 63, 70, 77, 83, 90, 93, 97, 108, 112, 117, 126, 136, 146, 147, 148, 149, 150, 151, 152, 153, 155, 156, 161]], [5, [160]]]}, {"nom": "Sales Operation", "offres": 38, "counts": [[0, 29], [2, 5], [3, 4], [5, 3], [8, 1], [9, 1], [10, 1], [11, 1], [12, 1], [13, 1]], "offres70": 11, "counts70": [[0, 8], [2, 1], [3, 1], [5, 1], [11, 1], [12, 1], [13, 1]], "liens": [[0, [3, 6, 9, 48, 50, 51, 54, 55, 58, 62, 65, 67, 68, 69, 74, 75, 80, 82, 101, 102, 107, 113, 120, 121, 123, 124, 142, 144, 145]], [2, [8, 56, 57, 76, 129]], [3, [8, 56, 57, 76]], [5, [52, 84, 141]], [8, [52]], [9, [84]], [10, [129]], [11, [135]], [12, [135]], [13, [141]]]}, {"nom": "RevOps", "offres": 24, "counts": [[0, 20], [2, 4], [3, 3], [6, 1]], "offres70": 11, "counts70": [[0, 8], [2, 3], [3, 3]], "liens": [[0, [13, 14, 20, 23, 29, 32, 41, 42, 45, 46, 71, 73, 79, 85, 119, 137, 138, 140, 154, 159]], [2, [44, 118, 127, 128]], [3, [118, 127, 128]], [6, [44]]]}, {"nom": "Revenue Ops", "offres": 20, "counts": [[0, 20]], "offres70": 3, "counts70": [[0, 3]], "liens": [[0, [2, 11, 17, 18, 25, 27, 28, 34, 35, 53, 64, 72, 78, 91, 109, 114, 122, 143, 157, 158]]]}, {"nom": "Operations Commerciales", "offres": 15, "counts": [[0, 1], [1, 14], [4, 6]], "offres70": 0, "counts70": [], "liens": [[0, [66]], [1, [59, 92, 94, 95, 96, 103, 104, 115, 116, 130, 131, 132, 133, 134]], [4, [95, 96, 103, 104, 131, 133]]]}, {"nom": "Sales Ops", "offres": 14, "counts": [[0, 13], [2, 1], [7, 1]], "offres70": 8, "counts70": [[0, 7], [2, 1], [7, 1]], "liens": [[0, [81, 86, 87, 88, 89, 98, 99, 100, 105, 106, 110, 111, 125]], [2, [49]], [7, [49]]]}, {"nom": "Rev Ops", "offres": 4, "counts": [[0, 4]], "offres70": 3, "counts70": [[0, 3]], "liens": [[0, [10, 19, 22, 139]]]}, {"nom": "SalesOps", "offres": 1, "counts": [[0, 1]], "offres70": 0, "counts70": [], "liens": [[0, [5]]]}]}}, "lieux_ge70": {"Alex": {"labels": ["Paris", "Nanterre", "Puteaux", "Bois-Colombes", "Saint-Ouen", "Saint-Denis", "Meudon", "Boulogne-Billancourt"], "types": ["ville", "ville", "ville", "ville", "ville", "ville", "ville", "ville"], "values": [46, 5, 4, 1, 1, 1, 1, 1], "total": 53}}, "offres_filtre": {"Alex": {"lieux": ["ville|Paris", "ville|Puteaux", "ville|Nanterre", "ville|Levallois-Perret", "ville|Bois-Colombes", "ville|Issy-les-Moulineaux", "ville|Boulogne-Billancourt", "ville|Antony", "ville|Saint-Cloud", "ville|Sceaux", "ville|Colombes", "ville|Saint-Ouen", "ville|Saint-Denis", "ville|Meudon"], "nweeks": 20, "recs": [{"d": "Revenue Operation", "l": [0], "c": "g", "e": "Mon Consultant Indépendant", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 14}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Collective.work", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 14}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "fabriq", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 14}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "SeLoger", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 14}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Joko", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 14}, {"d": "SalesOps", "l": [0], "c": "m", "e": "Swanio", "kd": "SalesOps", "kf": "Filtre désactivé", "w": 14}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "Ekie", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 14}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Mirakl", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 14}, {"d": "Sales Operation", "l": [1, 2], "c": "g", "e": "Elis", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 15}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "CarCutter", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 14}, {"d": "Rev Ops", "l": [0], "c": "l", "e": "ILLUIN Technology", "kd": "Rev Ops", "kf": "Filtre désactivé", "w": 14}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 14}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Collective.work", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 15}, {"d": "RevOps", "l": [0], "c": "g", "e": "Groupe Kyka", "kd": "RevOps", "kf": "Filtre désactivé", "w": 15}, {"d": "RevOps", "l": [0], "c": "g", "e": "Ecair", "kd": "RevOps", "kf": "Filtre désactivé", "w": 15}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Collective.work", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 15}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Shine", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 15}, {"d": "Revenue Ops", "l": [0], "c": "g", "e": "Collective.work", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 15}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Collective.work", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 15}, {"d": "Rev Ops", "l": [0], "c": "g", "e": "Vocca", "kd": "Rev Ops", "kf": "Filtre désactivé", "w": 15}, {"d": "RevOps", "l": [0], "c": "m", "e": "DigitaWeb", "kd": "RevOps", "kf": "Filtre désactivé", "w": 15}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Mirakl", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 15}, {"d": "Rev Ops", "l": [0], "c": "g", "e": "Vocca", "kd": "Rev Ops", "kf": "Filtre désactivé", "w": 16}, {"d": "RevOps", "l": [0], "c": "l", "e": "Collective.work", "kd": "RevOps", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Collective.work", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "Trustpair", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Ops", "l": [0], "c": "m", "e": "Vroomly", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Ops", "l": [0], "c": "m", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 16}, {"d": "RevOps", "l": [0], "c": "m", "e": "Hublo", "kd": "RevOps", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Latham & Watkins LLP", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "YO AI Labs", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 16}, {"d": "RevOps", "l": [0], "c": "l", "e": "Bigblue", "kd": "RevOps", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Doctrine", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 16}, {"d": "Revenue Ops", "l": [0], "c": "g", "e": "Alan", "kd": "Revenue Ops", "kf": "", "w": 17}, {"d": "Revenue Ops", "l": [0], "c": "m", "e": "Alan", "kd": "Revenue Ops", "kf": "", "w": 17}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "Doctrine", "kd": "Revenue Operation", "kf": "", "w": 17}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "360Learning", "kd": "Revenue Operation", "kf": "", "w": 17}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "Shine", "kd": "Revenue Operation", "kf": "", "w": 17}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "RemoteJobsOne", "kd": "Revenue Operation", "kf": "", "w": 17}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "RemoteJobsOne", "kd": "Revenue Operation", "kf": "", "w": 17}, {"d": "RevOps", "l": [0], "c": "l", "e": "Stairling Technologies", "kd": "RevOps", "kf": "", "w": 17}, {"d": "RevOps", "l": [0], "c": "l", "e": "Mayday", "kd": "RevOps", "kf": "", "w": 17}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "RemoteJobsOne", "kd": "Revenue Operation", "kf": "", "w": 17}, {"d": "RevOps", "l": [3, 2], "c": "l", "e": "Webedia", "kd": "RevOps", "kf": "", "w": 18}, {"d": "RevOps", "l": [0], "c": "g", "e": "Licorne Society", "kd": "RevOps", "kf": "Filtre désactivé", "w": 0}, {"d": "RevOps", "l": [0], "c": "g", "e": "Orah Talent", "kd": "RevOps", "kf": "Filtre désactivé", "w": 0}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Joko", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 0}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "Brevo", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 0}, {"d": "Sales Ops", "l": [4, 2], "c": "g", "e": "SVP", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 2}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Brevo", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 9}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 9}, {"d": "Sales Operation", "l": [5, 6], "c": null, "e": "GE Vernova", "kd": "", "kf": "", "w": 9}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 9}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "DIGITRIPS", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 10}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "GAC Motor Europe B.V.", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 10}, {"d": "Sales Operation", "l": [1, 2], "c": "l", "e": "Elis", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 10}, {"d": "Sales Operation", "l": [1, 2], "c": "l", "e": "ELIS", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 10}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Didomi", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 10}, {"d": "Operations Commerciales", "l": [7], "c": "l", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 10}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Trustpair", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 10}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Mistral", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 10}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Brevo", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 11}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Aircall.io", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 11}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 11}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Accenture France", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 11}, {"d": "Operations Commerciales", "l": [0], "c": "l", "e": "Laboratoires Expanscience", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 12}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "GitGuardian", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 12}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "Walter Learning", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 12}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Didomi", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 12}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Morpho", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "RevOps", "l": [0], "c": "g", "e": "Hublo", "kd": "RevOps", "kf": "Filtre désactivé", "w": 13}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 13}, {"d": "RevOps", "l": [0], "c": "l", "e": "Collective.work", "kd": "RevOps", "kf": "Filtre désactivé", "w": 13}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "AVIVGroup", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "SharkNinja", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "Sales Operation", "l": [1, 2], "c": "l", "e": "ELIS", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Mistral Ai", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Kano", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 13}, {"d": "RevOps", "l": [0], "c": "l", "e": "Stairling Technologies", "kd": "RevOps", "kf": "Filtre désactivé", "w": 13}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "Sales Ops", "l": [0], "c": "l", "e": "OSS Ventures", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 13}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "Capsul'​in Pro", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Collective.work", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "Sales Operation", "l": [8, 6], "c": "l", "e": "Cegedim", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 13}, {"d": "RevOps", "l": [0], "c": "l", "e": "Mercor", "kd": "RevOps", "kf": "Filtre désactivé", "w": 14}, {"d": "Sales Ops", "l": [0], "c": "g", "e": "ALENTA", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "l", "e": "ALENTA", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "g", "e": "Alenta", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "l", "e": "ALENTA", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Malt", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 6}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Operations Commerciales", "l": [7], "c": "l", "e": "CRIT INTERIM", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 6}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Malt", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 6}, {"d": "Operations Commerciales", "l": [7], "c": "l", "e": "CRIT INTERIM", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 6}, {"d": "Operations Commerciales", "l": [9, 7], "c": "l", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 6}, {"d": "Operations Commerciales", "l": [9, 7], "c": "l", "e": "CRIT ANTONY", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 6}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Joko", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "g", "e": "TEAM.IS", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "g", "e": "Team.Is", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "g", "e": "Teamis", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Walter Learning RH", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "WALTER LEARNING", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 6}, {"d": "Operations Commerciales", "l": [9, 7], "c": "l", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 6}, {"d": "Operations Commerciales", "l": [9, 7], "c": "l", "e": "CRIT ANTONY", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "g", "e": "Alenta", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": "g", "e": "Alenta", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Paris", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Beamy", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 6}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 6}, {"d": "Sales Ops", "l": [0], "c": null, "e": "Team.is", "kd": "", "kf": "", "w": 6}, {"d": "Sales Ops", "l": [0], "c": null, "e": "Alenta", "kd": "", "kf": "", "w": 6}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Dust", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Doctolib", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "NetApp", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 7}, {"d": "Operations Commerciales", "l": [7], "c": "m", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 7}, {"d": "Operations Commerciales", "l": [7], "c": "m", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 7}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Dolead", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "RevOps", "l": [1, 2], "c": "g", "e": "Bureau des Talents", "kd": "RevOps", "kf": "Filtre désactivé", "w": 8}, {"d": "RevOps", "l": [0], "c": "l", "e": "Collective.work", "kd": "RevOps", "kf": "Filtre désactivé", "w": 8}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Amaris Consulting", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "GAC Motor Europe B.V.", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 8}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Electra", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Chanel", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 7}, {"d": "Sales Ops", "l": [0], "c": "l", "e": "ALENTA", "kd": "Sales Ops", "kf": "Filtre désactivé", "w": 8}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Pluxee", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 8}, {"d": "RevOps", "l": [1, 2], "c": "g", "e": "Bureau des Talents", "kd": "RevOps", "kf": "Filtre désactivé", "w": 8}, {"d": "RevOps", "l": [1, 2], "c": "g", "e": "Bureau des Talents", "kd": "RevOps", "kf": "Filtre désactivé", "w": 8}, {"d": "Sales Operation", "l": [10, 2], "c": "l", "e": "IBM", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 8}, {"d": "Operations Commerciales", "l": [7], "c": "l", "e": "CRIT INTERIM", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 8}, {"d": "Operations Commerciales", "l": [9, 7], "c": "l", "e": "CRIT ANTONY", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 8}, {"d": "Operations Commerciales", "l": [7], "c": "m", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 8}, {"d": "Operations Commerciales", "l": [9, 7], "c": "l", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 8}, {"d": "Operations Commerciales", "l": [7], "c": "l", "e": "Crit", "kd": "Operations Commerciales", "kf": "Filtre désactivé", "w": 9}, {"d": "Sales Operation", "l": [11, 12], "c": "g", "e": "Flatpay", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 2}, {"d": "Revenue Operation", "l": [0], "c": "g", "e": "Evaneos", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 2}, {"d": "RevOps", "l": [0], "c": "g", "e": "Quadient", "kd": "RevOps", "kf": "Filtre désactivé", "w": 2}, {"d": "RevOps", "l": [0], "c": "g", "e": "Quadient", "kd": "RevOps", "kf": "Filtre désactivé", "w": 2}, {"d": "Rev Ops", "l": [0], "c": "g", "e": "Malt", "kd": "Rev Ops", "kf": "Filtre désactivé", "w": 2}, {"d": "RevOps", "l": [0], "c": "g", "e": "UPTOO", "kd": "RevOps", "kf": "Filtre désactivé", "w": 3}, {"d": "Sales Operation", "l": [13, 6], "c": "g", "e": "Dassault Systèmes", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 4}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "LECTRA", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 4}, {"d": "Revenue Ops", "l": [0], "c": "g", "e": "Kano", "kd": "Revenue Ops", "kf": "Filtre désactivé", "w": 4}, {"d": "Sales Operation", "l": [0], "c": "l", "e": "Didomi", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 5}, {"d": "Sales Operation", "l": [0], "c": "g", "e": "Ekie", "kd": "Sales Operation", "kf": "Filtre désactivé", "w": 5}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Aircall", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 5}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Aircall", "kd": "Revenue Operation", "kf": "Filtre désactivé", "w": 5}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Licorne Society", "kd": "Revenue Operation", "kf": "", "w": 18}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Licorne Society", "kd": "Revenue Operation", "kf": "", "w": 18}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "Lectra", "kd": "Revenue Operation", "kf": "", "w": 18}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "Mirakl", "kd": "Revenue Operation", "kf": "", "w": 18}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "DealHub Ltd.", "kd": "Revenue Operation", "kf": "", "w": 18}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Lectra", "kd": "Revenue Operation", "kf": "", "w": 18}, {"d": "RevOps", "l": [0], "c": "l", "e": "DealHub Ltd.", "kd": "RevOps", "kf": "", "w": 19}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "DealHub Ltd.", "kd": "Revenue Operation", "kf": "", "w": 18}, {"d": "Revenue Operation", "l": [0], "c": "l", "e": "Licorne Society", "kd": "Revenue Operation", "kf": "", "w": 19}, {"d": "Revenue Ops", "l": [0], "c": "m", "e": "Alan", "kd": "Revenue Ops", "kf": "", "w": 19}, {"d": "Revenue Ops", "l": [0], "c": "l", "e": "Alan", "kd": "Revenue Ops", "kf": "", "w": 19}, {"d": "RevOps", "l": [0], "c": "l", "e": "sunday", "kd": "RevOps", "kf": "", "w": 19}, {"d": "Revenue Operation", "l": [6], "c": "l", "e": "A2MAC1", "kd": "Revenue Operation", "kf": "", "w": 19}, {"d": "Revenue Operation", "l": [0], "c": "m", "e": "Shine", "kd": "Revenue Operation", "kf": "", "w": 19}]}}};
+
+  // Initialisation du graphique des Tokens
+  if (dashboardData.tokens && dashboardData.tokens.labels.length > 0) {
+    new Chart(document.getElementById('tokensChart'), {
+      type: 'bar',
+      data: {
+        labels: dashboardData.tokens.labels,
+        datasets: [
+          { label: 'Tokens Input', data: dashboardData.tokens.inputs, backgroundColor: '#3b82f6' },
+          { label: 'Tokens Output', data: dashboardData.tokens.outputs, backgroundColor: '#10b981' },
+          { label: 'Tokens Total', data: dashboardData.tokens.totals, backgroundColor: '#6366f1' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // Initialisation du camembert "Tous Profils"
+  if (dashboardData.entreprises_all && dashboardData.entreprises_all.labels.length > 0) {
+    new Chart(document.getElementById('entreprisesAllChart'), {
+      type: 'pie',
+      data: {
+        labels: dashboardData.entreprises_all.labels,
+        datasets: [{
+          data: dashboardData.entreprises_all.values,
+          backgroundColor: [
+            '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+            '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right' } }
+      }
+    });
+  }
+
+  // Initialisation dynamique des graphiques d'évolution par profil
+  if (dashboardData.evolution) {
+    Object.keys(dashboardData.evolution).forEach(profile => {
+      const canvasId = 'evo_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const evo = dashboardData.evolution[profile];
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: evo.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: evo.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: evo.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: evo.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: false },
+              y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des graphiques de mots-clés par profil (Domaine et Fonction)
+  if (dashboardData.keywords) {
+    Object.keys(dashboardData.keywords).forEach(profile => {
+      // Domaine
+      const domCanvasId = 'kw_dom_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctxDom = document.getElementById(domCanvasId);
+      if (ctxDom && dashboardData.keywords[profile].domaine) {
+        const kwDom = dashboardData.keywords[profile].domaine;
+        new Chart(ctxDom, {
+          type: 'bar',
+          data: {
+            labels: kwDom.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: kwDom.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: kwDom.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: kwDom.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1 } },
+              y: { ticks: { autoSkip: false } }
+            }
+          }
+        });
+      }
+
+      // Fonction
+      const fctCanvasId = 'kw_fct_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctxFct = document.getElementById(fctCanvasId);
+      if (ctxFct && dashboardData.keywords[profile].fonction) {
+        const kwFct = dashboardData.keywords[profile].fonction;
+        new Chart(ctxFct, {
+          type: 'bar',
+          data: {
+            labels: kwFct.labels,
+            datasets: [
+              { label: 'Score ≥ 70', data: kwFct.ge70, backgroundColor: '#10b981' },
+              { label: 'Score < 70', data: kwFct.lt70, backgroundColor: '#f59e0b' },
+              { label: 'À analyser manuellement', data: kwFct.manuel, backgroundColor: '#7c3aed' }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des camemberts d'entreprises par profil
+  if (dashboardData.entreprises_profil) {
+    Object.keys(dashboardData.entreprises_profil).forEach(profile => {
+      const canvasId = 'ent_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const ent = dashboardData.entreprises_profil[profile];
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ent.labels,
+            datasets: [{
+              data: ent.values,
+              backgroundColor: [
+                '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+    });
+  }
+
+  // Initialisation dynamique des camemberts d'entreprises (Score >= 70) par profil
+  if (dashboardData.entreprises_ge70) {
+    Object.keys(dashboardData.entreprises_ge70).forEach(profile => {
+      const canvasId = 'ent_ge70_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const ctx = document.getElementById(canvasId);
+      if (ctx) {
+        const ent = dashboardData.entreprises_ge70[profile];
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ent.labels,
+            datasets: [{
+              data: ent.values,
+              backgroundColor: [
+                '#10b981', '#2563eb', '#f59e0b', '#8b5cf6', '#ec4899',
+                '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#ef4444'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+    });
+  }
+
+  // Treemap (depuis le lancement) et histogramme (Score >= 70) des lieux par profil
+  const TREEMAP_COLORS = [
+    '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+    '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
+  ];
+  // Retour à la ligne des titres du treemap : découpe le texte selon la largeur réelle du
+  // rectangle (mesurée en pixels), coupe aux espaces et après les traits d'union, et
+  // n'abrège avec "…" que si la hauteur du rectangle ne permet pas d'afficher toutes les lignes.
+  const TM_FONT_SIZE = 12;
+  const TM_LINE_H = TM_FONT_SIZE * 1.2;
+  let _tmCtx = null;
+  function tmMeasure(text) {
+    if (!_tmCtx) _tmCtx = document.createElement('canvas').getContext('2d');
+    _tmCtx.font = 'bold ' + TM_FONT_SIZE + 'px ' + Chart.defaults.font.family;
+    return _tmCtx.measureText(text).width;
+  }
+  function tmWrap(text, maxW, maxLines) {
+    const pieces = [];
+    String(text).trim().split(/\s+/).forEach((word, wi) => {
+      (word.match(/[^-]+-?|-/g) || [word]).forEach((part, pi) => pieces.push({ s: part, sp: wi > 0 && pi === 0 }));
+    });
+    let lines = [];
+    let cur = '';
+    pieces.forEach(pc => {
+      const cand = cur ? cur + (pc.sp ? ' ' : '') + pc.s : pc.s;
+      if (!cur || tmMeasure(cand) <= maxW) { cur = cand; } else { lines.push(cur); cur = pc.s; }
+    });
+    if (cur) lines.push(cur);
+    // Mot plus large que le rectangle : coupure caractère par caractère
+    const broken = [];
+    lines.forEach(line => {
+      while (tmMeasure(line) > maxW && line.length > 1) {
+        let k = line.length - 1;
+        while (k > 1 && tmMeasure(line.slice(0, k)) > maxW) k--;
+        broken.push(line.slice(0, k));
+        line = line.slice(k);
+      }
+      broken.push(line);
+    });
+    lines = broken;
+    if (lines.length > maxLines) {
+      lines = lines.slice(0, maxLines);
+      let last = lines[maxLines - 1];
+      while (last.length > 1 && tmMeasure(last + '…') > maxW) last = last.slice(0, -1);
+      lines[maxLines - 1] = last + '…';
+    }
+    return lines;
+  }
+  function tmFormatter(c) {
+    if (c.type !== 'data') return '';
+    const w = c.raw.w, h = c.raw.h;
+    const maxW = Math.max(w - 12, 10);                       // marge intérieure gauche/droite
+    const maxLines = Math.max(1, Math.floor((h - 12) / TM_LINE_H) - 1);  // 1 ligne réservée au nombre
+    return tmWrap(c.raw._data.label, maxW, maxLines).concat(String(c.raw.v));
+  }
+  const LIEU_TYPE_COLORS = { ville: '#2563eb', departement: '#10b981', region: '#f59e0b' };
+  const LIEU_TYPE_LABELS = { ville: 'ville', departement: 'département', region: 'région' };
+  function lieuPct(v, lieux, baseLabel) {
+    const pct = lieux.total ? (100 * v / lieux.total).toFixed(1).replace('.', ',') : '0';
+    return ' (' + pct + ' % ' + baseLabel + ')';
+  }
+  // Filtre du tableau des offres en adéquation (id tbl_offres_<slug>) : lignes masquées si leur domaine
+  // n'est pas coché, ou si aucun de leurs lieux n'est coché (quand la liste des lieux est restreinte).
+  const _offresState = {};   // slug -> { doms: Set des domaines cochés, keys: Set 'type|libellé' cochés ou null (= tout) }
+  function applyOffresFilter(slug) {
+    const st = _offresState[slug];
+    const tbl = document.getElementById('tbl_offres_' + slug);
+    if (!st || !tbl) return;
+    let shown = 0, total = 0;
+    tbl.querySelectorAll('tbody tr').forEach(r => {
+      if (r._locs === undefined) {
+        try { r._locs = JSON.parse(r.getAttribute('data-locs') || '[]'); } catch (e) { r._locs = []; }
+      }
+      const okDom = st.doms.has(r.getAttribute('data-dom'));
+      const okLoc = !st.keys || r._locs.some(k => st.keys.has(k));
+      r._pf = !(okDom && okLoc);
+      total++;
+      if (!r._pf) shown++;
+    });
+    const nb = document.getElementById('nb_offres_' + slug);
+    if (nb) nb.textContent = shown;
+    if (tbl._refilter) tbl._refilter();
+  }
+  // Fiches des offres par profil (slug -> { lieux, nweeks, recs }) : servent à recalculer les graphiques filtrés
+  const _offresBySlug = {};
+  if (dashboardData.offres_filtre) {
+    Object.keys(dashboardData.offres_filtre).forEach(p => {
+      _offresBySlug[p.replace(/[^a-zA-Z0-9]/g, '_')] = dashboardData.offres_filtre[p];
+    });
+  }
+  // Recalcule, avec les domaines et lieux cochés, les graphiques d'un profil : top 10 des entreprises (tous
+  // scores, puis Score >= 70), évolution hebdomadaire et mots-clés Domaine / Fonction. Mêmes règles de
+  // comptage que le script Python (voir categorize), appliquées aux offres retenues par les filtres.
+  function updateProfileCharts(slug) {
+    const of = _offresBySlug[slug], st = _offresState[slug];
+    if (!of || !st) return;
+    const recs = of.recs.filter(r => st.doms.has(r.d) && (!st.keys || r.l.some(i => st.keys.has(of.lieux[i]))));
+    const ent = new Map(), ent70 = new Map(), kd = new Map(), kf = new Map();
+    const g = new Array(of.nweeks).fill(0), l = new Array(of.nweeks).fill(0), m = new Array(of.nweeks).fill(0);
+    function bump(map, k, c) {
+      let o = map.get(k);
+      if (!o) { o = { g: 0, l: 0, m: 0, t: 0 }; map.set(k, o); }
+      o[c]++; o.t++;
+    }
+    recs.forEach(r => {
+      if (r.e) {
+        ent.set(r.e, (ent.get(r.e) || 0) + 1);
+        if (r.c === 'g') ent70.set(r.e, (ent70.get(r.e) || 0) + 1);
+      }
+      if (r.c) {
+        if (r.w >= 0) { (r.c === 'g' ? g : r.c === 'l' ? l : m)[r.w]++; }
+        if (r.kd) bump(kd, r.kd, r.c);
+        if (r.kf) bump(kf, r.kf, r.c);
+      }
+    });
+    function setPie(id, map) {
+      const ch = Chart.getChart(id);
+      if (!ch) return;
+      const items = Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      ch.data.labels = items.map(x => x[0]);
+      ch.data.datasets[0].data = items.map(x => x[1]);
+      ch.update();
+    }
+    function setKw(id, map) {
+      const ch = Chart.getChart(id);
+      if (!ch) return;
+      const items = Array.from(map.entries()).sort((a, b) => a[1].t - b[1].t);
+      ch.data.labels = items.map(x => x[0]);
+      ch.data.datasets[0].data = items.map(x => x[1].g);
+      ch.data.datasets[1].data = items.map(x => x[1].l);
+      ch.data.datasets[2].data = items.map(x => x[1].m);
+      ch.update();
+    }
+    setPie('ent_chart_' + slug, ent);
+    setPie('ent_ge70_chart_' + slug, ent70);
+    setKw('kw_dom_chart_' + slug, kd);
+    setKw('kw_fct_chart_' + slug, kf);
+    const evo = Chart.getChart('evo_chart_' + slug);
+    if (evo) {
+      evo.data.datasets[0].data = g;
+      evo.data.datasets[1].data = l;
+      evo.data.datasets[2].data = m;
+      evo.update();
+    }
+  }
+  const _lieuCharts = {};
+  const _lieuState = {};       // canvas du treemap -> { sums70, offres70, locOn, doms } (dernier état filtré)
+  const _lieuListeners = {};   // canvas du treemap -> fonction de mise à jour de l'histogramme Score >= 70
+  function buildLieuxTreemap(canvasId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    const boxes = Array.from(document.querySelectorAll('input.lieu-dom[data-canvas="' + canvasId + '"]'));
+    const locBoxes = Array.from(document.querySelectorAll('input.lieu-loc[data-canvas="' + canvasId + '"]'));
+    const parents = Array.from(document.querySelectorAll('input.lieu-parent[data-canvas="' + canvasId + '"]'));
+    // Lieux cochés (indices dans lieux.labels). Un département qui a des villes est pris en compte
+    // (offres citant seulement le département) tant qu'au moins une de ses cases est cochée.
+    function currentLocOn() {
+      if (!locBoxes.length && !parents.length) return null;
+      const on = new Set();
+      locBoxes.forEach(cb => { if (cb.checked) on.add(parseInt(cb.value, 10)); });
+      parents.forEach(pb => {
+        if (pb.dataset.idx !== '' && (pb.checked || pb.indeterminate)) on.add(parseInt(pb.dataset.idx, 10));
+      });
+      return on;
+    }
+    function groupChildren(pb) {
+      return Array.from(pb.closest('.lieu-grp').querySelectorAll('input.lieu-loc'));
+    }
+    function syncParent(pb) {
+      const ch = groupChildren(pb);
+      const n = ch.filter(c => c.checked).length;
+      pb.checked = ch.length > 0 && n === ch.length;
+      pb.indeterminate = n > 0 && n < ch.length;
+    }
+    const info = document.getElementById(canvasId + '_info');
+    let curDoms = [];            // indices des domaines cochés (mis à jour à chaque render)
+    let curOffres = 0;           // base des pourcentages (offres des domaines cochés)
+    let mouseX = 0, mouseY = 0;  // dernière position de la souris sur le graphique (coordonnées de page)
+    let tipKey = '';
+    let hideTimer = null;
+    let showTimer = null;
+    let lastRaw = null;          // case actuellement survolée (null si aucune)
+    let pinned = false;          // liste épinglée par un clic
+    const TIP_DWELL = 350;       // ms de pause du curseur sur une case avant d'afficher la liste
+    const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la case
+    let tip = document.getElementById(canvasId + '_tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = canvasId + '_tip';
+      tip.className = 'lieu-tip';
+      document.body.appendChild(tip);
+    }
+    function stopHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function stopShow() { if (showTimer) { clearTimeout(showTimer); showTimer = null; } }
+    function hideTip() {
+      stopHide();
+      stopShow();
+      pinned = false;
+      tip.style.display = 'none';
+      tipKey = '';
+    }
+    // La liste reste affichée tant que la souris est dessus (pour cliquer les liens)
+    tip.addEventListener('mouseenter', () => { stopHide(); stopShow(); });
+    tip.addEventListener('mouseleave', () => { if (!pinned) hideTip(); });
+    ctx.addEventListener('mousemove', e => {
+      mouseX = e.pageX;
+      mouseY = e.pageY;
+      // le délai d'affichage ne court que si le curseur est à l'arrêt
+      if (showTimer && lastRaw) {
+        clearTimeout(showTimer);
+        const r = lastRaw;
+        showTimer = setTimeout(() => showTipFor(r, false), TIP_DWELL);
+      }
+    });
+    // Clic sur une case : épingle la liste (reste affichée jusqu'à un clic ailleurs, Échap ou la croix)
+    ctx.addEventListener('click', () => {
+      if (lastRaw) showTipFor(lastRaw, true);
+      else if (pinned) hideTip();
+    });
+    document.addEventListener('mousedown', e => {
+      if (pinned && !tip.contains(e.target) && e.target !== ctx) hideTip();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
+    // Offres du lieu (indice idx) pour les domaines cochés, triées par score décroissant
+    function lieuOffres(idx) {
+      const seen = new Set();
+      const out = [];
+      curDoms.forEach(di => {
+        (lieux.domaines[di].liens || []).forEach(pair => {
+          if (pair[0] !== idx) return;
+          pair[1].forEach(oi => {
+            if (!seen.has(oi)) { seen.add(oi); out.push(lieux.offres[oi]); }
+          });
+        });
+      });
+      out.sort((a, b) => (b.s === null ? -1 : b.s) - (a.s === null ? -1 : a.s));
+      return out;
+    }
+    function showTipFor(raw, pin) {
+      stopHide();
+      stopShow();
+      const d = raw._data;
+      const key = d.idx + '|' + curDoms.join(',');
+      if (!pin && key === tipKey && tip.style.display === 'block') return;
+      tipKey = key;
+      pinned = pin;
+      tip.textContent = '';
+      const h = document.createElement('div');
+      h.style.fontWeight = 'bold';
+      h.style.display = 'flex';
+      h.style.justifyContent = 'space-between';
+      h.style.gap = '10px';
+      const ttl = document.createElement('span');
+      ttl.textContent = d.label + ' (' + (LIEU_TYPE_LABELS[d.type] || '') + ')';
+      h.appendChild(ttl);
+      if (pin) {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'Fermer';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', hideTip);
+        h.appendChild(x);
+      }
+      const pct = curOffres ? (100 * raw.v / curOffres).toFixed(1).replace('.', ',') : '0';
+      const c = document.createElement('div');
+      c.textContent = raw.v + ' ' + unitLabel + ' (' + pct + ' % ' + baseLabel + ')';
+      tip.appendChild(h);
+      tip.appendChild(c);
+      const list = lieuOffres(d.idx);
+      const MAX = 30;
+      if (list.length) {
+        const hint = document.createElement('div');
+        hint.className = 'note';
+        hint.textContent = pin
+          ? 'Liste épinglée : cliquez ailleurs, appuyez sur Échap ou sur × pour fermer.'
+          : 'Cliquez sur la case pour épingler cette liste.';
+        tip.appendChild(hint);
+        const ul = document.createElement('ul');
+        list.slice(0, MAX).forEach(o => {
+          const li = document.createElement('li');
+          const txt = o.p + ' — ' + o.e;
+          li.appendChild(document.createTextNode((o.d || 'N/C') + ' — '));
+          if (o.u && o.u.toLowerCase().indexOf('http') === 0) {
+            const a = document.createElement('a');
+            a.href = o.u;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = txt;
+            li.appendChild(a);
+          } else {
+            li.appendChild(document.createTextNode(txt));
+          }
+          ul.appendChild(li);
+        });
+        tip.appendChild(ul);
+        if (list.length > MAX) {
+          const more = document.createElement('div');
+          more.className = 'note';
+          more.textContent = '… et ' + (list.length - MAX) + ' autre(s) offre(s) non affichée(s)';
+          tip.appendChild(more);
+        }
+      }
+      tip.scrollTop = 0;
+      tip.style.display = 'block';
+      let left = mouseX + 6;
+      let top = mouseY + 6;
+      const maxLeft = window.pageXOffset + document.documentElement.clientWidth - tip.offsetWidth - 10;
+      if (left > maxLeft) left = Math.max(window.pageXOffset, maxLeft);
+      const maxTop = window.pageYOffset + window.innerHeight - tip.offsetHeight - 10;
+      if (top > maxTop) top = Math.max(window.pageYOffset, maxTop);
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+    }
+    // Appelé par Chart.js à chaque changement de case survolée (tooltip externe)
+    function lieuTooltip(context) {
+      const t = context.tooltip;
+      const act = t && t.getActiveElements ? t.getActiveElements() : [];
+      if (!act.length || !t.dataPoints || !t.dataPoints.length) {
+        lastRaw = null;
+        stopShow();
+        if (!pinned && tip.style.display === 'block' && !hideTimer) hideTimer = setTimeout(hideTip, TIP_HIDE);
+        return;
+      }
+      const raw = t.dataPoints[0].raw;
+      lastRaw = raw;
+      if (pinned) return;
+      stopHide();
+      const key = raw._data.idx + '|' + curDoms.join(',');
+      if (key === tipKey && tip.style.display === 'block') { stopShow(); return; }
+      stopShow();
+      showTimer = setTimeout(() => showTipFor(raw, false), TIP_DWELL);
+    }
+    function render() {
+      const sums = lieux.labels.map(() => 0);
+      const sums70 = lieux.labels.map(() => 0);
+      let offres70 = 0;
+      let offres = 0, nbDom = 0;
+      curDoms = [];
+      boxes.forEach(cb => {
+        if (!cb.checked) return;
+        const d = lieux.domaines[parseInt(cb.value, 10)];
+        nbDom++;
+        curDoms.push(parseInt(cb.value, 10));
+        offres += d.offres;
+        offres70 += (d.offres70 || 0);
+        (d.counts70 || []).forEach(p => { sums70[p[0]] += p[1]; });
+        d.counts.forEach(p => { sums[p[0]] += p[1]; });
+      });
+      // Lieux cochés (indice dans lieux.labels) ; sans liste de lieux dans la page, aucun filtre
+      const locOn = currentLocOn();
+      // Filtre du tableau des offres en adéquation (mêmes domaines et mêmes lieux cochés)
+      const slugTbl = canvasId.replace('lieu_chart_', '');
+      const locAll = locBoxes.every(cb => cb.checked);
+      _offresState[slugTbl] = {
+        doms: new Set(curDoms.map(di => lieux.domaines[di].nom)),
+        keys: (!locOn || locAll) ? null : new Set(Array.from(locOn).map(i => lieux.types[i] + '|' + lieux.labels[i]))
+      };
+      applyOffresFilter(slugTbl);
+      updateProfileCharts(slugTbl);
+      const tree = [];
+      lieux.labels.forEach((l, i) => {
+        if (sums[i] > 0 && (!locOn || locOn.has(i))) tree.push({ label: l, type: lieux.types[i], value: sums[i], idx: i });
+      });
+      tree.sort((a, b) => b.value - a.value);
+      hideTip();
+      lastRaw = null;
+      curOffres = offres;
+      // État transmis à l'histogramme Score >= 70 (mêmes domaines et mêmes lieux cochés)
+      _lieuState[canvasId] = { sums70: sums70, offres70: offres70, locOn: locOn, doms: curDoms.slice() };
+      if (_lieuListeners[canvasId]) _lieuListeners[canvasId](_lieuState[canvasId]);
+      if (_lieuCharts[canvasId]) { _lieuCharts[canvasId].destroy(); _lieuCharts[canvasId] = null; }
+      if (info) {
+        info.textContent = tree.length
+          ? tree.length + ' lieu(x) distinct(s) affiché(s) pour ' + nbDom + ' domaine(s) coché(s), à partir de ' + offres + ' offre(s) des domaines cochés.'
+          : 'Aucun lieu à afficher : cochez au moins un domaine et un lieu ayant des offres dans les domaines cochés.';
+      }
+      if (!tree.length) return;
+      _lieuCharts[canvasId] = new Chart(ctx, {
+        type: 'treemap',
+        data: {
+          datasets: [{
+            tree: tree,
+            key: 'value',
+            backgroundColor: c => c.type === 'data' ? (LIEU_TYPE_COLORS[c.raw._data.type] || '#6b7280') : 'transparent',
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            spacing: 0,
+            labels: {
+              display: true,
+              color: '#ffffff',
+              font: { size: TM_FONT_SIZE, weight: 'bold' },
+              formatter: tmFormatter
+            }
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: false,
+              external: context => lieuTooltip(context)
+            }
+          }
+        }
+      });
+    }
+    boxes.forEach(cb => cb.addEventListener('change', render));
+    // Case d'un département : coche/décoche toutes ses villes
+    parents.forEach(pb => {
+      pb.addEventListener('change', () => {
+        groupChildren(pb).forEach(cb => { cb.checked = pb.checked; });
+        pb.indeterminate = false;
+        render();
+      });
+    });
+    // Case d'une ville / région : met à jour l'état (coché, partiel, décoché) du département parent
+    locBoxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const g = cb.closest('.lieu-grp');
+        const pb = g ? g.querySelector('input.lieu-parent') : null;
+        if (pb) syncParent(pb);
+        render();
+      });
+    });
+    // Afficher / masquer les villes d'un département
+    document.querySelectorAll('.lieu-grp[data-canvas="' + canvasId + '"] .lieu-grp-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const g = btn.closest('.lieu-grp');
+        const body = g.querySelector('.lieu-grp-body');
+        const open = body.style.display === 'none';
+        body.style.display = open ? '' : 'none';
+        g.dataset.open = open ? '1' : '0';
+        btn.textContent = open ? '▾' : '▸';
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+    // Tout cocher / décocher une section (régions, ou départements et villes) : cases visibles seulement
+    document.querySelectorAll('button.lieu-loc-all[data-canvas="' + canvasId + '"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sec = btn.dataset.section;
+        const v = btn.dataset.check === '1';
+        locBoxes.forEach(cb => {
+          if (cb.dataset.section !== sec) return;
+          const g = cb.closest('.lieu-grp');
+          if (cb.closest('label').style.display === 'none' || (g && g.style.display === 'none')) return;
+          cb.checked = v;
+        });
+        parents.forEach(pb => {
+          if (pb.dataset.section === sec && pb.closest('.lieu-grp').style.display !== 'none') syncParent(pb);
+        });
+        render();
+      });
+    });
+    document.querySelectorAll('button.lieu-dom-all[data-canvas="' + canvasId + '"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        boxes.forEach(cb => { cb.checked = btn.dataset.check === '1'; });
+        render();
+      });
+    });
+    render();
+  }
+  function buildLieuxHistogramStatic(canvasId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: lieux.labels,
+        datasets: [{
+          label: unitLabel,
+          data: lieux.values,
+          backgroundColor: lieux.types.map(t => LIEU_TYPE_COLORS[t] || '#6b7280')
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: items => items[0].label + ' (' + (LIEU_TYPE_LABELS[lieux.types[items[0].dataIndex]] || '') + ')',
+              label: item => item.raw + ' ' + unitLabel + lieuPct(item.raw, lieux, baseLabel)
+            }
+          }
+        }
+      }
+    });
+  }
+  if (dashboardData.lieux_profil) {
+    Object.keys(dashboardData.lieux_profil).forEach(profile => {
+      buildLieuxTreemap('lieu_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_'),
+                        dashboardData.lieux_profil[profile], 'offre(s)',
+                        'des offres avec au moins un lieu identifié');
+    });
+  }
+  // Histogramme Score >= 70 : Top 10 recalculé avec les mêmes cases cochées que le treemap
+  // (domaines, régions, départements, villes)
+  function buildLieuxHistogram(canvasId, tmId, lieux, unitLabel, baseLabel) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx || !lieux) return;
+    const info = document.getElementById(canvasId + '_info');
+    let chart = null;
+    let shown = [];              // colonnes affichées (Top 10) : { label, type, value, idx }
+    let curSt = null;            // dernier état filtré (domaines cochés, base des pourcentages)
+    let mouseX = 0, mouseY = 0;  // dernière position de la souris sur le graphique (coordonnées de page)
+    let lastItem = null;         // colonne actuellement survolée (null si aucune)
+    let pinned = false;          // liste épinglée par un clic
+    let tipKey = '';
+    let hideTimer = null, showTimer = null;
+    const TIP_DWELL = 350;       // ms de pause du curseur sur une colonne avant d'afficher la liste
+    const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la colonne
+    const MAX = 30;              // nombre maximum d'offres listées
+    let tip = document.getElementById(canvasId + '_tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = canvasId + '_tip';
+      tip.className = 'lieu-tip';
+      document.body.appendChild(tip);
+    }
+    function stopHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function stopShow() { if (showTimer) { clearTimeout(showTimer); showTimer = null; } }
+    function hideTip() {
+      stopHide();
+      stopShow();
+      pinned = false;
+      tip.style.display = 'none';
+      tipKey = '';
+    }
+    // La liste reste affichée tant que la souris est dessus (pour cliquer les liens)
+    tip.addEventListener('mouseenter', () => { stopHide(); stopShow(); });
+    tip.addEventListener('mouseleave', () => { if (!pinned) hideTip(); });
+    ctx.addEventListener('mousemove', e => {
+      mouseX = e.pageX;
+      mouseY = e.pageY;
+      // le délai d'affichage ne court que si le curseur est à l'arrêt
+      if (showTimer && lastItem) {
+        clearTimeout(showTimer);
+        const it = lastItem;
+        showTimer = setTimeout(() => showTipFor(it, false), TIP_DWELL);
+      }
+    });
+    // Clic sur une colonne : épingle la liste (jusqu'à un clic ailleurs, Échap ou la croix)
+    ctx.addEventListener('click', () => {
+      if (lastItem) showTipFor(lastItem, true);
+      else if (pinned) hideTip();
+    });
+    document.addEventListener('mousedown', e => {
+      if (pinned && !tip.contains(e.target) && e.target !== ctx) hideTip();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
+    // Offres Score >= 70 du lieu (indice idx) pour les domaines cochés, triées par score décroissant
+    function offresDuLieu(idx) {
+      const seen = new Set();
+      const out = [];
+      ((curSt && curSt.doms) || []).forEach(di => {
+        (lieux.domaines[di].liens || []).forEach(pair => {
+          if (pair[0] !== idx) return;
+          pair[1].forEach(oi => {
+            const o = lieux.offres[oi];
+            if (!seen.has(oi) && o.s !== null && o.s >= 70) { seen.add(oi); out.push(o); }
+          });
+        });
+      });
+      out.sort((a, b) => b.s - a.s);
+      return out;
+    }
+    function showTipFor(it, pin) {
+      stopHide();
+      stopShow();
+      const key = it.idx + '|' + ((curSt && curSt.doms) || []).join(',');
+      if (!pin && key === tipKey && tip.style.display === 'block') return;
+      tipKey = key;
+      pinned = pin;
+      tip.textContent = '';
+      const h = document.createElement('div');
+      h.style.fontWeight = 'bold';
+      h.style.display = 'flex';
+      h.style.justifyContent = 'space-between';
+      h.style.gap = '10px';
+      const ttl = document.createElement('span');
+      ttl.textContent = it.label + ' (' + (LIEU_TYPE_LABELS[it.type] || '') + ')';
+      h.appendChild(ttl);
+      if (pin) {
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'Fermer';
+        x.style.cursor = 'pointer';
+        x.addEventListener('click', hideTip);
+        h.appendChild(x);
+      }
+      const base = curSt ? curSt.offres70 : 0;
+      const pct = base ? (100 * it.value / base).toFixed(1).replace('.', ',') : '0';
+      const c = document.createElement('div');
+      c.textContent = it.value + ' ' + unitLabel + ' (' + pct + ' % ' + baseLabel + ')';
+      tip.appendChild(h);
+      tip.appendChild(c);
+      const list = offresDuLieu(it.idx);
+      if (list.length) {
+        const hint = document.createElement('div');
+        hint.className = 'note';
+        hint.textContent = pin
+          ? 'Liste épinglée : cliquez ailleurs, appuyez sur Échap ou sur × pour fermer.'
+          : 'Cliquez sur la colonne pour épingler cette liste.';
+        tip.appendChild(hint);
+        const ul = document.createElement('ul');
+        list.slice(0, MAX).forEach(o => {
+          const li = document.createElement('li');
+          const txt = o.p + ' — ' + o.e;
+          li.appendChild(document.createTextNode((o.d || 'N/C') + ' — '));
+          if (o.u && o.u.toLowerCase().indexOf('http') === 0) {
+            const a = document.createElement('a');
+            a.href = o.u;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = txt;
+            li.appendChild(a);
+          } else {
+            li.appendChild(document.createTextNode(txt));
+          }
+          ul.appendChild(li);
+        });
+        tip.appendChild(ul);
+        if (list.length > MAX) {
+          const more = document.createElement('div');
+          more.className = 'note';
+          more.textContent = '… et ' + (list.length - MAX) + ' autre(s) offre(s) non affichée(s)';
+          tip.appendChild(more);
+        }
+      }
+      tip.scrollTop = 0;
+      tip.style.display = 'block';
+      let left = mouseX + 6;
+      let topPos = mouseY + 6;
+      const maxLeft = window.pageXOffset + document.documentElement.clientWidth - tip.offsetWidth - 10;
+      if (left > maxLeft) left = Math.max(window.pageXOffset, maxLeft);
+      const maxTop = window.pageYOffset + window.innerHeight - tip.offsetHeight - 10;
+      if (topPos > maxTop) topPos = Math.max(window.pageYOffset, maxTop);
+      tip.style.left = left + 'px';
+      tip.style.top = topPos + 'px';
+    }
+    // Appelé par Chart.js à chaque changement de colonne survolée (tooltip externe)
+    function barTooltip(context) {
+      const t = context.tooltip;
+      const act = t && t.getActiveElements ? t.getActiveElements() : [];
+      if (!act.length || !t.dataPoints || !t.dataPoints.length) {
+        lastItem = null;
+        stopShow();
+        if (!pinned && tip.style.display === 'block' && !hideTimer) hideTimer = setTimeout(hideTip, TIP_HIDE);
+        return;
+      }
+      const it = shown[t.dataPoints[0].dataIndex];
+      if (!it) return;
+      lastItem = it;
+      if (pinned) return;
+      stopHide();
+      const key = it.idx + '|' + ((curSt && curSt.doms) || []).join(',');
+      if (key === tipKey && tip.style.display === 'block') { stopShow(); return; }
+      stopShow();
+      showTimer = setTimeout(() => showTipFor(it, false), TIP_DWELL);
+    }
+    function update(st) {
+      curSt = st;
+      hideTip();
+      lastItem = null;
+      const items = [];
+      lieux.labels.forEach((l, i) => {
+        if (st.sums70[i] > 0 && (!st.locOn || st.locOn.has(i))) {
+          items.push({ label: l, type: lieux.types[i], value: st.sums70[i], idx: i });
+        }
+      });
+      items.sort((a, b) => b.value - a.value);
+      const top = items.slice(0, 10);
+      shown = top;
+      if (chart) { chart.destroy(); chart = null; }
+      if (info) {
+        info.textContent = items.length
+          ? 'Top ' + top.length + ' sur ' + items.length + ' lieu(x) distinct(s) correspondant aux cases cochées, à partir de ' + st.offres70 + ' offre(s) Score ≥ 70 des domaines cochés.'
+          : 'Aucun lieu à afficher : aucune offre Score ≥ 70 pour les cases cochées.';
+      }
+      if (!top.length) return;
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: top.map(x => x.label),
+          datasets: [{
+            label: unitLabel,
+            data: top.map(x => x.value),
+            backgroundColor: top.map(x => LIEU_TYPE_COLORS[x.type] || '#6b7280')
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: false,
+              external: context => barTooltip(context)
+            }
+          }
+        }
+      });
+    }
+    _lieuListeners[tmId] = update;
+    if (_lieuState[tmId]) update(_lieuState[tmId]);
+  }
+  if (dashboardData.lieux_ge70) {
+    Object.keys(dashboardData.lieux_ge70).forEach(profile => {
+      const slug = profile.replace(/[^a-zA-Z0-9]/g, '_');
+      const tm = dashboardData.lieux_profil ? dashboardData.lieux_profil[profile] : null;
+      if (tm) {
+        buildLieuxHistogram('lieu_ge70_chart_' + slug, 'lieu_chart_' + slug, tm, 'offre(s) Score ≥ 70',
+                            'des offres Score ≥ 70 (domaines cochés) avec au moins un lieu identifié');
+      } else {
+        buildLieuxHistogramStatic('lieu_ge70_chart_' + slug, dashboardData.lieux_ge70[profile],
+                                  'offre(s) Score ≥ 70', 'des offres Score ≥ 70 avec au moins un lieu identifié');
+      }
+    });
+  }
+</script>
+
+<!-- Scripts d'interactivité des tableaux -->
+<script>
+(function() {
+  var tables = document.querySelectorAll('table.tbl');
+  tables.forEach(function(tbl) {
+    var thead = tbl.querySelector('thead');
+    if (!thead) return;
+    var headers = thead.querySelectorAll('th');
+    var tbody = tbl.querySelector('tbody');
+    if (!tbody) return;
+
+    var toolbar = document.createElement('div');
+    toolbar.className = 'tbl-toolbar';
+
+    var search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'tbl-search';
+    search.placeholder = '🔍 Rechercher dans le tableau...';
+
+    var counter = document.createElement('div');
+    counter.className = 'tbl-counter';
+
+    toolbar.appendChild(search);
+    toolbar.appendChild(counter);
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'tbl-wrap' + (tbl.classList.contains('tbl-scroll') ? ' tbl-wrap-scroll' : '');
+    
+    tbl.parentNode.insertBefore(wrapper, tbl);
+    wrapper.appendChild(tbl);
+    wrapper.parentNode.insertBefore(toolbar, wrapper);
+
+    var allRows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+    var sortDir = {};
+
+    function getCellText(row, idx) {
+      var td = row.children[idx];
+      if (!td) return '';
+      return td.textContent.trim();
+    }
+
+    function parseVal(text) {
+      var dm = text.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (dm) {
+        return parseInt(dm[3], 10) * 10000 + parseInt(dm[2], 10) * 100 + parseInt(dm[1], 10);
+      }
+      if (text.trim().toUpperCase() === 'N/C') {
+        return -1;
+      }
+      var clean = text.replace(/[^\d.,-]/g, '').replace(/\s/g, '').replace(',', '.');
+      var num = parseFloat(clean);
+      return isNaN(num) ? text.toLowerCase() : num;
+    }
+
+    function updateCounter(visibleCount, totalCount) {
+      counter.textContent = "Affichage de " + visibleCount + " sur " + totalCount + " ligne(s)";
+    }
+
+    function filterRows() {
+      var q = search.value.trim().toLowerCase();
+      var visible = 0;
+      allRows.forEach(function(r) {
+        if (r.classList.contains('tbl-total')) {
+          r.style.display = '';
+          return;
+        }
+        var text = r.textContent.toLowerCase();
+        var match = (q === '' || text.indexOf(q) !== -1) && !r._pf;   // _pf : masquée par les filtres du profil
+        r.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      updateCounter(visible, allRows.length);
+    }
+
+    function sortRows(idx) {
+      var dir = sortDir[idx] = !sortDir[idx];
+      headers.forEach(function(h) { h.classList.remove('sorted-asc', 'sorted-desc'); });
+      headers[idx].classList.add(dir ? 'sorted-asc' : 'sorted-desc');
+      
+      var nonTotalRows = allRows.filter(function(r) { return !r.classList.contains('tbl-total'); });
+      var totalRows = allRows.filter(function(r) { return r.classList.contains('tbl-total'); });
+
+      nonTotalRows.sort(function(a, b) {
+        var va = parseVal(getCellText(a, idx));
+        var vb = parseVal(getCellText(b, idx));
+        if (va < vb) return dir ? -1 : 1;
+        if (va > vb) return dir ? 1 : -1;
+        return 0;
+      });
+
+      var currentFrag = document.createDocumentFragment();
+      nonTotalRows.forEach(function(r) { currentFrag.appendChild(r); });
+      totalRows.forEach(function(r) { currentFrag.appendChild(r); });
+      tbody.appendChild(currentFrag);
+      
+      filterRows();
+    }
+
+    headers.forEach(function(h, i) {
+      h.addEventListener('click', function() { sortRows(i); });
+    });
+    search.addEventListener('input', filterRows);
+
+    tbl._refilter = filterRows;   // appelé par applyOffresFilter quand les filtres du profil changent
+    filterRows();
+  });
+})();
+</script>
+
+<!-- Script de gestion des onglets (Global + par profil) -->
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.tab-btn');
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = btn.getAttribute('data-target');
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      var panel = document.getElementById(target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+})();
+</script>
+</body>
+</html>
