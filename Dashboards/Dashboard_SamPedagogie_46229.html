@@ -6,8 +6,6 @@
 <title>Job Radar — Tableau de bord</title>
 <!-- Inclusion de Chart.js pour des graphiques interactifs -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Plugin treemap pour Chart.js (v3.1.0 : compatible Chart.js 4) -->
-<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@3.1.0/dist/chartjs-chart-treemap.min.js"></script>
 <!-- Carte des lieux (Leaflet) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -319,14 +317,6 @@
   }
   .lieu-tip ul { margin: 6px 0 0 0; padding-left: 16px; }
   .lieu-tip li { margin-bottom: 3px; }
-  .treemap-container {
-    position: relative;
-    width: 100%;
-    max-width: 800px;
-    margin: 20px auto;
-    height: 380px;
-  }
-
   .note {
     font-size: 12px;
     color: var(--text-muted);
@@ -376,7 +366,7 @@
 <header class="top-bar">
   <div class="top-bar-inner">
     <h1>Job Radar — Tableau de bord</h1>
-    <div class="meta">Généré le 27/10/2026 10:26 — Profils inclus : SamPedagogie</div>
+    <div class="meta">Généré le 27/10/2026 10:42 — Profils inclus : SamPedagogie</div>
   </div>
 </header>
 
@@ -387,8 +377,8 @@
 </nav>
 
 <div class="wrap">
-  <div class="tab-panel active" id="panel-SamPedagogie"><div class="card"><h2>SamPedagogie — Statistiques au 27/10/2026</h2><div class="profile-filters"><h3>Filtres du profil SamPedagogie</h3><p class="note">Cochez les domaines et les régions / départements / villes à conserver, et saisissez au besoin une date de publication minimale. Ces filtres s'appliquent à tous les tableaux et graphiques de ce profil. Tout est coché par défaut.</p><p id="date_filter_SamPedagogie"><label for="date_SamPedagogie"><strong>Offres publiées depuis le :</strong></label> <input type="date" id="date_SamPedagogie"> <button type="button" id="date_reset_SamPedagogie">Effacer</button> <span class="note">(date de publication incluse ; vide = toutes les offres ; les offres sans date de publication sont exclues quand une date est saisie)</span></p><div class="lieu-dom-box"><strong>Domaines</strong> <span class="note">(nombre d'offres avec un lieu identifié)</span> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_SamPedagogie" data-check="1">Tout cocher</button> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_SamPedagogie" data-check="0">Tout décocher</button><div class="lieu-dom-list"><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="0" checked> Formation <span class="note">(59)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="1" checked> CFA <span class="note">(15)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="2" checked> Pédagogique <span class="note">(10)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="3" checked> Relation Entreprise <span class="note">(6)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="4" checked> filière <span class="note">(5)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="5" checked> Campus <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="6" checked> placement <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="7" checked> sourcing <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="8" checked> Enseignement <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="9" checked> Partenariat <span class="note">(2)</span></label></div></div><div class="lieu-dom-box"><div class="lieu-loc-group"><strong>Départements et villes</strong> <span class="note">(4 département(s), 18 ville(s) ; cliquez sur ▸ pour afficher les villes d'un département)</span> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-check="1">Tout cocher</button> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-check="0">Tout décocher</button><div class="lieu-geo-scroll"><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="1" checked> <strong>Hérault</strong> <span class="note">(9 ville(s) ; 27 offre(s) citant seulement le département)</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="0" checked> Montpellier <span class="note">(38)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="3" checked> Béziers <span class="note">(9)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="6" checked> Sète <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="7" checked> Agde <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="10" checked> Castelnau-le-Lez <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="14" checked> Lunel <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="15" checked> Mauguio <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="16" checked> Le Cres <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="18" checked> Saint-Jean-De-Vedas <span class="note">(1)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="" checked> <strong>Aude</strong> <span class="note">(4 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="4" checked> Narbonne <span class="note">(8)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="5" checked> Carcassonne <span class="note">(8)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="8" checked> Castelnaudary <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="9" checked> Marseillette <span class="note">(2)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="" checked> <strong>Pyrénées-Orientales</strong> <span class="note">(4 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="2" checked> Perpignan <span class="note">(9)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="11" checked> Vinça <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="12" checked> Prades <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="13" checked> Saint-Paul-de-Fenouillet <span class="note">(1)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="" checked> <strong>Haute Garonne</strong> <span class="note">(1 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="17" checked> Cornebarrieu <span class="note">(1)</span></label></div></div></div></div></div></div><h3><span id="nb_offres_SamPedagogie">32</span> Offres en adéquation avec le CV - depuis le lancement du Radar</h3><table class='tbl tbl-scroll' id=tbl_offres_SamPedagogie><thead><tr><th>#</th><th>Poste</th><th>Entreprise</th><th>Lieu</th><th>Score</th><th>Mot-clé Domaine</th><th>Mot-clé Fonction</th><th>Date Publication</th><th>Lien</th></tr></thead><tbody><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260916"><td>1</td><td>Conseiller(e) insertion professionnelle REFERENT FORMATION (H/F)</td><td>MLJ3M</td><td>34 - Montpellier</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>16/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213YLJV" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Campus" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260920"><td>2</td><td>Directeur de Campus F/H</td><td>Eureka Education</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Campus</td><td>Directeur</td><td>20/09/2026</td><td><a href="https://www.adzuna.fr/details/5891050951?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260922"><td>3</td><td>Conseiller commercial formation - Academee (F/H)</td><td>Studi</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5893244660?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260922"><td>4</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>N/C</td><td>Montpellier, Hérault</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5893606717?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260923"><td>5</td><td>Conseiller Formation H/F - Montpellier (F/H) (CDI)</td><td>MICHAEL PAGE</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>23/09/2026</td><td><a href="https://www.adzuna.fr/land/ad/5894394329?se=UFDfqB238RGY1rDVmUSOcw&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=163780C00F40562AFCCAF6A933FCD64FC71618AA" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260922"><td>6</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>MICHAEL PAGE</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5894070778?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260922"><td>7</td><td>Conseiller-Conseillère en formation professionnelle (CFP)</td><td>Choisir le Service Public</td><td>Perpignan, Pyrénées-Orientales</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5894131499?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260924"><td>8</td><td>Faisant fonction conseiller-Conseillère en formation professionnelle (CFP)</td><td>Choisir le Service Public</td><td>Perpignan, Pyrénées-Orientales</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/details/5897025960?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Pédagogique" data-locs="[&quot;ville|Narbonne&quot;]" data-date="20260911"><td>9</td><td>Coordinateur/trice pédagogique et Pôle Entreprise (H/F)</td><td>N/C</td><td>11 - Narbonne</td><td><span class='badge badge-green'>80</span></td><td>Pédagogique</td><td>Coordinateur</td><td>11/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213TLVQ" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Béziers&quot;]" data-date="20260915"><td>10</td><td>Chargé de la formation - COMMUNAUTE AGGLO BEZIERS MEDITERRANEE</td><td>Fonction publique Territoriale</td><td>Béziers, Hérault</td><td><span class='badge badge-green'>80</span></td><td>Formation</td><td>Chargé</td><td>15/09/2026</td><td><a href="https://www.adzuna.fr/details/5884921447?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260924"><td>11</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>N/C</td><td>Montpellier, Hérault</td><td><span class='badge badge-green'>80</span></td><td>Formation</td><td>Conseil</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/details/5896018222?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20261001"><td>12</td><td>Conseiller Formation - Montpellier H/F</td><td>Michael Page</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>80</span></td><td>Formation</td><td>Conseil</td><td>01/10/2026</td><td><a href="https://www.adzuna.fr/details/5904461053?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260923"><td>13</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>N/C</td><td>34 - Montpellier</td><td><span class='badge badge-green'>77</span></td><td>Formation</td><td>Conseil</td><td>23/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/7133909" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Narbonne&quot;]" data-date="20260901"><td>14</td><td>Responsable de Formation  (H/F)</td><td>N/C</td><td>11 - NARBONNE</td><td><span class='badge badge-green'>75</span></td><td>Formation</td><td>Responsable</td><td>01/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213FCGL" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Relation Entreprise" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260909"><td>15</td><td>Responsable d&#x27;activité relation entreprises F/H</td><td>AKTO</td><td>34 - Montpellier</td><td><span class='badge badge-green'>75</span></td><td>Relation Entreprise</td><td>Responsable</td><td>09/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/6774125" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Carcassonne&quot;]" data-date="20260821"><td>16</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Carcassonne le 07/12/2026</td><td>BIOPYK Campus</td><td>Carcassonne, Aude, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>21/08/2026</td><td><a href="https://www.adzuna.fr/details/5851254489?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260820"><td>17</td><td>Conseiller en formation</td><td>INTED GROUP</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>20/08/2026</td><td><a href="https://www.adzuna.fr/details/5849272579?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Béziers&quot;]" data-date="20260821"><td>18</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Béziers le 07/12/2026</td><td>BIOPYK Campus</td><td>Béziers 3e Canton, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>21/08/2026</td><td><a href="https://www.adzuna.fr/details/5851143587?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Sète&quot;, &quot;ville|Montpellier&quot;]" data-date="20260827"><td>19</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Sète le 07/12/2026</td><td>BIOPYK Campus</td><td>Sète, Montpellier, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858362838?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Agde&quot;, &quot;ville|Béziers&quot;]" data-date="20260827"><td>20</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Agde le 07/12/2026</td><td>BIOPYK Campus</td><td>Agde, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858387693?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260827"><td>21</td><td>Conseiller commercial formation - Academee (F/H)</td><td>Studi</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858738207?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260827"><td>22</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Perpignan le 07/12/2026</td><td>BIOPYK Campus</td><td>Perpignan, Pyrénées-Orientales, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858393822?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Pédagogique" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260827"><td>23</td><td>Coordinateur Pédagogique filière informatique H/F</td><td>YNOV</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Pédagogique</td><td>Coordinateur</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858357841?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Mauguio&quot;]" data-date="20260909"><td>24</td><td>Chargé(e) de développement formation professionnelle (H/F)</td><td>TRAVELLING</td><td>34 - MAUGUIO</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>09/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213QYCW" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Carcassonne&quot;]" data-date="20260910"><td>25</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Carcassonne le 22/03/2027</td><td>BIOPYK Campus</td><td>Carcassonne, Aude, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>10/09/2026</td><td><a href="https://www.adzuna.fr/details/5878692226?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Béziers&quot;]" data-date="20260910"><td>26</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Béziers le 22/03/2027</td><td>BIOPYK Campus</td><td>Béziers 3e Canton, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>10/09/2026</td><td><a href="https://www.adzuna.fr/details/5878730508?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Agde&quot;, &quot;ville|Béziers&quot;]" data-date="20260910"><td>27</td><td>Formation Conseiller en Insertion Professionnelle - Agde le 22/03/2027</td><td>BIOPYK Campus</td><td>Agde, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>10/09/2026</td><td><a href="https://www.adzuna.fr/details/5878725231?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Narbonne&quot;]" data-date="20260911"><td>28</td><td>Formation Conseiller en Insertion Professionnelle - Narbonne le 22/03/2027</td><td>BIOPYK Campus</td><td>Narbonne-Sud, Narbonne, Aude</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879943150?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260911"><td>29</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Montpellier le 22/03/2027</td><td>BIOPYK Campus</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879907118?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Sète&quot;, &quot;ville|Montpellier&quot;]" data-date="20260911"><td>30</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Sète le 22/03/2027</td><td>BIOPYK Campus</td><td>Sète, Montpellier, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879892308?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260911"><td>31</td><td>Formation Conseiller en Insertion Professionnelle - Montpellier le 22/03/2027</td><td>BIOPYK Campus</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879940520?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260911"><td>32</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Perpignan le 22/03/2027</td><td>BIOPYK Campus</td><td>Perpignan, Pyrénées-Orientales, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879916620?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr></tbody></table><div class="pie-row"><div class="pie-col"><h3>Top 10 des entreprises qui recrutent le plus pour ce profil - depuis le lancement du Radar</h3><div class="pie-container"><canvas id="ent_chart_SamPedagogie"></canvas></div><p class="note">Cliquez sur une part du camembert pour afficher les offres de l'entreprise.</p><div id="ent_detail_SamPedagogie" class="callout" style="display:none"></div></div><div class="pie-col"><h3>Top 10 des entreprises qui proposent un poste qui match avec le CV (Score ≥ 70)</h3><div class="pie-container"><canvas id="ent_ge70_chart_SamPedagogie"></canvas></div><p class="note">Cliquez sur une part du camembert pour afficher les offres de l'entreprise.</p><div id="ent_ge70_detail_SamPedagogie" class="callout" style="display:none"></div></div></div><h3>Toutes les villes/départements où les entreprises recrutent pour ce profil - depuis le lancement du Radar</h3><p class="note" id="lieu_chart_SamPedagogie_info"></p><div class="treemap-container"><canvas id="lieu_chart_SamPedagogie"></canvas></div><p class="note"><strong>Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong><br>Couleurs : bleu = ville, vert = département, orange = région.<br>Règle : si le lieu cite au moins une ville, seules les villes sont comptées;sinon, s'il cite un département, seuls les départements sont comptés; sinon la région.<br></p><h3>Carte des régions recherchées — offres par ville et par département</h3><p class="note" id="lieu_map_SamPedagogie_info"></p><div class="lieu-map-ctrl"><label><input type="checkbox" id="lieu_map_SamPedagogie_v" checked> <span class="lieu-map-dot" style="background:#2563eb"></span>Villes</label><label><input type="checkbox" id="lieu_map_SamPedagogie_d" checked> <span class="lieu-map-dot" style="background:#10b981"></span>Départements</label><label><input type="checkbox" id="lieu_map_SamPedagogie_r" checked> <span class="lieu-map-dot" style="background:#f59e0b"></span>Régions (offres citant seulement la région)</label><label><input type="checkbox" id="lieu_map_SamPedagogie_s70"> Score ≥ 70 seulement</label><label><input type="checkbox" id="lieu_map_SamPedagogie_lim" checked> Limites des départements</label><label><input type="checkbox" id="lieu_map_SamPedagogie_osm"> Fond OpenStreetMap</label></div><div id="lieu_map_SamPedagogie" class="lieu-map"></div><p class="note"><strong>Cliquez sur une bulle pour afficher les offres (30 au maximum) ; cliquez sur une région pour son total d'offres distinctes.</strong> Les mêmes filtres que le treemap s'appliquent (domaines, lieux cochés, date de publication).<br>Surface d'une bulle proportionnelle au nombre d'offres. En orange : régions où des offres ont été trouvées (région citée, ou département / ville rattaché à la région). Ville : centre de la commune (geo.api.gouv.fr), uniquement si la commune est identifiée sans ambiguïté. Département et région : centre géométrique du contour.</p><details id="lieu_map_SamPedagogie_unplaced" style="display:none"><summary></summary><ul></ul></details><h3>Top 10 des villes/départements où les entreprises proposent un poste qui match avec le CV (Score ≥ 70)</h3><p class="note" id="lieu_ge70_chart_SamPedagogie_info"></p><div class="chart-container"><canvas id="lieu_ge70_chart_SamPedagogie"></canvas></div><p class="note"><strong> Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong></p><h3>Évolution hebdomadaire des offres filtrées par Job Radar</h3><div class="chart-container"><canvas id="evo_chart_SamPedagogie"></canvas></div><p class="note">Découpage par semaine calendaire (lundi-dimanche).</p><h3>Pertinence des mots-clé pour filtrer des offres</h3><div class="chart-container" style="height: 690px;"><canvas id="kw_chart_SamPedagogie"></canvas></div><div class="callout"><strong>⚠️ Mots-clés Domaine configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>École supérieure</li><li>OPCO</li><li>RNCP</li><li>Emploi Territoire</li><li>Pôle alternance</li><li>Relation Alternance</li></ul></div><div class="callout"><strong>⚠️ Mots-clés Fonction configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>Consultant</li><li>Direction</li><li>Gestionnaire</li><li>Développement</li><li>Développeur</li></ul></div></div></div>
-  <footer class="foot">Job Radar — document généré automatiquement le 27/10/2026 10:26.</footer>
+  <div class="tab-panel active" id="panel-SamPedagogie"><div class="card"><h2>SamPedagogie — Statistiques au 27/10/2026</h2><div class="profile-filters"><h3>Filtres du profil SamPedagogie</h3><p class="note">Cochez les domaines et les régions / départements / villes à conserver, et saisissez au besoin une date de publication minimale. Ces filtres s'appliquent à tous les tableaux et graphiques de ce profil. Tout est coché par défaut.</p><p id="date_filter_SamPedagogie"><label for="date_SamPedagogie"><strong>Offres publiées depuis le :</strong></label> <input type="date" id="date_SamPedagogie"> <button type="button" id="date_reset_SamPedagogie">Effacer</button> <span class="note">(date de publication incluse ; vide = toutes les offres ; les offres sans date de publication sont exclues quand une date est saisie)</span></p><div class="lieu-dom-box"><strong>Domaines</strong> <span class="note">(nombre d'offres avec un lieu identifié)</span> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_SamPedagogie" data-check="1">Tout cocher</button> <button type="button" class="lieu-dom-all" data-canvas="lieu_chart_SamPedagogie" data-check="0">Tout décocher</button><div class="lieu-dom-list"><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="0" checked> Formation <span class="note">(59)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="1" checked> CFA <span class="note">(15)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="2" checked> Pédagogique <span class="note">(10)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="3" checked> Relation Entreprise <span class="note">(6)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="4" checked> filière <span class="note">(5)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="5" checked> Campus <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="6" checked> placement <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="7" checked> sourcing <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="8" checked> Enseignement <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-dom" data-canvas="lieu_chart_SamPedagogie" value="9" checked> Partenariat <span class="note">(2)</span></label></div></div><div class="lieu-dom-box"><div class="lieu-loc-group"><strong>Départements et villes</strong> <span class="note">(4 département(s), 18 ville(s) ; cliquez sur ▸ pour afficher les villes d'un département)</span> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-check="1">Tout cocher</button> <button type="button" class="lieu-loc-all" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-check="0">Tout décocher</button><div class="lieu-geo-scroll"><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="1" checked> <strong>Hérault</strong> <span class="note">(9 ville(s) ; 27 offre(s) citant seulement le département)</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="0" checked> Montpellier <span class="note">(38)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="3" checked> Béziers <span class="note">(9)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="6" checked> Sète <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="7" checked> Agde <span class="note">(4)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="10" checked> Castelnau-le-Lez <span class="note">(2)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="14" checked> Lunel <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="15" checked> Mauguio <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="16" checked> Le Cres <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="18" checked> Saint-Jean-De-Vedas <span class="note">(1)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="" checked> <strong>Aude</strong> <span class="note">(4 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="4" checked> Narbonne <span class="note">(8)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="5" checked> Carcassonne <span class="note">(8)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="8" checked> Castelnaudary <span class="note">(3)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="9" checked> Marseillette <span class="note">(2)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="" checked> <strong>Pyrénées-Orientales</strong> <span class="note">(4 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="2" checked> Perpignan <span class="note">(9)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="11" checked> Vinça <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="12" checked> Prades <span class="note">(1)</span></label><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="13" checked> Saint-Paul-de-Fenouillet <span class="note">(1)</span></label></div></div><div class="lieu-grp" data-canvas="lieu_chart_SamPedagogie"><div class="lieu-grp-head"><button type="button" class="lieu-grp-toggle" aria-expanded="false" title="Afficher les villes">▸</button><label class="lieu-dom-item"><input type="checkbox" class="lieu-parent" data-canvas="lieu_chart_SamPedagogie" data-section="geo" data-idx="" checked> <strong>Haute Garonne</strong> <span class="note">(1 ville(s))</span></label></div><div class="lieu-dom-list lieu-grp-body" style="display:none"><label class="lieu-dom-item"><input type="checkbox" class="lieu-loc" data-canvas="lieu_chart_SamPedagogie" data-section="geo" value="17" checked> Cornebarrieu <span class="note">(1)</span></label></div></div></div></div></div></div><h3><span id="nb_offres_SamPedagogie">32</span> Offres en adéquation avec le CV - depuis le lancement du Radar</h3><table class='tbl tbl-scroll' id=tbl_offres_SamPedagogie><thead><tr><th>#</th><th>Poste</th><th>Entreprise</th><th>Lieu</th><th>Score</th><th>Mot-clé Domaine</th><th>Mot-clé Fonction</th><th>Date Publication</th><th>Lien</th></tr></thead><tbody><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260916"><td>1</td><td>Conseiller(e) insertion professionnelle REFERENT FORMATION (H/F)</td><td>MLJ3M</td><td>34 - Montpellier</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>16/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213YLJV" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Campus" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260920"><td>2</td><td>Directeur de Campus F/H</td><td>Eureka Education</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Campus</td><td>Directeur</td><td>20/09/2026</td><td><a href="https://www.adzuna.fr/details/5891050951?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260922"><td>3</td><td>Conseiller commercial formation - Academee (F/H)</td><td>Studi</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5893244660?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260922"><td>4</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>N/C</td><td>Montpellier, Hérault</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5893606717?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260923"><td>5</td><td>Conseiller Formation H/F - Montpellier (F/H) (CDI)</td><td>MICHAEL PAGE</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>23/09/2026</td><td><a href="https://www.adzuna.fr/land/ad/5894394329?se=UFDfqB238RGY1rDVmUSOcw&amp;utm_medium=api&amp;utm_source=90a8d42a&amp;v=163780C00F40562AFCCAF6A933FCD64FC71618AA" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260922"><td>6</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>MICHAEL PAGE</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5894070778?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260922"><td>7</td><td>Conseiller-Conseillère en formation professionnelle (CFP)</td><td>Choisir le Service Public</td><td>Perpignan, Pyrénées-Orientales</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>22/09/2026</td><td><a href="https://www.adzuna.fr/details/5894131499?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260924"><td>8</td><td>Faisant fonction conseiller-Conseillère en formation professionnelle (CFP)</td><td>Choisir le Service Public</td><td>Perpignan, Pyrénées-Orientales</td><td><span class='badge badge-green'>82</span></td><td>Formation</td><td>Conseil</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/details/5897025960?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Pédagogique" data-locs="[&quot;ville|Narbonne&quot;]" data-date="20260911"><td>9</td><td>Coordinateur/trice pédagogique et Pôle Entreprise (H/F)</td><td>N/C</td><td>11 - Narbonne</td><td><span class='badge badge-green'>80</span></td><td>Pédagogique</td><td>Coordinateur</td><td>11/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213TLVQ" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Béziers&quot;]" data-date="20260915"><td>10</td><td>Chargé de la formation - COMMUNAUTE AGGLO BEZIERS MEDITERRANEE</td><td>Fonction publique Territoriale</td><td>Béziers, Hérault</td><td><span class='badge badge-green'>80</span></td><td>Formation</td><td>Chargé</td><td>15/09/2026</td><td><a href="https://www.adzuna.fr/details/5884921447?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260924"><td>11</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>N/C</td><td>Montpellier, Hérault</td><td><span class='badge badge-green'>80</span></td><td>Formation</td><td>Conseil</td><td>24/09/2026</td><td><a href="https://www.adzuna.fr/details/5896018222?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20261001"><td>12</td><td>Conseiller Formation - Montpellier H/F</td><td>Michael Page</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>80</span></td><td>Formation</td><td>Conseil</td><td>01/10/2026</td><td><a href="https://www.adzuna.fr/details/5904461053?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260923"><td>13</td><td>Conseiller Formation H/F - Montpellier (F/H)</td><td>N/C</td><td>34 - Montpellier</td><td><span class='badge badge-green'>77</span></td><td>Formation</td><td>Conseil</td><td>23/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/7133909" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Narbonne&quot;]" data-date="20260901"><td>14</td><td>Responsable de Formation  (H/F)</td><td>N/C</td><td>11 - NARBONNE</td><td><span class='badge badge-green'>75</span></td><td>Formation</td><td>Responsable</td><td>01/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213FCGL" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Relation Entreprise" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260909"><td>15</td><td>Responsable d&#x27;activité relation entreprises F/H</td><td>AKTO</td><td>34 - Montpellier</td><td><span class='badge badge-green'>75</span></td><td>Relation Entreprise</td><td>Responsable</td><td>09/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/6774125" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Carcassonne&quot;]" data-date="20260821"><td>16</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Carcassonne le 07/12/2026</td><td>BIOPYK Campus</td><td>Carcassonne, Aude, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>21/08/2026</td><td><a href="https://www.adzuna.fr/details/5851254489?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260820"><td>17</td><td>Conseiller en formation</td><td>INTED GROUP</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>20/08/2026</td><td><a href="https://www.adzuna.fr/details/5849272579?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Béziers&quot;]" data-date="20260821"><td>18</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Béziers le 07/12/2026</td><td>BIOPYK Campus</td><td>Béziers 3e Canton, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>21/08/2026</td><td><a href="https://www.adzuna.fr/details/5851143587?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Sète&quot;, &quot;ville|Montpellier&quot;]" data-date="20260827"><td>19</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Sète le 07/12/2026</td><td>BIOPYK Campus</td><td>Sète, Montpellier, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858362838?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Agde&quot;, &quot;ville|Béziers&quot;]" data-date="20260827"><td>20</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Agde le 07/12/2026</td><td>BIOPYK Campus</td><td>Agde, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858387693?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260827"><td>21</td><td>Conseiller commercial formation - Academee (F/H)</td><td>Studi</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858738207?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260827"><td>22</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Perpignan le 07/12/2026</td><td>BIOPYK Campus</td><td>Perpignan, Pyrénées-Orientales, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858393822?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Pédagogique" data-locs="[&quot;departement|Hérault&quot;]" data-date="20260827"><td>23</td><td>Coordinateur Pédagogique filière informatique H/F</td><td>YNOV</td><td>Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Pédagogique</td><td>Coordinateur</td><td>27/08/2026</td><td><a href="https://www.adzuna.fr/details/5858357841?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Mauguio&quot;]" data-date="20260909"><td>24</td><td>Chargé(e) de développement formation professionnelle (H/F)</td><td>TRAVELLING</td><td>34 - MAUGUIO</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>09/09/2026</td><td><a href="https://candidat.francetravail.fr/offres/recherche/detail/213QYCW" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Carcassonne&quot;]" data-date="20260910"><td>25</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Carcassonne le 22/03/2027</td><td>BIOPYK Campus</td><td>Carcassonne, Aude, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>10/09/2026</td><td><a href="https://www.adzuna.fr/details/5878692226?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Béziers&quot;]" data-date="20260910"><td>26</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Béziers le 22/03/2027</td><td>BIOPYK Campus</td><td>Béziers 3e Canton, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>10/09/2026</td><td><a href="https://www.adzuna.fr/details/5878730508?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Agde&quot;, &quot;ville|Béziers&quot;]" data-date="20260910"><td>27</td><td>Formation Conseiller en Insertion Professionnelle - Agde le 22/03/2027</td><td>BIOPYK Campus</td><td>Agde, Béziers, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>10/09/2026</td><td><a href="https://www.adzuna.fr/details/5878725231?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Narbonne&quot;]" data-date="20260911"><td>28</td><td>Formation Conseiller en Insertion Professionnelle - Narbonne le 22/03/2027</td><td>BIOPYK Campus</td><td>Narbonne-Sud, Narbonne, Aude</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879943150?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260911"><td>29</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Montpellier le 22/03/2027</td><td>BIOPYK Campus</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879907118?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Sète&quot;, &quot;ville|Montpellier&quot;]" data-date="20260911"><td>30</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Sète le 22/03/2027</td><td>BIOPYK Campus</td><td>Sète, Montpellier, Hérault</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879892308?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Montpellier&quot;]" data-date="20260911"><td>31</td><td>Formation Conseiller en Insertion Professionnelle - Montpellier le 22/03/2027</td><td>BIOPYK Campus</td><td>Montpellier, Hérault, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Conseil</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879940520?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr><tr data-dom="Formation" data-locs="[&quot;ville|Perpignan&quot;]" data-date="20260911"><td>32</td><td>Formation Chargé de Projets de Formation et d&#x27;Enseignement - Perpignan le 22/03/2027</td><td>BIOPYK Campus</td><td>Perpignan, Pyrénées-Orientales, Occitanie</td><td><span class='badge badge-green'>70</span></td><td>Formation</td><td>Chargé</td><td>11/09/2026</td><td><a href="https://www.adzuna.fr/details/5879916620?utm_medium=api&amp;utm_source=90a8d42a" target="_blank" rel="noopener noreferrer">Voir l'offre</a></td></tr></tbody></table><div class="pie-row"><div class="pie-col"><h3>Top 10 des entreprises qui recrutent le plus pour ce profil - depuis le lancement du Radar</h3><div class="pie-container"><canvas id="ent_chart_SamPedagogie"></canvas></div><p class="note">Cliquez sur une part du camembert pour afficher les offres de l'entreprise.</p><div id="ent_detail_SamPedagogie" class="callout" style="display:none"></div></div><div class="pie-col"><h3>Top 10 des entreprises qui proposent un poste qui match avec le CV (Score ≥ 70)</h3><div class="pie-container"><canvas id="ent_ge70_chart_SamPedagogie"></canvas></div><p class="note">Cliquez sur une part du camembert pour afficher les offres de l'entreprise.</p><div id="ent_ge70_detail_SamPedagogie" class="callout" style="display:none"></div></div></div><h3>Carte des régions recherchées — offres par ville et par département</h3><p class="note" id="lieu_map_SamPedagogie_info"></p><div class="lieu-map-ctrl"><label><input type="checkbox" id="lieu_map_SamPedagogie_v" checked> <span class="lieu-map-dot" style="background:#2563eb"></span>Villes</label><label><input type="checkbox" id="lieu_map_SamPedagogie_d" checked> <span class="lieu-map-dot" style="background:#10b981"></span>Départements</label><label><input type="checkbox" id="lieu_map_SamPedagogie_r" checked> <span class="lieu-map-dot" style="background:#f59e0b"></span>Régions (offres citant seulement la région)</label><label><input type="checkbox" id="lieu_map_SamPedagogie_s70"> Score ≥ 70 seulement</label><label><input type="checkbox" id="lieu_map_SamPedagogie_lim" checked> Limites des départements</label></div><div id="lieu_map_SamPedagogie" class="lieu-map"></div><p class="note"><strong>Cliquez sur une bulle pour afficher les offres (30 au maximum) ; cliquez sur une région pour son total d'offres distinctes.</strong> Les filtres du profil (en tête de page : domaines, lieux, date de publication) s'appliquent à la carte.<br>Surface d'une bulle proportionnelle au nombre d'offres. En orange : régions où des offres ont été trouvées (région citée, ou département / ville rattaché à la région). Ville : centre de la commune (geo.api.gouv.fr), uniquement si la commune est identifiée sans ambiguïté ; une ville déclarée dans job_radar_villes.xlsx mais sans coordonnées exactes est placée au centre de son département (contour en pointillés). Département et région : centre géométrique du contour.<br>Règle de comptage : si le lieu d'une offre cite au moins une ville, seules les villes sont comptées ; sinon, s'il cite un département, seuls les départements ; sinon la région.</p><details id="lieu_map_SamPedagogie_unplaced" style="display:none"><summary></summary><ul></ul></details><h3>Top 10 des villes/départements où les entreprises proposent un poste qui match avec le CV (Score ≥ 70)</h3><p class="note" id="lieu_ge70_chart_SamPedagogie_info"></p><div class="chart-container"><canvas id="lieu_ge70_chart_SamPedagogie"></canvas></div><p class="note"><strong> Survolez une case pour afficher les offres correspondantes (liens cliquables ; 30 offres affichées au maximum par lieu) ; cliquez sur une case pour épingler la liste.</strong></p><h3>Évolution hebdomadaire des offres filtrées par Job Radar</h3><div class="chart-container"><canvas id="evo_chart_SamPedagogie"></canvas></div><p class="note">Découpage par semaine calendaire (lundi-dimanche).</p><h3>Pertinence des mots-clé pour filtrer des offres</h3><div class="chart-container" style="height: 690px;"><canvas id="kw_chart_SamPedagogie"></canvas></div><div class="callout"><strong>⚠️ Mots-clés Domaine configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>École supérieure</li><li>OPCO</li><li>RNCP</li><li>Emploi Territoire</li><li>Pôle alternance</li><li>Relation Alternance</li></ul></div><div class="callout"><strong>⚠️ Mots-clés Fonction configurés n'ayant trouvé aucune offre depuis le lancement du Radar :</strong><ul><li>Consultant</li><li>Direction</li><li>Gestionnaire</li><li>Développement</li><li>Développeur</li></ul></div></div></div>
+  <footer class="foot">Job Radar — document généré automatiquement le 27/10/2026 10:42.</footer>
 </div>
 
 <!-- Injection des données JSON pour Chart.js -->
@@ -801,61 +791,7 @@
     });
   }
 
-  // Treemap (depuis le lancement) et histogramme (Score >= 70) des lieux par profil
-  const TREEMAP_COLORS = [
-    '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-    '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
-  ];
-  // Retour à la ligne des titres du treemap : découpe le texte selon la largeur réelle du
-  // rectangle (mesurée en pixels), coupe aux espaces et après les traits d'union, et
-  // n'abrège avec "…" que si la hauteur du rectangle ne permet pas d'afficher toutes les lignes.
-  const TM_FONT_SIZE = 12;
-  const TM_LINE_H = TM_FONT_SIZE * 1.2;
-  let _tmCtx = null;
-  function tmMeasure(text) {
-    if (!_tmCtx) _tmCtx = document.createElement('canvas').getContext('2d');
-    _tmCtx.font = 'bold ' + TM_FONT_SIZE + 'px ' + Chart.defaults.font.family;
-    return _tmCtx.measureText(text).width;
-  }
-  function tmWrap(text, maxW, maxLines) {
-    const pieces = [];
-    String(text).trim().split(/\s+/).forEach((word, wi) => {
-      (word.match(/[^-]+-?|-/g) || [word]).forEach((part, pi) => pieces.push({ s: part, sp: wi > 0 && pi === 0 }));
-    });
-    let lines = [];
-    let cur = '';
-    pieces.forEach(pc => {
-      const cand = cur ? cur + (pc.sp ? ' ' : '') + pc.s : pc.s;
-      if (!cur || tmMeasure(cand) <= maxW) { cur = cand; } else { lines.push(cur); cur = pc.s; }
-    });
-    if (cur) lines.push(cur);
-    // Mot plus large que le rectangle : coupure caractère par caractère
-    const broken = [];
-    lines.forEach(line => {
-      while (tmMeasure(line) > maxW && line.length > 1) {
-        let k = line.length - 1;
-        while (k > 1 && tmMeasure(line.slice(0, k)) > maxW) k--;
-        broken.push(line.slice(0, k));
-        line = line.slice(k);
-      }
-      broken.push(line);
-    });
-    lines = broken;
-    if (lines.length > maxLines) {
-      lines = lines.slice(0, maxLines);
-      let last = lines[maxLines - 1];
-      while (last.length > 1 && tmMeasure(last + '…') > maxW) last = last.slice(0, -1);
-      lines[maxLines - 1] = last + '…';
-    }
-    return lines;
-  }
-  function tmFormatter(c) {
-    if (c.type !== 'data') return '';
-    const w = c.raw.w, h = c.raw.h;
-    const maxW = Math.max(w - 12, 10);                       // marge intérieure gauche/droite
-    const maxLines = Math.max(1, Math.floor((h - 12) / TM_LINE_H) - 1);  // 1 ligne réservée au nombre
-    return tmWrap(c.raw._data.label, maxW, maxLines).concat(String(c.raw.v));
-  }
+  // Filtres des lieux (Domaines, régions / départements / villes, date) et histogramme (Score >= 70) des lieux par profil
   const LIEU_TYPE_COLORS = { ville: '#2563eb', departement: '#10b981', region: '#f59e0b' };
   const LIEU_TYPE_LABELS = { ville: 'ville', departement: 'département', region: 'région' };
   function lieuPct(v, lieux, baseLabel) {
@@ -876,7 +812,7 @@
   function dateAtLeast(n, dmin) {
     return dmin === null || dmin === undefined || (n !== null && n >= dmin);
   }
-  // Date d'une offre du treemap (jj/mm/aaaa) -> aaaammjj ; null si absente ("N/C")
+  // Date d'une offre des lieux (jj/mm/aaaa) -> aaaammjj ; null si absente ("N/C")
   function lieuOffreDate(o) {
     const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(o.d || '');
     return m ? parseInt(m[3] + m[2] + m[1], 10) : null;
@@ -975,13 +911,13 @@
       evo.update();
     }
   }
-  const _lieuCharts = {};
-  const _lieuState = {};       // canvas du treemap -> { sums70, offres70, locOn, doms } (dernier état filtré)
-  const _lieuListeners = {};   // canvas du treemap -> fonction de mise à jour de l'histogramme Score >= 70
-  const _lieuMapListeners = {};   // canvas du treemap -> fonction de mise à jour de la carte
-  function buildLieuxTreemap(canvasId, lieux, unitLabel, baseLabel) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx || !lieux) return;
+  const _lieuState = {};       // identifiant de lieux du profil -> { sums70, offres70, locOn, doms } (dernier état filtré)
+  const _lieuListeners = {};   // identifiant de lieux du profil -> fonction de mise à jour de l'histogramme Score >= 70
+  const _lieuMapListeners = {};   // identifiant de lieux du profil -> fonction de mise à jour de la carte
+  // Moteur des filtres d'un profil : à chaque changement (domaines, lieux, date) il recalcule le tableau des offres,
+  // les graphiques, l'histogramme Score >= 70 et la carte. (Ce calcul alimentait aussi la treemap, supprimée.)
+  function buildLieuxFiltres(canvasId, lieux) {
+    if (!lieux) return;
     const boxes = Array.from(document.querySelectorAll('input.lieu-dom[data-canvas="' + canvasId + '"]'));
     const locBoxes = Array.from(document.querySelectorAll('input.lieu-loc[data-canvas="' + canvasId + '"]'));
     const parents = Array.from(document.querySelectorAll('input.lieu-parent[data-canvas="' + canvasId + '"]'));
@@ -1005,167 +941,8 @@
       pb.checked = ch.length > 0 && n === ch.length;
       pb.indeterminate = n > 0 && n < ch.length;
     }
-    const info = document.getElementById(canvasId + '_info');
     const slugTm = canvasId.replace('lieu_chart_', '');
     let curDoms = [];            // indices des domaines cochés (mis à jour à chaque render)
-    let curOffres = 0;           // base des pourcentages (offres des domaines cochés)
-    let mouseX = 0, mouseY = 0;  // dernière position de la souris sur le graphique (coordonnées de page)
-    let tipKey = '';
-    let hideTimer = null;
-    let showTimer = null;
-    let lastRaw = null;          // case actuellement survolée (null si aucune)
-    let pinned = false;          // liste épinglée par un clic
-    const TIP_DWELL = 350;       // ms de pause du curseur sur une case avant d'afficher la liste
-    const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la case
-    let tip = document.getElementById(canvasId + '_tip');
-    if (!tip) {
-      tip = document.createElement('div');
-      tip.id = canvasId + '_tip';
-      tip.className = 'lieu-tip';
-      document.body.appendChild(tip);
-    }
-    function stopHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
-    function stopShow() { if (showTimer) { clearTimeout(showTimer); showTimer = null; } }
-    function hideTip() {
-      stopHide();
-      stopShow();
-      pinned = false;
-      tip.style.display = 'none';
-      tipKey = '';
-    }
-    // La liste reste affichée tant que la souris est dessus (pour cliquer les liens)
-    tip.addEventListener('mouseenter', () => { stopHide(); stopShow(); });
-    tip.addEventListener('mouseleave', () => { if (!pinned) hideTip(); });
-    ctx.addEventListener('mousemove', e => {
-      mouseX = e.pageX;
-      mouseY = e.pageY;
-      // le délai d'affichage ne court que si le curseur est à l'arrêt
-      if (showTimer && lastRaw) {
-        clearTimeout(showTimer);
-        const r = lastRaw;
-        showTimer = setTimeout(() => showTipFor(r, false), TIP_DWELL);
-      }
-    });
-    // Clic sur une case : épingle la liste (reste affichée jusqu'à un clic ailleurs, Échap ou la croix)
-    ctx.addEventListener('click', () => {
-      if (lastRaw) showTipFor(lastRaw, true);
-      else if (pinned) hideTip();
-    });
-    document.addEventListener('mousedown', e => {
-      if (pinned && !tip.contains(e.target) && e.target !== ctx) hideTip();
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinned) hideTip(); });
-    // Offres du lieu (indice idx) pour les domaines cochés, triées par score décroissant
-    function lieuOffres(idx) {
-      const seen = new Set();
-      const out = [];
-      const dmin = dateMinOf(slugTm);
-      curDoms.forEach(di => {
-        (lieux.domaines[di].liens || []).forEach(pair => {
-          if (pair[0] !== idx) return;
-          pair[1].forEach(oi => {
-            if (!seen.has(oi) && dateAtLeast(lieuOffreDate(lieux.offres[oi]), dmin)) { seen.add(oi); out.push(lieux.offres[oi]); }
-          });
-        });
-      });
-      out.sort((a, b) => (b.s === null ? -1 : b.s) - (a.s === null ? -1 : a.s));
-      return out;
-    }
-    function showTipFor(raw, pin) {
-      stopHide();
-      stopShow();
-      const d = raw._data;
-      const key = d.idx + '|' + curDoms.join(',');
-      if (!pin && key === tipKey && tip.style.display === 'block') return;
-      tipKey = key;
-      pinned = pin;
-      tip.textContent = '';
-      const h = document.createElement('div');
-      h.style.fontWeight = 'bold';
-      h.style.display = 'flex';
-      h.style.justifyContent = 'space-between';
-      h.style.gap = '10px';
-      const ttl = document.createElement('span');
-      ttl.textContent = d.label + ' (' + (LIEU_TYPE_LABELS[d.type] || '') + ')';
-      h.appendChild(ttl);
-      if (pin) {
-        const x = document.createElement('button');
-        x.type = 'button';
-        x.textContent = '×';
-        x.title = 'Fermer';
-        x.style.cursor = 'pointer';
-        x.addEventListener('click', hideTip);
-        h.appendChild(x);
-      }
-      const pct = curOffres ? (100 * raw.v / curOffres).toFixed(1).replace('.', ',') : '0';
-      const c = document.createElement('div');
-      c.textContent = raw.v + ' ' + unitLabel + ' (' + pct + ' % ' + baseLabel + ')';
-      tip.appendChild(h);
-      tip.appendChild(c);
-      const list = lieuOffres(d.idx);
-      const MAX = 30;
-      if (list.length) {
-        const hint = document.createElement('div');
-        hint.className = 'note';
-        hint.textContent = pin
-          ? 'Liste épinglée : cliquez ailleurs, appuyez sur Échap ou sur × pour fermer.'
-          : 'Cliquez sur la case pour épingler cette liste.';
-        tip.appendChild(hint);
-        const ul = document.createElement('ul');
-        list.slice(0, MAX).forEach(o => {
-          const li = document.createElement('li');
-          const txt = o.p + ' — ' + o.e;
-          li.appendChild(document.createTextNode((o.d || 'N/C') + ' — '));
-          if (o.u && o.u.toLowerCase().indexOf('http') === 0) {
-            const a = document.createElement('a');
-            a.href = o.u;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            a.textContent = txt;
-            li.appendChild(a);
-          } else {
-            li.appendChild(document.createTextNode(txt));
-          }
-          ul.appendChild(li);
-        });
-        tip.appendChild(ul);
-        if (list.length > MAX) {
-          const more = document.createElement('div');
-          more.className = 'note';
-          more.textContent = '… et ' + (list.length - MAX) + ' autre(s) offre(s) non affichée(s)';
-          tip.appendChild(more);
-        }
-      }
-      tip.scrollTop = 0;
-      tip.style.display = 'block';
-      let left = mouseX + 6;
-      let top = mouseY + 6;
-      const maxLeft = window.pageXOffset + document.documentElement.clientWidth - tip.offsetWidth - 10;
-      if (left > maxLeft) left = Math.max(window.pageXOffset, maxLeft);
-      const maxTop = window.pageYOffset + window.innerHeight - tip.offsetHeight - 10;
-      if (top > maxTop) top = Math.max(window.pageYOffset, maxTop);
-      tip.style.left = left + 'px';
-      tip.style.top = top + 'px';
-    }
-    // Appelé par Chart.js à chaque changement de case survolée (tooltip externe)
-    function lieuTooltip(context) {
-      const t = context.tooltip;
-      const act = t && t.getActiveElements ? t.getActiveElements() : [];
-      if (!act.length || !t.dataPoints || !t.dataPoints.length) {
-        lastRaw = null;
-        stopShow();
-        if (!pinned && tip.style.display === 'block' && !hideTimer) hideTimer = setTimeout(hideTip, TIP_HIDE);
-        return;
-      }
-      const raw = t.dataPoints[0].raw;
-      lastRaw = raw;
-      if (pinned) return;
-      stopHide();
-      const key = raw._data.idx + '|' + curDoms.join(',');
-      if (key === tipKey && tip.style.display === 'block') { stopShow(); return; }
-      stopShow();
-      showTimer = setTimeout(() => showTipFor(raw, false), TIP_DWELL);
-    }
     function render() {
       const sums = lieux.labels.map(() => 0);
       const sums70 = lieux.labels.map(() => 0);
@@ -1215,55 +992,14 @@
         if (sums[i] > 0 && (!locOn || locOn.has(i))) tree.push({ label: l, type: lieux.types[i], value: sums[i], idx: i });
       });
       tree.sort((a, b) => b.value - a.value);
-      hideTip();
-      lastRaw = null;
-      curOffres = offres;
       // État transmis à l'histogramme Score >= 70 (mêmes domaines et mêmes lieux cochés)
       _lieuState[canvasId] = { sums70: sums70, offres70: offres70, locOn: locOn, doms: curDoms.slice(), tree: tree, offres: offres };
       if (_lieuListeners[canvasId]) _lieuListeners[canvasId](_lieuState[canvasId]);
       if (_lieuMapListeners[canvasId]) _lieuMapListeners[canvasId](_lieuState[canvasId]);
-      if (_lieuCharts[canvasId]) { _lieuCharts[canvasId].destroy(); _lieuCharts[canvasId] = null; }
-      if (info) {
-        info.textContent = tree.length
-          ? tree.length + ' lieu(x) distinct(s) affiché(s) pour ' + nbDom + ' domaine(s) coché(s), à partir de ' + offres + ' offre(s) des domaines cochés'
-            + (dmin === null ? '.' : ', publiées depuis le ' + dateTxtOf(slugTm) + '.')
-          : 'Aucun lieu à afficher : cochez au moins un domaine et un lieu ayant des offres dans les domaines cochés.';
-      }
-      if (!tree.length) return;
-      _lieuCharts[canvasId] = new Chart(ctx, {
-        type: 'treemap',
-        data: {
-          datasets: [{
-            tree: tree,
-            key: 'value',
-            backgroundColor: c => c.type === 'data' ? (LIEU_TYPE_COLORS[c.raw._data.type] || '#6b7280') : 'transparent',
-            borderColor: '#ffffff',
-            borderWidth: 2,
-            spacing: 0,
-            labels: {
-              display: true,
-              color: '#ffffff',
-              font: { size: TM_FONT_SIZE, weight: 'bold' },
-              formatter: tmFormatter
-            }
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              enabled: false,
-              external: context => lieuTooltip(context)
-            }
-          }
-        }
-      });
     }
     boxes.forEach(cb => cb.addEventListener('change', render));
     // Filtre "Offres publiées depuis le" (en tête du profil) : recalcule le tableau, les graphiques,
-    // le treemap et l'histogramme des lieux
+    // la carte et l'histogramme des lieux
     const dateInputTm = document.getElementById('date_' + slugTm);
     const dateResetTm = document.getElementById('date_reset_' + slugTm);
     if (dateInputTm) dateInputTm.addEventListener('change', render);
@@ -1356,12 +1092,10 @@
   }
   if (dashboardData.lieux_profil) {
     Object.keys(dashboardData.lieux_profil).forEach(profile => {
-      buildLieuxTreemap('lieu_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_'),
-                        dashboardData.lieux_profil[profile], 'offre(s)',
-                        'des offres avec au moins un lieu identifié');
+      buildLieuxFiltres('lieu_chart_' + profile.replace(/[^a-zA-Z0-9]/g, '_'), dashboardData.lieux_profil[profile]);
     });
   }
-  // Histogramme Score >= 70 : Top 10 recalculé avec les mêmes cases cochées que le treemap
+  // Histogramme Score >= 70 : Top 10 recalculé avec les mêmes cases cochées que les filtres du profil
   // (domaines, régions, départements, villes)
   function buildLieuxHistogram(canvasId, tmId, lieux, unitLabel, baseLabel) {
     const ctx = document.getElementById(canvasId);
@@ -1378,8 +1112,8 @@
     const TIP_DWELL = 350;       // ms de pause du curseur sur une colonne avant d'afficher la liste
     const TIP_HIDE = 500;        // ms avant de masquer la liste quand le curseur quitte la colonne
     const MAX = 30;              // nombre maximum d'offres listées
-    let rawSt = null;            // dernier état reçu du treemap (avant filtre de date)
-    // Date partagée du profil (champ en tête de page) : déjà appliquée aux comptes transmis par le treemap
+    let rawSt = null;            // dernier état reçu des filtres (avant filtre de date)
+    // Date partagée du profil (champ en tête de page) : déjà appliquée aux comptes transmis par les filtres
     const dateInput = document.getElementById('date_' + tmId.replace('lieu_chart_', ''));
     // Date saisie (aaaa-mm-jj) -> entier aaaammjj ; null si le champ est vide
     function minDate() {
@@ -1549,7 +1283,7 @@
     function update(stIn) {
       rawSt = stIn;
       const md = minDate();
-      const st = stIn;   // comptes déjà filtrés par date dans render() du treemap
+      const st = stIn;   // comptes déjà filtrés par date dans render() des filtres
       curSt = st;
       hideTip();
       lastItem = null;
@@ -1660,7 +1394,7 @@
     if (!box || !lieux || !lieux.geo) return;
     const $ = s => document.getElementById('lieu_map_' + slug + '_' + s);
     const inst = { map: null, state: null };
-    let regionLayers = {}, bubbles = null, deptLines = null, tiles = null, regInfo = {};
+    let regionLayers = {}, bubbles = null, deptLines = null, regInfo = {};
 
     inst.ensure = function () {
       if (inst.map) return true;
@@ -1673,7 +1407,6 @@
       map.getPane('pDepts').style.pointerEvents = 'none';
       map.createPane('pBubbles').style.zIndex = 450;
       map.attributionControl.addAttribution('Contours : IGN Admin Express / INSEE via gregoiredavid/france-geojson');
-      tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; contributeurs OpenStreetMap' });
       if (FR) {
         L.geoJSON(FR.regions, {
           pane: 'pRegions',
@@ -1706,7 +1439,6 @@
       const map = inst.map, info = $('info'), unp = $('unplaced');
       const m70 = $('s70').checked, show = { ville: $('v').checked, departement: $('d').checked, region: $('r').checked };
       if (deptLines) { if ($('lim').checked) deptLines.addTo(map); else map.removeLayer(deptLines); }
-      if ($('osm').checked) { tiles.addTo(map); tiles.bringToBack(); } else map.removeLayer(tiles);
       const dmin = dateMinOf(slug);
       const inTree = new Set(st.tree.map(it => it.idx));
       const perIdx = new Map();                           // lieu -> offres (indices) pour les domaines / la date / le score
@@ -1733,11 +1465,15 @@
           (perIdx.get(it.idx) || []).forEach(oi => r.set.add(oi));
           if (it.type === 'ville') r.v++; else if (it.type === 'departement') r.d++; else r.r++;
         }
-        let ll = null;
-        if (it.type === 'ville') ll = g.ll;
+        let ll = null, approx = null;
+        if (it.type === 'ville') {
+          ll = g.ll;
+          // commune sans coordonnées exactes mais département connu (fichier des villes) : centre du département
+          if (!ll && g.dc && deptByCode[g.dc]) { ll = deptByCode[g.dc].properties.c; approx = deptByCode[g.dc].properties.nom; }
+        }
         else if (it.type === 'departement') ll = g.dc && deptByCode[g.dc] ? deptByCode[g.dc].properties.c : null;
         else ll = g.rg && regByCode[g.rg] ? regByCode[g.rg].properties.c : null;
-        if (inBounds(ll)) items.push({ it: it, v: v, ll: ll }); else unplaced.push({ it: it, v: v });
+        if (inBounds(ll)) items.push({ it: it, v: v, ll: ll, approx: approx }); else unplaced.push({ it: it, v: v });
       });
       Object.keys(regionLayers).forEach(code => {
         const on = !!regInfo[code];
@@ -1751,17 +1487,21 @@
         if (!show[x.it.type]) return;
         shown++;
         const mk = L.circleMarker(x.ll, { pane: 'pBubbles', radius: 5 + 30 * Math.sqrt(x.v / vmax),
-          color: '#ffffff', weight: 1, fillColor: COLORS[x.it.type], fillOpacity: 0.6 });
-        mk.bindTooltip(x.it.label + ' (' + NAMES[x.it.type] + ') : ' + x.v + ' offre(s)');
+          color: x.approx ? '#1e3a8a' : '#ffffff', weight: x.approx ? 1.5 : 1, dashArray: x.approx ? '4 3' : null,
+          fillColor: COLORS[x.it.type], fillOpacity: 0.6 });
+        const posTxt = x.approx ? ' — position : centre du département ' + x.approx + ' (position exacte de la commune inconnue)' : '';
+        mk.bindTooltip(x.it.label + ' (' + NAMES[x.it.type] + ') : ' + x.v + ' offre(s)' + posTxt);
         mk.bindPopup(() => {
           const offres = Array.from(perIdx.get(x.it.idx) || []).map(oi => lieux.offres[oi])
             .sort((a, b) => (b.s === null ? -1 : b.s) - (a.s === null ? -1 : a.s));
-          return popupNode(x.it.label + ' (' + NAMES[x.it.type] + ')', x.v + ' offre(s)', offres);
+          return popupNode(x.it.label + ' (' + NAMES[x.it.type] + ')', x.v + ' offre(s)' + posTxt, offres);
         }, { maxWidth: 380 });
         mk.addTo(bubbles);
       });
       const nbReg = Object.keys(regInfo).length;
+      const nbApprox = items.filter(x => x.approx && show[x.it.type]).length;
       info.textContent = nbReg + ' région(s) avec des offres (en orange) ; ' + shown + ' bulle(s) affichée(s)'
+        + (nbApprox ? ' dont ' + nbApprox + ' placée(s) au centre de leur département (contour en pointillés)' : '')
         + (m70 ? ' (offres Score ≥ 70 seulement)' : '') + ' ; ' + unplaced.length + ' lieu(x) non placé(s) sur la carte.';
       unp.style.display = unplaced.length ? '' : 'none';
       const ul = unp.querySelector('ul');
@@ -1772,7 +1512,7 @@
       });
     };
 
-    ['v', 'd', 'r', 's70', 'lim', 'osm'].forEach(k => { const c = $(k); if (c) c.addEventListener('change', () => inst.render()); });
+    ['v', 'd', 'r', 's70', 'lim'].forEach(k => { const c = $(k); if (c) c.addEventListener('change', () => inst.render()); });
     _lieuMapListeners[tmId] = st => inst.render(st);
     instances.push(inst);
     if (_lieuState[tmId]) inst.render(_lieuState[tmId]);
