@@ -341,8 +341,8 @@ a.lien{color:var(--cyan);}
 </div>
 
 <p>Vous remplissez le formulaire <strong>« Job_Radar_Formulaire_Profil »</strong> une seule fois, à la création du profil. Ensuite, vous <strong>demandez vous-même vos modifications</strong> depuis votre espace candidat (voir <a href="#espace" class="lien">Étape 5</a>) : votre administrateur les relit puis les intègre.</p>
-<p>Le formulaire comporte 5 rubriques :</p>
-<ul class="lst"><li>1. Nom du profil de recherche</li><li>2. Départements</li><li>3. Intitulé du poste recherché</li><li>4. Fonctions recherchées</li><li>5. Exclusions : Black List et cases « Autres exclusions »</li></ul>
+<p>Le formulaire comporte 6 rubriques :</p>
+<ul class="lst"><li>1. Nom du profil de recherche</li><li>2. Départements</li><li>3. Intitulé du poste recherché</li><li>4. Fonctions recherchées</li><li>5. Exclusions : Black List et cases « Autres exclusions »</li><li>6. Secteurs d'activités</li></ul>
 <div class="psub">1. NOM DU PROFIL</div>
 <p>Donnez un nom ou surnom en un seul mot, sans espace ni caractère spécial.</p>
 <div class="psub">2. DÉPARTEMENTS</div>
@@ -360,8 +360,9 @@ a.lien{color:var(--cyan);}
   </div>
 </div>
 <div class="psub">4. FONCTIONS</div>
-<ul class="lst"><li><strong>Fonction recherchée</strong> : la liste des fonctions à garder dans le titre des offres (voir le Filtre Fonction ci-dessous).</li></ul>
-<p>Vous n'avez pas à remplir les filtres Intitulé et Domaine : à partir de vos intitulés et de vos fonctions, votre administrateur prépare vos <strong>filtres de recherche</strong>, en s'appuyant sur les intitulés de vraies offres publiées en France. Job Radar sélectionne les offres d'après leur <strong>titre</strong>, avec trois types de filtres, que vous retrouvez dans votre rapport et dans votre espace candidat :</p>
+<p>Listez les fonctions à rechercher dans l'intitulé des offres.</p>
+<div class="tip tc"><div class="tl">💡 Une liste de fonctions proposée</div>Le formulaire propose une liste de fonctions (Adjoint, Analyst, Chargé, Chef de projet, Consultant, Directeur, Gestionnaire, Ingénieur, Manager, Responsable…) : effacez celles qui ne vous conviennent pas et ajoutez les vôtres.</div>
+<p>Votre administrateur, assisté de l'IA, prépare vos <strong>filtres de recherche</strong>, en s'appuyant sur les intitulés de vraies offres publiées en France. Job Radar sélectionne les offres d'après leur <strong>titre</strong>, avec trois types de filtres, que vous retrouvez dans votre rapport et dans votre espace candidat :</p>
 <div class="cvb">
   <div class="cvbh"><div class="cvbt">Filtre Intitulé</div><span class="cvbb2 bi">Requête directe</span></div>
   <div class="cvbd"><div class="cvbdesc">Une liste restreinte et stricte d'intitulés : l'offre est retenue si son titre contient l'intitulé. Dans votre espace candidat, ce filtre s'appelle « Intitulés recherchés ».</div><div class="cvbex"><strong>Filtre Intitulé :</strong> Data Analyst · Chef de projet data · Consultant BI</div></div>
@@ -372,24 +373,24 @@ a.lien{color:var(--cyan);}
 <strong>Filtre Fonction :</strong> Analyst · Chef de projet · Consultant · Manager
 
 <em>→ retenues :</em> Data Analyst, Data Manager, BI Consultant, Chef de projet BI…
-<em>→ écartées :</em> Data Engineer, Data Scientist (aucune fonction de la liste)</div><div class="tip tc"><div class="tl">💡 Une liste de fonctions proposée</div>Le formulaire propose une liste de fonctions (Adjoint, Analyst, Chargé, Chef de projet, Consultant, Directeur, Gestionnaire, Ingénieur, Manager, Responsable…) : effacez celles qui ne vous conviennent pas et ajoutez les vôtres.</div></div>
+<em>→ écartées :</em> Data Engineer, Data Scientist (aucune fonction de la liste)</div></div>
 </div>
 <div class="psub">5. EXCLUSIONS</div>
-<p><strong>Black List</strong> — un mot ou une expression par ligne. Toute offre dont le titre contient l'un de ces termes est écartée <strong>avant</strong> l'analyse IA ; elle reste visible dans la section « Offres exclues par la Blacklist » de votre rapport.</p>
+<p><strong>Black List</strong> — un mot ou une expression par ligne. Toute offre dont le titre contient l'un de ces termes est écartée <strong>avant</strong> l'analyse IA ; elle reste visible dans la section « 🚫 Offres exclues par la Blacklist » de votre rapport.</p>
 <div class="cg">
-  <div class="card"><h4>🚫 Postes à exclure</h4><p>Sales lead · Business Development · Développement commercial · Directeur commercial</p></div>
-  <div class="card"><h4>🔍 Au premier lancement</h4><p>Votre administrateur voit les intitulés trouvés avant les analyses et peut compléter votre Black List pour écarter d'emblée les postes hors sujet.</p></div>
+  <div class="card"><h4>🚫  Postes à exclure</h4><p>Sales lead · Business Development · Développement commercial · Directeur commercial</p></div>
+  <div class="card"><h4>🔍  Au premier lancement</h4><p>Votre administrateur voit les intitulés trouvés avant les analyses et peut compléter votre Black List pour écarter d'emblée les postes hors sujet.</p></div>
 </div>
-<div class="tip tp"><div class="tl">🧠 Comment Job Radar compare les mots de la Blacklist</div><ul><li>Majuscules, accents et apostrophes (’ ou ') sont ignorés : une seule écriture suffit.</li><li>Une expression de plusieurs mots écarte les titres où ces mots se suivent dans le même ordre, <strong>chacun au début d'un mot</strong> du titre : « Chargé d'affaire » écarte aussi « Chargé(e) d'affaires ».</li><li>Un mot de 3 lettres au plus est cherché comme mot entier. Les autres signes de ponctuation comptent : « BAC+2 » n'écarte pas « BAC 2 ».</li><li>Pensez toujours aux traductions (FR et EN).</li></ul></div>
+<div class="tip tp"><div class="tl">🧠  Comment Job Radar compare les mots de la Blacklist</div><ul><li>Majuscules, accents et apostrophes (’ ou ') sont ignorés : une seule écriture suffit.</li><li>Une expression de plusieurs mots écarte les titres où ces mots se suivent dans le même ordre, <strong>chacun au début d'un mot</strong> du titre : « Chargé d'affaire » écarte aussi « Chargé(e) d'affaires ».</li><li>Un mot de 3 lettres au plus est cherché comme mot entier. Les autres signes de ponctuation comptent : « BAC+2 » n'écarte pas « BAC 2 ».</li><li>Pensez toujours aux traductions (FR et EN).</li></ul></div>
 <p><strong>Autres exclusions</strong> — deux cases à cocher, facultatives. Chaque case écarte les offres dont le titre contient un mot d'une liste tenue à jour par l'administrateur (ces mots ne s'ajoutent pas à votre Black List) :</p>
 <div class="cg">
   <div class="card"><h4>☐ Stage et alternance</h4><p>Alternance, apprentissage, contrat pro, stage, stagiaire, internship, trainee…</p></div>
   <div class="card"><h4>☐ Offres pour débutants</h4><p>Junior, débutant, première expérience, jeune diplômé, Bac+2…</p></div>
 </div>
-<div class="tip tc"><div class="tl">🎓 Contrats de stage et d'alternance</div>Ces offres sont regroupées dans la section « 🎓 Offres Stage / Alternance exclues » de votre rapport, avec le motif.</div>
-<div class="psub">4. SECTEURS D'ACTIVITÉ À ÉVITER</div>
-<p>Les secteurs d'activité à éviter <strong>ne sont pas demandés à la création du profil</strong> : vous les choisissez ensuite dans votre <strong>espace candidat</strong>, une fois que Job Radar a trouvé des offres. Vous pouvez ainsi écarter les <strong>secteurs d'activité</strong> (nomenclature INSEE) qui ne vous intéressent pas. Une offre d'une entreprise de ces secteurs n'est pas analysée par l'IA ; elle reste visible dans la section <strong>« 🏭 Offres hors secteur »</strong> de votre rapport.</p>
-<ul class="lst"><li>Cochez-les dans une demande de modification de vos critères : la liste montre les secteurs des entreprises de vos offres, avec leur nombre d'offres (voir <a href="#espace" class="lien">Étape 5</a>).</li><li>Les <strong>agences et cabinets de recrutement</strong> ne sont jamais écartés : ils publient pour des entreprises de tous les secteurs.</li><li>Le secteur vient de la plateforme d'offres ou du référentiel des entreprises de Job Radar.</li></ul>
+<div class="tip tc"><div class="tl">Contrats de stage et d'alternance</div>Ces offres sont regroupées dans la section « 🎓 Offres Stage / Alternance exclues » de votre rapport, avec le motif.</div>
+<div class="psub">6. SECTEURS D'ACTIVITÉ</div>
+<p>Donner les secteurs d’activité (nomenclature INSEE) à rechercher ou les secteurs d’activité à éviter. C'est facultatif, Job Radar recherche dans tous les secteurs par défaut.<br>Une offre d'une entreprise des secteurs à éviter n'est pas analysée par l'IA mais elle reste visible dans la section <strong>« 🏭 Offres hors secteur »</strong> de votre rapport.</p>
+<ul class="lst"><li>Les <strong>agences et cabinets de recrutement</strong> ne sont jamais écartés : ils publient pour des entreprises de tous les secteurs.</li></ul>
 
 <!-- ═══════════════════════ ÉTAPE 3 ═══════════════════════ -->
 <a class="anchor" id="cv"></a>
