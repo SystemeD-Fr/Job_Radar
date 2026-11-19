@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <!-- Fichier GÉNÉRÉ par outils/generer_guide_user.py à partir de Documentation/Job_Radar_Guide_User.txt : ne pas le modifier à la main, modifier le fichier texte puis relancer le script. -->
+<!-- Version du 19/11/2026 — Bandeau « 📄 CV non renseigné » et offres à analyser manuellement sans CV ; secteur relevé par -->
+<!-- Version du 19/11/2026 — Rapport : section « 🔴 Offres exclues de l'analyse » et nouveaux noms de ses sous-sections ; -->
+<!-- Version du 19/11/2026 — Fiche d'offre du rapport : entreprise, secteur (🏭), puis lieu, date, mots-clés et plateforme. -->
+<!-- Version du 19/11/2026 — Rapport : « 🔴 Offres non retenues sur la Fonction » (ancien « non filtrées »). -->
+<!-- Version du 18/11/2026 — Adresse du support en bas de page : contact.systemedsolutions@gmail.com. -->
 <!-- Version du 18/11/2026 — Rapport : bouton « 📖 Guide d'utilisation » en tête, à côté de l'espace candidat et du tableau de bord. -->
 <!-- Version du 18/11/2026 — Guide produit à partir de ce fichier texte (outils/generer_guide_user.py) ; CV en 6 rubriques -->
 <!-- Version du 18/11/2026 — Fonction recherchée obligatoire (plus « facultative »). -->
@@ -387,9 +392,9 @@ a.lien{color:var(--cyan);}
   <div class="card"><h4>☐ Stage et alternance</h4><p>Alternance, apprentissage, contrat pro, stage, stagiaire, internship, trainee…</p></div>
   <div class="card"><h4>☐ Offres pour débutants</h4><p>Junior, débutant, première expérience, jeune diplômé, Bac+2…</p></div>
 </div>
-<div class="tip tc"><div class="tl">Contrats de stage et d'alternance</div>Ces offres sont regroupées dans la section « 🎓 Offres Stage / Alternance exclues » de votre rapport, avec le motif.</div>
+<div class="tip tc"><div class="tl">Contrats de stage et d'alternance</div>Ces offres sont regroupées dans la section « 🎓 Offres de Stage / Alternance » de votre rapport, avec le motif.</div>
 <div class="psub">6. SECTEURS D'ACTIVITÉ</div>
-<p>Donner les secteurs d’activité (nomenclature INSEE) à rechercher ou les secteurs d’activité à éviter. C'est facultatif, Job Radar recherche dans tous les secteurs par défaut.<br>Une offre d'une entreprise des secteurs à éviter n'est pas analysée par l'IA mais elle reste visible dans la section <strong>« 🏭 Offres hors secteur »</strong> de votre rapport.</p>
+<p>Donner les secteurs d’activité (nomenclature INSEE) à rechercher ou les secteurs d’activité à éviter. C'est facultatif, Job Radar recherche dans tous les secteurs par défaut.<br>Une offre d'une entreprise des secteurs à éviter n'est pas analysée par l'IA mais elle reste visible dans la section <strong>« 🏭 Offres hors Secteurs recherchés »</strong> de votre rapport. Si le secteur de l'entreprise n'est connu qu'en lisant l'offre, l'IA le relève pendant l'analyse : l'offre est alors classée dans cette même section.</p>
 <ul class="lst"><li>Les <strong>agences et cabinets de recrutement</strong> ne sont jamais écartés : ils publient pour des entreprises de tous les secteurs.</li></ul>
 
 <!-- ═══════════════════════ ÉTAPE 3 ═══════════════════════ -->
@@ -477,28 +482,28 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
 
 <p>Votre rapport <strong>généré par l'IA</strong> arrive par e-mail au format HTML, lisible directement dans votre messagerie. Il ne contient que les <strong>nouvelles offres</strong> trouvées depuis la veille précédente.</p>
 <div class="psub">En tête du rapport</div>
-<ul class="lst"><li>La date de votre configuration et de votre CV, et vos départements.</li><li><strong>📋 Mon espace candidat : suivre mes candidatures</strong> — votre lien personnel, valable <strong>30 jours</strong> ; chaque rapport en contient un nouveau (voir <a href="#espace" class="lien">Étape 5</a>).</li><li><strong>📊 Mon tableau de bord : suivre mes recherches</strong> — les statistiques de votre profil (voir <a href="#tableau" class="lien">Étape 6</a>).</li><li><strong>📖 Guide d'utilisation</strong> — ce guide, à rouvrir à tout moment.</li><li>Parfois, un bandeau <strong>« ⏸️ … offre(s) n'ont pas encore été analysées »</strong> : la veille a été interrompue, ces offres seront analysées et envoyées au prochain lancement.</li></ul>
+<ul class="lst"><li>La date de votre configuration et de votre CV, et vos départements.</li><li><strong>📋 Mon espace candidat : suivre mes candidatures</strong> — votre lien personnel, valable <strong>30 jours</strong> ; chaque rapport en contient un nouveau (voir <a href="#espace" class="lien">Étape 5</a>).</li><li><strong>📊 Mon tableau de bord : suivre mes recherches</strong> — les statistiques de votre profil (voir <a href="#tableau" class="lien">Étape 6</a>).</li><li><strong>📖 Guide d'utilisation</strong> — ce guide, à rouvrir à tout moment.</li><li>Parfois, un bandeau <strong>« ⏸️ … offre(s) n'ont pas encore été analysées »</strong> : la veille a été interrompue, ces offres seront analysées et envoyées au prochain lancement.</li><li>Tant que votre CV pour l'IA n'est pas renseigné, un bandeau <strong>« 📄 CV non renseigné »</strong> l'indique : aucune analyse automatique, toutes les offres trouvées sont à analyser vous-même.</li></ul>
 <div class="psub">Les offres analysées</div>
 <div class="cg">
   <div class="card bord-vert"><h4>🟢 Offres recommandées par l'IA</h4><p>Score ≥ votre score minimum. Ce sont les offres les plus pertinentes. <strong>Commencez toujours par ici.</strong></p></div>
   <div class="card bord-orange"><h4>🟡 Offres avec une notation faible</h4><p>Analysées mais sous le seuil. Utile pour élargir votre filet. <strong>Les offres "écartées" peuvent révéler un manque dans votre CV.</strong></p></div>
-  <div class="card bord-violet"><h4>🔎 Offres à analyser manuellement</h4><p>La description complète n'a pas pu être récupérée : pas d'analyse IA. Le résumé fourni par la plateforme est affiché quand il existe ; consultez l'offre via le lien.</p></div>
+  <div class="card bord-violet"><h4>🔎 Offres à analyser manuellement</h4><p>La description complète n'a pas pu être récupérée, ou votre CV pour l'IA n'est pas encore renseigné : pas d'analyse IA. Le résumé fourni par la plateforme est affiché quand il existe ; consultez l'offre via le lien.</p></div>
   <div class="card bord-gris"><h4>⏸️ Aucune offre retenue</h4><p>Message affiché quand aucune nouvelle offre n'a été analysée ce jour-là.</p></div>
 </div>
 <p>Chaque fiche se déplie d'un clic sur son titre et propose deux boutons : <strong>🔗 Voir l'offre</strong> et <strong>📋 Suivre cette offre</strong>, qui l'ouvre directement dans votre espace candidat.</p>
-<div class="psub">Les sections repliables (en bas du rapport)</div>
-<p>Cliquez sur un titre pour l'ouvrir. Ces offres n'ont pas été analysées par l'IA, mais <strong>aucune n'est perdue</strong> : chacune a son lien.</p>
+<div class="psub">Les offres exclues de l'analyse (en bas du rapport)</div>
+<p>Elles sont regroupées sous le titre <strong>« 🔴 Offres exclues de l'analyse »</strong>, avec leur nombre total : cliquez dessus pour afficher les sous-sections, puis sur une sous-section pour l'ouvrir. Ces offres n'ont pas été analysées par l'IA, mais <strong>aucune n'est perdue</strong> : chacune a son lien.</p>
 <table class="sections-rapport">
   <thead><tr><th>Section</th><th>Contenu</th></tr></thead>
   <tbody>
-    <tr><td>🔑 Mots-clés Domaine / Domaine seul / Fonction</td><td>Vos mots-clés, séparés entre ceux qui ont trouvé des offres (✅) et ceux restés <strong>sans correspondance</strong> (⚠️).</td></tr>
-    <tr><td>🔴 Offres non filtrées sur la Fonction</td><td>Titre contenant un Domaine mais aucune de vos Fonctions.</td></tr>
-    <tr><td>🔑 Mots-clés Blacklist</td><td>Votre liste noire actuelle.</td></tr>
+    <tr><td>🧑‍💼 Offres non retenues par la Fonction</td><td>Titre contenant un Domaine mais aucune de vos Fonctions.</td></tr>
     <tr><td>🚫 Offres exclues par la Blacklist</td><td>Avec le mot de la liste noire qui a écarté chaque offre.</td></tr>
-    <tr><td>🎓 Offres Stage / Alternance exclues</td><td>Contrat de stage ou d'alternance indiqué par la plateforme, ou mot de la liste « Stage et alternance » dans le titre (colonne Motif), précédée des mots de cette liste si la case est cochée.</td></tr>
-    <tr><td>🏭 Offres hors secteur</td><td>Entreprise d'un secteur que vous avez choisi d'éviter (colonne Secteur), précédée de vos secteurs à éviter, rangés par section et division d'activité.</td></tr>
-    <tr><td>🔁 Offres doublons</td><td>Même offre trouvée sur plusieurs plateformes, ou publiée dans plus de 5 villes : elle n'est analysée qu'une fois (la première trouvée) ; les autres villes sont citées sur sa fiche (« Aussi publiée à … ») et listées ici avec leur lieu. La colonne « Doublon de » donne l'ID de l'offre conservée.</td></tr>
+    <tr><td>🏭 Offres hors Secteurs recherchés</td><td>Entreprise d'un secteur que vous avez choisi d'éviter (colonne Secteur).</td></tr>
+    <tr><td>🎓 Offres de Stage / Alternance</td><td>Contrat de stage ou d'alternance indiqué par la plateforme, ou mot de la liste « Stage et alternance » dans le titre (colonne Motif).</td></tr>
+    <tr><td>🌱 Offres de Débutants</td><td>Offre pour débutant : mot de la liste « Débutant » dans le titre (colonne Motif).</td></tr>
+    <tr><td>🔁 Offres en Doublon</td><td>Même offre trouvée sur plusieurs plateformes, ou publiée dans plus de 5 villes : elle n'est analysée qu'une fois (la première trouvée) ; les autres villes sont citées sur sa fiche (« Aussi publiée à … ») et listées ici avec leur lieu. La colonne « Doublon de » donne l'ID de l'offre conservée.</td></tr>
     <tr><td>⌛ Offres expirées</td><td>Offre retirée du site avant son analyse.</td></tr>
+    <tr><td>⚙️ Configuration du profil</td><td>Dernière section du rapport : vos mots-clés (ceux qui ont trouvé des offres ✅ et ceux restés <strong>sans correspondance</strong> ⚠️), votre liste noire, vos autres exclusions et vos secteurs.</td></tr>
   </tbody>
 </table>
 <div class="psub">À quoi ressemble une fiche d'offre ?</div>
@@ -524,7 +529,8 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
       <div class="emdiv"></div>
 
       <div class="emm">
-        <span>🏢 <strong style="color:#000000;">AXA France</strong></span>
+        <span style="flex-basis:100%;">🏢 <strong style="color:#000000;">AXA France</strong></span>
+        <span style="flex-basis:100%;">🏭 Activités des sociétés d'assurance (ou « Secteur non trouvé »)</span>
         <span>📍 Nanterre (92)</span>
         <span>📅 Publié le : 11/11/2026</span>
         <span>🔑 Domaine : Data</span>
@@ -754,9 +760,9 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
 <hr style="margin-top:48px;">
 <div class="pied">
   <div class="pied-titre">Job Radar — Guide Utilisateur</div>
-  <div class="pied-date">Mis à jour le 18/11/2026</div>
+  <div class="pied-date">Mis à jour le 19/11/2026</div>
   <p class="pied-contact">Pour toute question sur Job Radar, contacter le support
-    <a href="mailto:contact.systemed@mailo.com">contact.systemed@mailo.com</a></p>
+    <a href="mailto:contact.systemedsolutions@gmail.com">contact.systemedsolutions@gmail.com</a></p>
 </div>
 
 </div>
