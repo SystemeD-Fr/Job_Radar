@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <!-- Fichier GÉNÉRÉ par outils/generer_guide_user.py à partir de Documentation/Job_Radar_Guide_User.txt : ne pas le modifier à la main, modifier le fichier texte puis relancer le script. -->
+<!-- Version du 24/11/2026 — Espace candidat : filtre « Non traitées / Publiées depuis + 7 jours » (bouton rouge) et nombre -->
+<!-- Version du 24/11/2026 — Secteur « (à confirmer) » sur la fiche d'une offre : trouvé automatiquement, pas encore vérifié. -->
+<!-- Version du 23/11/2026 — Villes recherchées (facultatif) : offres de ces villes et des communes proches en tête du -->
 <!-- Version du 19/11/2026 — Bandeau « 📄 CV non renseigné » et offres à analyser manuellement sans CV ; secteur relevé par -->
 <!-- Version du 19/11/2026 — Rapport : section « 🔴 Offres exclues de l'analyse » et nouveaux noms de ses sous-sections ; -->
 <!-- Version du 19/11/2026 — Fiche d'offre du rapport : entreprise, secteur (🏭), puis lieu, date, mots-clés et plateforme. -->
@@ -352,6 +355,7 @@ a.lien{color:var(--cyan);}
 <p>Donnez un nom ou surnom en un seul mot, sans espace ni caractère spécial.</p>
 <div class="psub">2. DÉPARTEMENTS</div>
 <p>Listez les départements dans lesquels vous cherchez des offres d'emploi : <strong>5 au maximum</strong>, codes en chiffres séparés par des virgules (ex. : <code class="k">75, 92, 93, 94, 78</code>).</p>
+<p><strong>Villes recherchées (facultatif)</strong> : si certaines villes de vos départements vous intéressent en priorité, indiquez-les (ex. : <code class="k">Nanterre, Boulogne-Billancourt</code>). Les offres de ces villes, et des communes situées à moins de <strong>5 km</strong> (distance modifiable), arrivent <strong>en tête de votre rapport</strong> avec une pastille orange <strong>📌</strong>. Les offres des autres villes restent dans le rapport.</p>
 <div class="psub">3. INTITULÉ DU POSTE RECHERCHÉ</div>
 <p>Listez <strong>3 à 10 intitulés de postes</strong> que vous visez, des expressions utilisées dans vos recherches manuelles, calquées sur les titres réels du marché (LinkedIn, HelloWork, Indeed…).</p>
 <div class="compare">
@@ -482,7 +486,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
 
 <p>Votre rapport <strong>généré par l'IA</strong> arrive par e-mail au format HTML, lisible directement dans votre messagerie. Il ne contient que les <strong>nouvelles offres</strong> trouvées depuis la veille précédente.</p>
 <div class="psub">En tête du rapport</div>
-<ul class="lst"><li>La date de votre configuration et de votre CV, et vos départements.</li><li><strong>📋 Mon espace candidat : suivre mes candidatures</strong> — votre lien personnel, valable <strong>30 jours</strong> ; chaque rapport en contient un nouveau (voir <a href="#espace" class="lien">Étape 5</a>).</li><li><strong>📊 Mon tableau de bord : suivre mes recherches</strong> — les statistiques de votre profil (voir <a href="#tableau" class="lien">Étape 6</a>).</li><li><strong>📖 Guide d'utilisation</strong> — ce guide, à rouvrir à tout moment.</li><li>Parfois, un bandeau <strong>« ⏸️ … offre(s) n'ont pas encore été analysées »</strong> : la veille a été interrompue, ces offres seront analysées et envoyées au prochain lancement.</li><li>Tant que votre CV pour l'IA n'est pas renseigné, un bandeau <strong>« 📄 CV non renseigné »</strong> l'indique : aucune analyse automatique, toutes les offres trouvées sont à analyser vous-même.</li></ul>
+<ul class="lst"><li>La date de votre configuration et de votre CV, et vos départements.</li><li><strong>📋 Mon espace candidat : suivre mes candidatures</strong> — votre lien personnel, valable <strong>30 jours</strong> ; chaque rapport en contient un nouveau (voir <a href="#espace" class="lien">Étape 5</a>).</li><li><strong>📊 Mon tableau de bord : suivre mes recherches</strong> — les statistiques de votre profil (voir <a href="#tableau" class="lien">Étape 6</a>).</li><li><strong>📖 Guide d'utilisation</strong> — ce guide, à rouvrir à tout moment.</li><li>Parfois, un bandeau <strong>« ⏸️ … offre(s) n'ont pas encore été analysées »</strong> : la veille a été interrompue, ces offres seront analysées et envoyées au prochain lancement.</li><li>Si vous avez indiqué des villes recherchées, un bandeau <strong>« 📌 … offre(s) dans vos villes recherchées »</strong> : ces offres sont placées en tête de chaque section, avec une pastille orange (« 📌 Nanterre », ou « 📌 3,2 km de Nanterre » pour une commune proche).</li><li>Tant que votre CV pour l'IA n'est pas renseigné, un bandeau <strong>« 📄 CV non renseigné »</strong> l'indique : aucune analyse automatique, toutes les offres trouvées sont à analyser vous-même.</li></ul>
 <div class="psub">Les offres analysées</div>
 <div class="cg">
   <div class="card bord-vert"><h4>🟢 Offres recommandées par l'IA</h4><p>Score ≥ votre score minimum. Ce sont les offres les plus pertinentes. <strong>Commencez toujours par ici.</strong></p></div>
@@ -530,7 +534,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
 
       <div class="emm">
         <span style="flex-basis:100%;">🏢 <strong style="color:#000000;">AXA France</strong></span>
-        <span style="flex-basis:100%;">🏭 Activités des sociétés d'assurance (ou « Secteur non trouvé »)</span>
+        <span style="flex-basis:100%;">🏭 Activités des sociétés d'assurance (ou « Secteur non trouvé », ou « … (à confirmer) »)</span>
         <span>📍 Nanterre (92)</span>
         <span>📅 Publié le : 11/11/2026</span>
         <span>🔑 Domaine : Data</span>
@@ -579,6 +583,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
     </div>
   </div>
 </div>
+<p>Un secteur suivi de <strong>« (à confirmer) »</strong> a été trouvé automatiquement (annuaire des entreprises ou recherche sur internet) et n'a pas encore été vérifié par l'administrateur : il peut être imprécis, par exemple pour un cabinet de recrutement qui publie l'offre d'un client.</p>
 <div class="psub">Comprendre le score sur 100</div>
 <div class="sr">
   <div class="sri srg"><div class="srn">Score Min → 100</div><div class="srl">Score élevé</div><div class="srac">✅ Postulez en priorité</div></div>
@@ -642,7 +647,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
   <div class="wam-body">
     <p><strong>24 offre(s)</strong> — Statut actuel — À traiter : 15 • Intéressé : 4 • Postulé : 3 • Entretien : 1 • Pas intéressé : 1</p>
     <div class="wam-row"><span class="wam-chip">➕ Ajouter une offre</span><span class="wam-chip">⬇️ Télécharger mes offres (CSV)</span></div>
-    <div class="wam-row"><span class="wam-chip">Toutes</span><span class="wam-chip on">À traiter</span><span class="wam-chip">En cours</span><span class="wam-chip">Pas de réponse</span><span class="wam-chip">Terminées</span><span class="wam-chip">Non pertinent</span></div>
+    <div class="wam-row"><span class="wam-chip">Toutes (42)</span><span class="wam-chip on">À traiter (6)</span><span class="wam-chip">En cours (5)</span><span class="wam-chip">Pas de réponse (4)</span><span class="wam-chip">Terminées (12)</span><span class="wam-chip">Non pertinent (3)</span><span class="wam-chip" style="background:#f87171;color:#fff;font-weight:600;">Non traitées / Publiées depuis + 7 jours (12)</span></div>
     <p style="font-weight:700;color:#0f172a;">🟢 Offres recommandées (3)</p>
     <div class="wam-card">
       <div class="t">▾ Data Analyst Senior — Pilotage de la Performance <span class="m">• 11/11/2026</span></div>
@@ -672,7 +677,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
     <tr><td><strong>Recruté</strong> / <strong>Refusé</strong></td><td>Issue de la candidature.</td></tr>
   </tbody>
 </table>
-<p>Dans « Mon suivi », <strong>un clic sur un statut l'enregistre</strong> aussitôt. Pour « Pas intéressé », cliquez aussi sur un <strong>motif</strong> (un second clic le retire). Vous pouvez ajouter une <strong>note</strong> courte (sans donnée personnelle) avec le bouton <strong>Enregistrer la note</strong>. Les filtres en haut de la liste : <strong>À traiter</strong> (par défaut), <strong>En cours</strong> (Intéressé, Postulé, Entretien), <strong>Pas de réponse</strong> (Postulé depuis 4 semaines ou plus : pensez à relancer), <strong>Terminées</strong> (Pas intéressé, Recruté, Refusé), <strong>Non pertinent</strong> (offres à traiter que vous avez jugées « Pas pertinente ») et <strong>Toutes</strong>.</p>
+<p>Dans « Mon suivi », <strong>un clic sur un statut l'enregistre</strong> aussitôt. Pour « Pas intéressé », cliquez aussi sur un <strong>motif</strong> (un second clic le retire). Vous pouvez ajouter une <strong>note</strong> courte (sans donnée personnelle) avec le bouton <strong>Enregistrer la note</strong>. Les filtres en haut de la liste : <strong>À traiter</strong> (par défaut), <strong>En cours</strong> (Intéressé, Postulé, Entretien), <strong>Pas de réponse</strong> (Postulé depuis 4 semaines ou plus : pensez à relancer), <strong>Terminées</strong> (Pas intéressé, Recruté, Refusé), <strong>Non pertinent</strong> (offres à traiter que vous avez jugées « Pas pertinente »), <strong>Non traitées / Publiées depuis + 7 jours</strong> (bouton rouge : offres à traiter publiées depuis plus de 7 jours, retirées de « À traiter » pour que cette liste reste courte ; un statut les range, comme les autres, dans « En cours » ou « Terminées ») et <strong>Toutes</strong>. Chaque bouton indique entre parenthèses le nombre d'offres concernées, par exemple « Pas de réponse (4) ».</p>
 <p>Sur chaque offre <strong>à traiter</strong> trouvée par Job Radar, un clic sur <strong>👍 Pertinente</strong> ou <strong>👎 Pas pertinente</strong> indique si elle correspond à votre recherche (un second clic sur le même bouton retire votre avis). Une offre jugée « Pas pertinente » est rangée dans le filtre <strong>Non pertinent</strong> ; elle revient dans « À traiter » si vous retirez votre avis. Ces avis aident votre coach à ajuster vos critères de recherche. Dès que vous donnez un statut à une offre (Intéressé, Pas intéressé, Postulé…), elle est comptée d'office comme <strong>pertinente</strong>, même si vous l'aviez jugée « Pas pertinente » avant.</p>
 <div class="cg">
   <div class="card"><h4>➕ Ajouter une offre</h4><p>Une offre trouvée hors Job Radar (réseau, candidature spontanée, site d'entreprise…) : intitulé, entreprise, lieu, lien, origine, date et statut. Elle apparaît dans « Ajoutée par moi » et peut être supprimée ; Job Radar n'y touche jamais.</p></div>
@@ -710,7 +715,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
   <div class="card"><h4>🧠 Missions et compétences</h4><p>Les thèmes (missions, compétences) que les offres demandent et que <strong>votre CV ne démontre pas</strong>, des plus fréquents aux moins fréquents. La meilleure piste pour enrichir votre CV IA… ou vous former.</p></div>
   <div class="card"><h4>🏢 Entreprises et secteurs</h4><p>Top 10 des entreprises qui recrutent le plus pour votre profil, et de celles dont les offres correspondent à votre CV (score ≥ seuil) ; secteurs de toutes les offres et des offres qui correspondent (clic sur un secteur = ses entreprises).</p></div>
   <div class="card"><h4>🗺️ Localisation</h4><p>Carte et histogramme des offres par ville et par département de votre zone de recherche.</p></div>
-  <div class="card"><h4>📈 Détail et évolution des offres</h4><p><strong>Toutes les offres</strong> classées par score (cases « Score ≥ seuil seulement » et « Offres à analyser manuellement »), leur <strong>évolution par semaine</strong>, et la <strong>part des offres de stage / alternance</strong> semaine après semaine.</p></div>
+  <div class="card"><h4>📈 Détail et évolution des offres</h4><p><strong>Toutes les offres</strong> classées par score (cases « Score ≥ seuil seulement », « Offres à analyser manuellement » et, si vous avez des villes recherchées, « 📌 Villes recherchées seulement »), leur <strong>évolution par semaine</strong>, et la <strong>part des offres de stage / alternance</strong> semaine après semaine.</p></div>
   <div class="card"><h4>🔑 Pertinence des filtres</h4><p>Les offres trouvées par chaque mot-clé, et les mots-clés qui n'ont trouvé <strong>aucune offre retenue</strong>.</p></div>
   <div class="card"><h4>🔍 Contrôle des filtres</h4><p>Les offres écartées, regroupées par mot-clé ou par type de poste : mots-clés supprimés de la recherche, filtre Fonction, liste noire, stage / alternance, hors secteur. Un intitulé pertinent dans ces listes signale un filtre à ajuster.</p></div>
 </div>
@@ -760,7 +765,7 @@ Bureautique : Excel VBA, Google Workspace, PowerPoint avancé</div><div class="t
 <hr style="margin-top:48px;">
 <div class="pied">
   <div class="pied-titre">Job Radar — Guide Utilisateur</div>
-  <div class="pied-date">Mis à jour le 19/11/2026</div>
+  <div class="pied-date">Mis à jour le 24/11/2026</div>
   <p class="pied-contact">Pour toute question sur Job Radar, contacter le support
     <a href="mailto:contact.systemedsolutions@gmail.com">contact.systemedsolutions@gmail.com</a></p>
 </div>
